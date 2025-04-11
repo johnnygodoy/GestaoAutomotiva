@@ -1,0 +1,33 @@
+﻿@model GestaoAutomotiva.Models.Carro
+
+<h2 class="text-light">Adicionar Carro</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="IdCarro">Código do Carro</label>
+        <input type="text" id="IdCarro" name="IdCarro" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Modelo">Modelo</label>
+        <input type="text" id="Modelo" name="Modelo" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Cor">Cor</label>
+        <input type="text" id="Cor" name="Cor" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="ClienteId">Cliente</label>
+        <select id="ClienteId" name="ClienteId" class="form-control" required>
+            <option value="">Selecione um cliente</option>
+            @foreach (var cliente in ViewBag.Clientes as List<GestaoAutomotiva.Models.Cliente>)
+            {
+                <option value="@cliente.Id">@cliente.Nome</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-outline-light mt-4">Salvar Carro</button>
+    <a asp-action="Index" class="btn btn-secondary mt-4">Cancelar</a>
+</form>

@@ -1,0 +1,69 @@
+﻿@model IEnumerable<GestaoAutomotiva.Models.Atividade>
+@using GestaoAutomotiva.Models
+
+
+@{
+    ViewData["Title"] = "Atividades Registradas";
+}
+
+<h2 class="text-light">Atividades Registradas</h2>
+
+<a asp-action="Create" class="btn btn-outline-light mb-3">Nova Atividade</a>
+
+<form method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="busca" class="form-control" placeholder="Buscar por funcionário ou serviço..." value="@Context.Request.Query["busca"]" />
+    <input type="date" class="form-control" name="dataBusca" value="@Context.Request.Query["dataBusca"]" placeholder="Buscar por Data..." />
+    <button type="submit" class="btn btn-outline-light">Pesquisar</button>
+    <a asp-action="Index" class="btn btn-secondary">Limpar</a>
+</form>
+
+<div class="table-container">
+    <table class="table table-dark table-hover mt-3">
+        <thead>
+            <tr>
+                <th>Funcionário</th>
+                <th>Serviço</th>
+                <th>Cliente</th>
+                <th>Código do Carro</th>
+                <th>Carro</th>
+                <th>Início</th>
+                <th>Previsão</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var atividade in Model)
+            {
+                var atrasado = atividade.DataPrevista < DateTime.Now.Date && atividade.Status == "Em Andamento";
+                var statusClass = atrasado ? "text-danger fw-bold" : "text-success";
+                var rowClass = atrasado ? "table fw-bold" : ""; // cor de fundo se estiver atrasado
+
+                <tr class="@rowClass">
+                    <td>@atividade.Funcionario?.Nome</td>
+                    <td>@atividade.Servico?.Descricao</td>
+                    <td>@atividade.Carro?.Cliente?.Nome</td> <!-- Nome do Cliente -->
+                    <td>@atividade.Carro?.IdCarro</td> <!-- Placa do Carro -->
+                    <td>@atividade.Carro?.Modelo</td> <!-- Nome do Carro -->
+                    <td>@atividade.DataInicio?.ToString("dd/MM/yyyy")</td>
+                    <td>@atividade.DataPrevista?.ToString("dd/MM/yyyy")</td>
+                    <td class="@statusClass">
+                        @atividade.Status
+                        @if (atrasado)
+                        {
+                            <span class="badge bg-danger ms-2">Atrasado</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@atividade.Id" class="btn btn-sm btn-warning">Editar</a>
+                        @if (atividade.Status == "Em Andamento")
+                        {
+                            <a asp-action="Finalizar" asp-route-id="@atividade.Id" class="btn btn-sm btn-success">Finalizar</a>
+                        }
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,30 @@
+﻿@model GestaoAutomotiva.Models.Funcionario
+
+@{
+    ViewData["Title"] = "Cadastrar Funcionário";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Nome"></label>
+        <input asp-for="Nome" class="form-control" />
+        <span class="text-danger" asp-validation-for="Nome"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Especialidade"></label>
+        <input asp-for="Especialidade" class="form-control" />
+        <span class="text-danger" asp-validation-for="Especialidade"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control">
+            <option>Disponível</option>
+            <option>Ocupado</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-outline-light mt-3">Salvar</button>
+    <a class="btn btn-secondary mt-3" asp-action="Index">Cancelar</a>
+
+</form>

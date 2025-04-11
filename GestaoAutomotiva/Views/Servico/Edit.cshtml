@@ -1,0 +1,32 @@
+﻿@model GestaoAutomotiva.Models.Servico
+
+<h2>Editar Serviço</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <!-- Usando o grid system do Bootstrap para criar 3 colunas ajustadas -->
+    <div class="form-row">
+        <!-- Descrição do Serviço -->
+        <div class="col-sm-12 col-md-4 mb-3">
+            <label asp-for="Descricao" class="form-label">Descrição do Serviço</label>
+            <input asp-for="Descricao" class="form-control" />
+        </div>
+
+        <!-- Tipo do Serviço -->
+        <div class="col-sm-12 col-md-4 mb-3">
+            <label asp-for="Tipo" class="form-label">Tipo do Serviço</label>
+            <input asp-for="Tipo" class="form-control" />
+        </div>
+
+        <!-- Estimativa de Dias -->
+        <div class="col-sm-12 col-md-4 mb-3">
+            <label asp-for="EstimativaDias" class="form-label">Estimativa de Dias</label>
+            <input asp-for="EstimativaDias" class="form-control" />
+        </div>
+    </div>
+
+    <!-- Botões de Salvar e Cancelar -->
+    <button type="submit" class="btn btn-outline-light mt-3">Salvar</button>
+    <a class="btn btn-secondary mt-3" asp-action="Index">Cancelar</a>
+</form>

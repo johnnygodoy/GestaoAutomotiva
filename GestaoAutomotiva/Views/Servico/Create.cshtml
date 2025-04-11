@@ -1,0 +1,30 @@
+﻿@model GestaoAutomotiva.Models.Servico
+
+@{
+    ViewData["Title"] = "Cadastrar Serviço";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Descricao">Descrição do Serviço</label>
+        <input asp-for="Descricao" class="form-control" />
+        <span class="text-danger" asp-validation-for="Descricao"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Tipo">Tipo do Serviço</label>
+        <input asp-for="Tipo" class="form-control" />
+        <span class="text-danger" asp-validation-for="Tipo"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EstimativaDias"></label>
+        <input asp-for="EstimativaDias" class="form-control" />
+        <span class="text-danger" asp-validation-for="EstimativaDias"></span>
+    </div>
+
+    <button type="submit" class="btn btn-outline-light mt-3">Salvar</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Voltar</a>
+</form>

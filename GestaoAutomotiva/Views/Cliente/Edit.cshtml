@@ -1,0 +1,29 @@
+﻿@model GestaoAutomotiva.Models.Cliente
+
+<h2 class="text-light">Editar Cliente</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="Nome">Nome</label>
+        <input type="text" id="Nome" name="Nome" class="form-control" value="@Model.Nome" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Endereco">Endereço</label>
+        <input type="text" id="Endereco" name="Endereco" class="form-control" value="@Model.Endereco" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Telefone">Telefone</label>
+        <input type="text" id="Telefone" name="Telefone" class="form-control" value="@Model.Telefone" required />
+    </div>
+
+    <div class="form-group">
+        <label for="CPF">CPF</label>
+        <input type="text" id="CPF" name="CPF" class="form-control" value="@Model.CPF" required />
+    </div>
+
+
+    <button type="submit" class="btn btn-success mt-4">Salvar</button>
+    <a asp-action="Index" class="btn btn-secondary mt-4">Cancelar</a>
+</form>

@@ -1,0 +1,520 @@
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+
+
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: url('../images/shelby-cobra.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #f1f1f1;
+    margin: 0;
+    padding: 0;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.navbar {
+    background-color: #000;
+}
+
+/* Corrigido: apenas um seletor de nav-link com !important */
+.navbar-dark .navbar-nav .nav-link {
+    color: #f1f1f1 !important;
+}
+
+    .navbar-dark .navbar-nav .nav-link:hover,
+    .navbar-dark .navbar-nav .nav-link:focus {
+        color: #ffffff !important;
+        text-decoration: underline;
+    }
+
+footer {
+    background-color: #1c1c1c;
+    color: #aaa;
+}
+
+a.btn-outline-light {
+    border-color: #fff;
+    color: #fff;
+}
+
+    a.btn-outline-light:hover {
+        background-color: #fff;
+        color: #000;
+    }
+
+.form-control {
+    background-color: #1e1e1e;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+    .form-control::placeholder {
+        color: #999;
+    }
+
+
+/* Hero/banner da home */
+.hero {
+    height: 100vh; /* Usar 100vh para ocupar toda a altura da tela */
+    width: 100%; /* Definir largura para ocupar toda a tela */
+    position: relative; /* Necessário para posicionamento dos elementos dentro */
+    display: flex; /* Usar flexbox para centralizar o conteúdo */
+    align-items: center; /* Alinha verticalmente o conteúdo */
+    justify-content: center; /* Alinha horizontalmente o conteúdo */
+    text-align: center; /* Garante que o texto fique centralizado */
+}
+
+.overlay {
+    text-align: center;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 40px;
+    border-radius: 12px;
+}
+
+input[type="date"] {
+    background-color: #1e1e1e;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+    /* Ícone do calendário (Chrome/WebKit) */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1); /* inverte o ícone - útil para modo escuro */
+    }
+
+.kanban-card {
+    animation: fadeInUp 0.4s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+/* Cores adicionais personalizadas */
+.bg-coral {
+    background-color: #FF7F50; /* Coral */
+}
+
+.bg-salmon {
+    background-color: #FA8072; /* Salmão */
+}
+
+.bg-azure {
+    background-color: #007FFF; /* Azul Azure */
+}
+
+.bg-charcoal {
+    background-color: #36454F; /* Carvão */
+}
+
+.bg-olive {
+    background-color: #808000; /* Oliva */
+}
+
+.bg-aqua {
+    background-color: #00FFFF; /* Aqua */
+}
+
+.bg-powderblue {
+    background-color: #B0E0E6; /* Azul claro em pó */
+}
+
+.bg-lightgreen {
+    background-color: #90EE90; /* Verde claro */
+}
+
+.bg-darkgreen {
+    background-color: #006400; /* Verde escuro */
+}
+
+.bg-crimson {
+    background-color: #DC143C; /* Carmesim */
+}
+
+.bg-forestgreen {
+    background-color: #228B22; /* Verde floresta */
+}
+
+.bg-plum {
+    background-color: #8E4585; /* Ameixa */
+}
+
+.bg-darkviolet {
+    background-color: #9400D3; /* Violeta escuro */
+}
+
+.bg-orange {
+    background-color: #FFA500; /* Laranja */
+}
+
+input[type="text"] {
+    text-transform: uppercase;
+}
+
+.table-container {
+    max-height: 100vh; /* Garante que a altura máxima seja 100% da altura da tela */
+    width: 100%; /* Garante que a largura seja 100% */
+    overflow-y: auto; /* Ativa rolagem vertical se necessário */
+    margin-top: 20px; /* Espaçamento superior */
+    margin-bottom: 150px; /* Espaçamento inferior */
+    display: flex; /* Usar flexbox para alinhamento */
+    flex-wrap: wrap; /* Permite que os itens quebrem para a linha seguinte */
+    justify-content: space-evenly; /* Espaça os cards de forma igual */
+    gap: 15px; /* Espaço entre os cards */
+    padding-left: 10px; /* Adiciona margem à esquerda */
+    padding-right: 10px; /* Adiciona margem à direita */
+    font-size: 12px;
+    border-color: black;
+}
+
+    .table-container .col-md {
+        flex: 0 1 calc(4% - 10px); /* Ajuste da largura para 3 colunas com margens */
+        max-width: calc(4% - 10px); /* Limita a largura máxima */
+        min-width: 200px; /* Largura mínima para cada card */
+        box-sizing: border-box; /* Garante que o padding e as margens sejam considerados no tamanho */
+    }
+
+.card {
+    margin-bottom: 10px; /* Espaçamento inferior para cada card */
+    flex: 1 1 auto; /* Garante que o card seja flexível */
+    display: flex;
+    flex-direction: column; /* Alinha os elementos verticalmente dentro do card */
+    overflow: hidden; /* Impede que o conteúdo ultrapasse os limites do card */
+    word-wrap: break-word; /* Quebra as palavras longas para que se ajustem */
+}
+
+    .card .card-header {
+        font-size: 1.2rem; /* Define um tamanho de fonte menor para o título */
+        white-space: nowrap; /* Evita que o título quebre */
+        overflow: hidden; /* Impede que o texto ultrapasse o limite */
+        text-overflow: ellipsis; /* Adiciona '...' no final se o texto for muito longo */
+        text-align: center; /* Alinha o texto no centro */
+    }
+
+.card-body {
+    font-size: 0.9rem; /* Ajuste do tamanho da fonte do corpo do card */
+    overflow: hidden; /* Impede que o texto ultrapasse o limite do card */
+    text-overflow: ellipsis; /* Adiciona '...' se o texto for muito longo */
+    display: -webkit-box;
+    -webkit-line-clamp: 6; /* Limita o número de linhas visíveis */
+    -webkit-box-orient: vertical;
+    line-height: 1.5;
+    height: 10rem; /* Ajuste de altura para limitar o espaço */
+    text-align: center; /* Centraliza o texto */
+}
+
+    .card-body p {
+        margin: 0; /* Remove qualquer margem do parágrafo */
+        word-wrap: break-word; /* Faz com que o texto quebre de linha */
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+/* Reduzindo o tamanho dos botões */
+.btn {
+    font-size: 18px; /* Menor tamanho de fonte */
+    padding: 5px 10px; /* Reduzindo o padding para diminuir o tamanho geral do botão */
+    height: 35px; /* Ajustando a altura dos botões */
+}
+
+/* Para botões dentro de um container com classe específica */
+.table-container .btn {
+    margin: auto; /* Adicionando espaço inferior entre os botões dentro do container */
+}
+/* Ajustando o tamanho da fonte no cabeçalho da Etapa */
+.table-container .text-center.border-bottom.pb-2 {
+    font-size: 12px; /* Ajuste o tamanho conforme necessário */
+    line-height: 1.2; /* Ajusta a altura da linha para um melhor alinhamento */
+    padding-bottom: 5px; /* Ajusta o espaço abaixo do texto */
+}
+
+
+/* Ajustando o layout do card */
+.card-body {
+    text-align: left; /* Alinha o conteúdo à esquerda */
+    padding: 10px; /* Adiciona um padding mais confortável ao redor */
+    font-size: 13px;
+}
+
+    /* Garantindo que o ícone e texto do serviço fiquem mais próximos */
+    .card-body small {
+        display: inline-flex; /* Faz com que o ícone e texto fiquem na mesma linha */
+        align-items: center; /* Alinha verticalmente o ícone e o texto */
+        margin-bottom: 5px; /* Ajuste do espaço entre os itens */
+        font-size: 10px;
+    }
+
+        .card-body small i {
+            margin-right: 5px; /* Adiciona um pequeno espaço entre o ícone e o texto */
+        }
+
+    /* Ajuste para os botões de navegação */
+    .card-body .btn {
+        font-size: 20px; /* Ajusta o tamanho do texto */
+        padding: 10px 15px; /* Ajuste de padding para os botões */
+        margin-top: 5px; /* Ajuste de margem para garantir que os botões não fiquem cortados */
+        width: 40%; /* Ajusta a largura dos botões para garantir que eles não quebrem */
+    }
+
+    /* Ajuste do layout do formulário de navegação, colocando os botões mais próximos */
+    .card-body .d-flex {
+        justify-content: flex-start; /* Alinha os botões na esquerda */
+        gap: 5px; /* Adiciona um espaçamento entre os botões */
+    }
+
+/* Ajuste na posição do botão de navegação */
+.card .btn-outline-light {
+    font-size: 20px; /* Ajuste o tamanho da fonte */
+    padding: 1px; /* Ajuste o preenchimento interno */
+    min-width: 60px; /* Largura mínima maior */
+    margin-top: -10px; /* Ajuste o espaço superior */
+    margin-right: 10px; /* Espaçamento entre os botões */
+    display: inline-block; /* Garante que o botão fique dentro do layout */
+    box-sizing: border-box; /* Inclui o padding e a largura no cálculo total da largura */
+}
+
+/* Cores adicionais personalizadas */
+.bg-coral {
+    background-color: #FF7F50; /* Coral */
+}
+
+.bg-salmon {
+    background-color: #FA8072; /* Salmão */
+}
+
+.bg-azure {
+    background-color: #007FFF; /* Azul Azure */
+}
+
+.bg-charcoal {
+    background-color: #36454F; /* Carvão */
+}
+
+.bg-olive {
+    background-color: #808000; /* Oliva */
+}
+
+.bg-aqua {
+    background-color: #00FFFF; /* Aqua */
+}
+
+.bg-powderblue {
+    background-color: #B0E0E6; /* Azul claro em pó */
+}
+
+.bg-lightgreen {
+    background-color: #90EE90; /* Verde claro */
+}
+
+.bg-darkgreen {
+    background-color: #006400; /* Verde escuro */
+}
+
+.bg-crimson {
+    background-color: #DC143C; /* Carmesim */
+}
+
+.bg-forestgreen {
+    background-color: #228B22; /* Verde floresta */
+}
+
+.bg-plum {
+    background-color: #8E4585; /* Ameixa */
+}
+
+.bg-darkviolet {
+    background-color: #9400D3; /* Violeta escuro */
+}
+
+.bg-orange {
+    background-color: #FFA500; /* Laranja */
+}
+
+input[type="text"] {
+    text-transform: uppercase;
+}
+
+/* Para botões dentro de um container com classe específica */
+.table-container .btn {
+    margin: auto; /* Adicionando espaço inferior entre os botões dentro do container */
+}
+/* Ajustando o tamanho da fonte no cabeçalho da Etapa */
+.table-container .text-center.border-bottom.pb-2 {
+    font-size: 12px; /* Ajuste o tamanho conforme necessário */
+    line-height: 1.2; /* Ajusta a altura da linha para um melhor alinhamento */
+    padding-bottom: 5px; /* Ajusta o espaço abaixo do texto */
+}
+
+/* Ajustando o layout do card */
+.card-body {
+    text-align: left; /* Alinha o conteúdo à esquerda */
+    padding: 10px; /* Adiciona um padding mais confortável ao redor */
+    font-size: 13px;
+}
+
+    /* Garantindo que o ícone e texto do serviço fiquem mais próximos */
+    .card-body small {
+        display: inline-flex; /* Faz com que o ícone e texto fiquem na mesma linha */
+        align-items: center; /* Alinha verticalmente o ícone e o texto */
+        margin-bottom: 5px; /* Ajuste do espaço entre os itens */
+        font-size: 10px;
+    }
+
+        .card-body small i {
+            margin-right: 5px; /* Adiciona um pequeno espaço entre o ícone e o texto */
+        }
+
+    /* Ajuste para os botões de navegação */
+    .card-body .btn {
+        font-size: 20px; /* Ajusta o tamanho do texto */
+        padding: 10px 15px; /* Ajuste de padding para os botões */
+        margin-top: 5px; /* Ajuste de margem para garantir que os botões não fiquem cortados */
+        width: 40%; /* Ajusta a largura dos botões para garantir que eles não quebrem */
+    }
+
+    /* Ajuste do layout do formulário de navegação, colocando os botões mais próximos */
+    .card-body .d-flex {
+        justify-content: flex-start; /* Alinha os botões na esquerda */
+        gap: 5px; /* Adiciona um espaçamento entre os botões */
+    }
+
+/* Ajuste na posição do botão de navegação */
+.card .btn-outline-light {
+    font-size: 20px; /* Ajuste o tamanho da fonte */
+    padding: 1px; /* Ajuste o preenchimento interno */
+    min-width: 60px; /* Largura mínima maior */
+    margin-top: -10px; /* Ajuste o espaço superior */
+    margin-right: 10px; /* Espaçamento entre os botões */
+    display: inline-block; /* Garante que o botão fique dentro do layout */
+    box-sizing: border-box; /* Inclui o padding e a largura no cálculo total da largura */
+}
+
+.btn {
+    font-size: 18px;
+    padding: 5px 10px;
+    height: 35px;
+}
+
+/* Estilo da tabela */
+.table {
+    font-size: 12px;
+    width: 100%;
+}
+    .table th {
+        font-size: 15px;
+        background-color: #333;
+        color: #fff;
+        border-bottom: 2px solid #555;
+    }
+
+    .table tbody td {
+        padding: 10px;
+        text-align: center;
+    }
+
+    .table th, .table td {
+        text-align: center;
+        border: 1px solid #444; /* Borda cinza escuro para todas as células */       
+    }
+
+
+    /* Estilo para as células de ações */
+    .table td .btn {
+        font-size: 10px;
+        padding: 6px 12px;
+        margin-right: 5px;
+        border-radius: 5px;
+    }
+
+    .table thead th {
+        position: sticky;
+        top: 0;        
+        z-index: 1;
+        padding: 10px;
+        text-align: center;
+    }  
+    .table tbody tr {
+        background-color: #333;
+        color: #fff;
+    }
+
+    .table .btn:hover {
+        opacity: 0.8;
+    }
+
+    .table td .btn {
+        display: inline-block;
+        margin-top: 2px;
+    }
+
+/* Ajustes nas variáveis do Bootstrap para garantir que as cores estejam de acordo */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-accent-bg: transparent;
+    --bs-table-striped-color: #212529;
+    --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
+    --bs-table-active-color: #212529;
+    --bs-table-active-bg: rgba(0, 0, 0, 0.1);
+    --bs-table-hover-bg: #00BFFF; /* Cor de fundo para o hover das linhas atrasadas */
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    vertical-align: top;
+    border-collapse: collapse; /* Para garantir que não haja espaços entre as bordas */
+}
+
+
+/* Remove o fundo transparente para o hover e aplica o vermelho */
+.table tbody tr:hover {
+    background-color: #2e2e2e !important; /* Cor de fundo para todas as linhas quando passar o mouse */
+    cursor: pointer; /* Alterar o cursor para uma mãozinha */
+}
+
+
+/* Ajuste do layout com flexbox para campos lado a lado */
+.form-row {
+    display: flex;
+    flex-wrap: wrap; /* Faz com que os campos quebrem para a linha seguinte quando necessário */
+    gap: 15px; /* Espaçamento entre os campos */
+}
+
+.form-group {
+    flex: 1 1 45%; /* Cada campo ocupa até 45% da largura, ajustando para se adaptar */
+}
+
+@media (max-width: 768px) {
+    .form-group {
+        flex: 1 1 100%; /* Quando a tela for pequena, os campos ocupam 100% da largura */
+    }
+}
+
+/* Fim das modificações */

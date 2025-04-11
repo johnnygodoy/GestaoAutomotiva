@@ -1,0 +1,11 @@
+﻿@model GestaoAutomotiva.Models.Funcionario
+
+<h2>Excluir Funcionário</h2>
+
+<p>Tem certeza que deseja excluir o funcionário <strong>@Model.Nome</strong>?</p>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-outline-light mt-3">Confirmar Exclusão</button>
+    <a class="btn btn-secondary mt-3" asp-action="Index">Cancelar</a>
+</form>

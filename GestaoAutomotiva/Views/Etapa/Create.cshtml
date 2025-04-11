@@ -1,0 +1,59 @@
+﻿@model GestaoAutomotiva.Models.Etapa  
+
+@{
+    ViewData["Title"] = "Cadastro de Etapas";
+}
+
+<h2 class="text-light text-center mb-4">🔧 Cadastro de Etapas</h2>
+
+<!-- Formulário para Criar Nova Etapa -->
+<form method="post" asp-action="Create" class="mb-4">
+    <div class="form-group">
+        <label for="Nome">Nome do Card</label>
+        <input type="text" id="Nome" name="Nome" class="form-control" value="@Model?.Nome" required />
+    </div>
+    <div class="form-group">
+        <label for="Ordem">Ordem</label>
+        <input type="number" id="Ordem" name="Ordem" class="form-control" value="@Model?.Ordem" required />
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Adicionar Etapa</button>
+</form>
+
+<!-- Listagem das Etapas Existentes -->
+<div class="mb-4">
+    <h5>Etapas Cadastradas</h5>
+    @if (ViewData["Etapas"] != null)
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Ordem</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var etapa in (List<GestaoAutomotiva.Models.Etapa>)ViewData["Etapas"])
+                {
+                    <tr>
+                        <td>@etapa.Nome</td>
+                        <td>@etapa.Ordem</td>
+                        <td>
+                            <a href="@Url.Action("Edit", "Etapa", new { id = etapa.Id })" class="btn btn-sm btn-warning">Editar</a>
+                            <form method="post" asp-action="Delete" asp-route-id="@etapa.Id" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-muted text-center">Nenhuma etapa cadastrada.</p>
+    }
+</div>
+
+
+

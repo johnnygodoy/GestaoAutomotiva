@@ -1,0 +1,52 @@
+﻿@model IEnumerable<GestaoAutomotiva.Models.Atividade>
+@{
+    ViewData["Title"] = "Histórico de Atividades";
+}
+
+<h2 class="text-light">Histórico de Atividades</h2>
+
+<form method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="busca" class="form-control" placeholder="Buscar por funcionário ou serviço..." value="@Context.Request.Query["busca"]" />
+    <input type="date" class="form-control" name="dataBusca" value="@Context.Request.Query["dataBusca"]" placeholder="Buscar por Data..." />
+    <button type="submit" class="btn btn-outline-light">Pesquisar</button>
+    <a asp-action="Index" class="btn btn-secondary">Limpar</a>
+</form>
+
+<div class="mb-3 d-flex gap-2">
+    <a asp-action="ExportarExcel" class="btn btn-outline-light">📊 Exportar Excel</a>
+    <a asp-action="ExportarPdf" class="btn btn-outline-light">📄 Exportar PDF</a>
+</div>
+
+<div class="table-container">
+    <table class="table table-dark table-hover mt-3">
+        <thead>
+            <tr>
+                <th>Funcionário</th>
+                <th>Cliente</th>
+                <th>Código Carro</th>
+                <th>Modelo</th>
+                <th>Serviço</th>
+                <th>Início</th>
+                <th>Previsão</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var atividade in Model)
+            {
+                var statusClass = atividade.Status == "Cancelado" ? "text-danger fw-bold" : "text-success";
+
+                <tr>
+                    <td>@atividade.Funcionario?.Nome</td>
+                    <td>@atividade.Carro.Cliente.Nome</td>
+                    <td>@atividade.Carro.IdCarro</td>
+                    <td>@atividade.Carro.Modelo</td>
+                    <td>@atividade.Servico?.Descricao</td>
+                    <td>@atividade.DataInicio?.ToString("dd/MM/yyyy")</td>
+                    <td>@atividade.DataPrevista?.ToString("dd/MM/yyyy")</td>
+                    <td class="@statusClass">@atividade.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

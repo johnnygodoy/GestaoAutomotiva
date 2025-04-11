@@ -1,0 +1,24 @@
+﻿@model GestaoAutomotiva.Models.Carro
+
+<h2 class="text-light">Editar Carro</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="IdCarro">Código do Carro</label>
+        <input type="text" id="IdCarro" name="IdCarro" class="form-control" value="@Model.IdCarro" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Modelo">Modelo</label>
+        <input type="text" id="Modelo" name="Modelo" class="form-control" value="@Model.Modelo" required />
+    </div>
+
+    <div class="form-group">
+        <label for="ClienteId">Cliente</label>
+        <select asp-for="ClienteId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientes, "Id", "Nome"))" required>
+            <option value="">Selecione um cliente</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
