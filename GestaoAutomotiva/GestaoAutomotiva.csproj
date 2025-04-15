@@ -19,6 +19,12 @@
     <PackageReference Include="QuestPDF" Version="2025.4.0" />
   </ItemGroup>
   <ItemGroup>
+  <Content Include="Data\gestaoAutomotiva.db">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+  </Content>
+</ItemGroup>
+  <ItemGroup>
   <None Update="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
 </ItemGroup>
 </Project>
