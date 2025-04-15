@@ -1,24 +1,44 @@
 ﻿@model GestaoAutomotiva.Models.Carro
 
-<h2 class="text-light">Editar Carro</h2>
+<h2 class="text-light">Editar Carro/Cliente</h2>
 
 <form method="post">
-    <div class="form-group">
-        <label for="IdCarro">Código do Carro</label>
-        <input type="text" id="IdCarro" name="IdCarro" class="form-control" value="@Model.IdCarro" required />
+    <div class="row">
+        <!-- Código do Carro -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="IdCarro">Código do Carro</label>
+                <input type="text" id="IdCarro" name="IdCarro" class="form-control" asp-for="IdCarro" required />
+            </div>
+        </div>
+
+        <!-- Modelo (Dropdown de Carros) -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="Modelo">Modelo</label>
+                <select asp-for="Modelo" class="form-control" asp-items="@(new SelectList(ViewBag.Carros, "Modelo", "Modelo", Model.Modelo))" required>
+                    <option value="">Selecione o modelo</option>
+                </select>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label for="Modelo">Modelo</label>
-        <input type="text" id="Modelo" name="Modelo" class="form-control" value="@Model.Modelo" required />
+    <!-- Outros campos -->
+    <div class="row mt-3">
+        <!-- Cliente -->
+        <div class="col-md-12">
+            <div class="form-group">
+                <label for="ClienteId">Cliente</label>
+                <select asp-for="ClienteId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientes, "Id", "Nome"))" required>
+                    <option value="">Selecione um cliente</option>
+                </select>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label for="ClienteId">Cliente</label>
-        <select asp-for="ClienteId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientes, "Id", "Nome"))" required>
-            <option value="">Selecione um cliente</option>
-        </select>
+    <!-- Botões de Salvar e Cancelar -->
+    <div class="d-flex justify-content-between mt-4">
+        <button type="submit" class="btn btn-outline-light">Salvar</button>
+        <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
     </div>
-
-    <button type="submit" class="btn btn-primary">Salvar</button>
 </form>

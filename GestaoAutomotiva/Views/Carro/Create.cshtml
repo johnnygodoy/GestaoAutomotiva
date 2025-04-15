@@ -1,33 +1,59 @@
 ﻿@model GestaoAutomotiva.Models.Carro
 
-<h2 class="text-light">Adicionar Carro</h2>
+<h2 class="text-light">Adicionar Carro/Cliente</h2>
 
 <form method="post">
-    <div class="form-group">
-        <label for="IdCarro">Código do Carro</label>
-        <input type="text" id="IdCarro" name="IdCarro" class="form-control" required />
+    <div class="row">
+        <!-- Código do Carro -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="IdCarro">Código do Carro</label>
+                <input type="text" id="IdCarro" name="IdCarro" class="form-control" required />
+            </div>
+        </div>
+
+        <!-- Modelo (Dropdown de Carros) -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="Modelo">Modelo</label>
+                <select id="Modelo" name="Modelo" class="form-control" required>
+                    <option value="">Selecione o modelo</option>
+                    @foreach (var carro in ViewBag.Carros as List<GestaoAutomotiva.Models.Carro>)
+                    {
+                        <option value="@carro.Modelo">@carro.Modelo</option>
+                    }
+                </select>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label for="Modelo">Modelo</label>
-        <input type="text" id="Modelo" name="Modelo" class="form-control" required />
+    <div class="row mt-3">
+        <!-- Cor -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="Cor">Cor</label>
+                <input type="text" id="Cor" name="Cor" class="form-control" required />
+            </div>
+        </div>
+
+        <!-- Cliente -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="ClienteId">Cliente</label>
+                <select id="ClienteId" name="ClienteId" class="form-control" required>
+                    <option value="">Selecione um cliente</option>
+                    @foreach (var cliente in ViewBag.Clientes as List<GestaoAutomotiva.Models.Cliente>)
+                    {
+                        <option value="@cliente.Id">@cliente.Nome</option>
+                    }
+                </select>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label for="Cor">Cor</label>
-        <input type="text" id="Cor" name="Cor" class="form-control" required />
+    <!-- Botões de Salvar e Cancelar -->
+    <div class="d-flex justify-content-between mt-4">
+        <button type="submit" class="btn btn-outline-light">Salvar Carro</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </div>
-
-    <div class="form-group">
-        <label for="ClienteId">Cliente</label>
-        <select id="ClienteId" name="ClienteId" class="form-control" required>
-            <option value="">Selecione um cliente</option>
-            @foreach (var cliente in ViewBag.Clientes as List<GestaoAutomotiva.Models.Cliente>)
-            {
-                <option value="@cliente.Id">@cliente.Nome</option>
-            }
-        </select>
-    </div>
-    <button type="submit" class="btn btn-outline-light mt-4">Salvar Carro</button>
-    <a asp-action="Index" class="btn btn-secondary mt-4">Cancelar</a>
 </form>

@@ -12,34 +12,48 @@ namespace GestaoAutomotiva.Controllers
         public FuncionarioController(AppDbContext context) {
             _context = context;
         }
-       
+
 
         [HttpGet]
-        public IActionResult Index(string busca = null) {
+        public IActionResult Index(string busca = null, int page = 1) {
             ViewData["Busca"] = busca;
 
-            var funcionarios = _context.Funcionarios.AsQueryable();            
+            int pageSize = 10; // Quantidade de itens por página
 
+            // Obtendo a lista de funcionários
+            var funcionarios = _context.Funcionarios.AsQueryable();
+
+            // Aplicando filtro de busca (se houver)
             if (!string.IsNullOrWhiteSpace(busca))
             {
                 var buscaUpper = busca.ToUpper();
 
                 funcionarios = funcionarios.Where(f =>
-                f.Nome.Contains(buscaUpper) ||
-                f.Status.Contains(buscaUpper) ||
-                f.Especialidade.Contains(buscaUpper));
+                    f.Nome.Contains(buscaUpper) ||
+                    f.Status.Contains(buscaUpper) ||
+                    f.Especialidade.Contains(buscaUpper));
             }
 
-            var funcUpper = funcionarios.ToList().Select(f =>
-            {
-                f.Nome.ToUpper();
-                f.Status.ToUpper();
-                f.Especialidade.ToUpper();
-                return f;
-            }).ToList();
+            // Total de funcionários encontrados
+            var totalRegistros = funcionarios.Count();
 
-            return View(funcUpper);
+            // Calculando o total de páginas
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            // Pegando a página solicitada e aplicando Skip e Take
+            var funcionariosPaginados = funcionarios
+                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
+                .Take(pageSize) // Pegar o número de itens da página atual
+                .ToList();
+
+            // Passando os dados para a View
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
+
+            return View(funcionariosPaginados);
         }
+
 
 
         [HttpGet]

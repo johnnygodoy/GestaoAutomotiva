@@ -21,9 +21,4 @@
   <ItemGroup>
   <None Update="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
 </ItemGroup>
-<ItemGroup>
-  <None Update="Data\gestaoAutomotiva.db">
-    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-  </None>
-</ItemGroup>
 </Project>

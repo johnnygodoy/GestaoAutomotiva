@@ -50,37 +50,37 @@
                     <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul class="navbar-nav flex-grow-1">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Funcionario" asp-action="Index">Funcionários</a>
+                                <a class="nav-link text-dark" asp-controller="Funcionario" asp-action="Index">👨‍🏭 Funcionários</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Cliente" asp-action="Index">Clientes</a>
+                                <a class="nav-link text-light" asp-controller="Cliente" asp-action="Index">👥 Clientes</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Carro" asp-action="Index">Carros</a>
+                                <a class="nav-link text-light" asp-controller="Carro" asp-action="Index">🚘 Carro/Cliente</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Servico" asp-action="Index">Serviços</a>
+                                <a class="nav-link text-dark" asp-controller="Servico" asp-action="Index">💼 Serviços</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Index">Atividades</a>
+                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Index"> 👷🏽‍♀️ Atividades</a>
                             </li>             
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Esteira" asp-action="Esteira">Esteira</a>
+                                <a class="nav-link text-light" asp-controller="Esteira" asp-action="Esteira">🪄 Esteira</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Historico">Histórico das Atividades</a>
+                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Historico">📊 Histórico das Atividades</a>
                             </li>
 
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-light" asp-controller="Login" asp-action="Cadastrar">Cadastrar Usuário</a>
+                                    <a class="nav-link text-light" asp-controller="Login" asp-action="Cadastrar">🧑‍💼 Cadastrar Usuário</a>
                                 </li>
                             }
                             @if (User.Identity.IsAuthenticated)
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-light" asp-controller="Login" asp-action="Logout">Sair</a>
+                                    <a class="nav-link text-light" asp-controller="Login" asp-action="Logout">🚪 Sair</a>
                                 </li>
                             }
                         </ul>

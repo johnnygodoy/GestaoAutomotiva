@@ -14,9 +14,11 @@ namespace GestaoAutomotiva.Controllers
         }
 
         // Tela de listagem dos Clientes
-        public IActionResult Index(string busca = null) {
+        public IActionResult Index(string busca = null, int page = 1) {
 
             ViewData["Busca"] = busca;
+
+            int pageSize = 10; // Quantidade de itens por página
 
             // Obtém todos os clientes inicialmente
             var clientes = _context.Clientes.AsQueryable();
@@ -29,7 +31,24 @@ namespace GestaoAutomotiva.Controllers
                 clientes = clientes.Where(c => c.Nome.ToUpper().Contains(buscaUpper));
             }
 
-            return View(clientes.ToList());
+            // Total de Clientes encontrados
+            var totalRegistros = clientes.Count();
+
+            // Calculando o total de páginas
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            // Pegando a página solicitada e aplicando Skip e Take
+            var clientessPaginados = clientes
+                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
+                .Take(pageSize) // Pegar o número de itens da página atual
+                .ToList();
+
+            // Passando os dados para a View
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
+
+            return View(clientessPaginados);
         }
 
         // Tela de Criar Cliente

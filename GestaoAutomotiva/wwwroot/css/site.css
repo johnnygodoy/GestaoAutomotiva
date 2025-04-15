@@ -516,5 +516,27 @@ input[type="text"] {
         flex: 1 1 100%; /* Quando a tela for pequena, os campos ocupam 100% da largura */
     }
 }
+/* Card central do login */
+.login-card {
+    background-color: rgba(33, 37, 41, 0.5);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
 
+    /* Título com destaque */
+    .login-card h3 {
+        font-weight: bold;
+        color: red;
+    }
+    /* Título com destaque */
+#email, #senha {
+    font-weight: bold;
+    color: white;
+}
+
+.highlight-box, .highlight-box2 {
+    animation: fadeInDown 1s ease-in-out;
+}
 /* Fim das modificações */

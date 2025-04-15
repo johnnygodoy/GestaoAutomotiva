@@ -4,22 +4,39 @@
 
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
-    <div class="form-group">
-        <label asp-for="Nome"></label>
-        <input asp-for="Nome" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Especialidade"></label>
-        <input asp-for="Especialidade" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Status"></label>
-        <select asp-for="Status" class="form-control">
-            <option>Disponível</option>
-            <option>Ocupado</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-outline-light mt-3">Salvar</button>
-    <a class="btn btn-secondary mt-3" asp-action="Index">Cancelar</a>
 
+    <div class="row">
+        <!-- Nome -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Nome"></label>
+                <input asp-for="Nome" class="form-control" />
+            </div>
+        </div>
+
+        <!-- Especialidade -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Especialidade"></label>
+                <input asp-for="Especialidade" class="form-control" />
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="Status"></label>
+                <select asp-for="Status" class="form-control">
+                    <option>Disponível</option>
+                    <option>Ocupado</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões de Salvar e Cancelar -->
+    <div class="d-flex justify-content-between mt-4">
+        <button type="submit" class="btn btn-outline-light">Salvar</button>
+        <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
+    </div>
 </form>

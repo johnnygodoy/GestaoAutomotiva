@@ -37,9 +37,11 @@ namespace GestaoAutomotiva.Controllers
         }
 
 
-        public IActionResult Index(string busca = null, string dataBusca = null) {
+        public IActionResult Index(string busca = null, string dataBusca = null,int page = 1) {
             ViewData["Busca"] = busca;
             ViewData["DataBusca"] = dataBusca;
+
+            int pageSize = 10; // Quantidade de itens por página
 
             // Inicializando a query de atividades
             var atividades = _context.Atividades
@@ -70,8 +72,28 @@ namespace GestaoAutomotiva.Controllers
                     a.DataPrevista == dataBuscaConvertida.Date); // Comparar apenas as datas (ignorando a hora)
             }
 
+
+
+            // Total de atividades encontrados
+            var totalRegistros = atividades.Count();
+
+            // Calculando o total de páginas
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            // Pegando a página solicitada e aplicando Skip e Take
+            var atividadesPaginados = atividades
+                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
+                .Take(pageSize) // Pegar o número de itens da página atual
+                .ToList();
+
+            // Passando os dados para a View
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
+
+
             // Retorna a lista de atividades com as buscas aplicadas
-            return View(atividades.ToList());
+            return View(atividadesPaginados);
         }
 
 
@@ -162,14 +184,22 @@ namespace GestaoAutomotiva.Controllers
         private void PreencherDropdowns() {
             var funcionarios = _context.Funcionarios.ToList();
             var servicos = _context.Servicos.ToList();
-            var carros = _context.Carros.ToList();
+
+            // Incluindo o nome do cliente junto com o modelo do carro
+            var carros = _context.Carros
+                .Include(c => c.Cliente)
+                .Select(c => new {
+                    c.Id,
+                    ModeloCliente = c.Modelo + " - " + c.Cliente.Nome // Concatenando o modelo e o nome do cliente
+                }).ToList();
 
             ViewBag.Funcionarios = new SelectList(funcionarios, "Id", "Nome");
             ViewBag.Servicos = new SelectList(servicos, "Id", "Descricao");
-            
-            ViewBag.Carros = new SelectList(carros,"Id","Modelo"); // Passa a lista de carros para a view                
 
+            // Passando a lista de carros com modelo e nome do cliente para a view
+            ViewBag.Carros = new SelectList(carros, "Id", "ModeloCliente"); // ModeloCliente contém o modelo + cliente
         }
+
 
         private DateTime CalcularDataPrevista(DateTime dataInicio, int diasUteis) {
             var feriados = new List<DateTime>
@@ -280,9 +310,11 @@ namespace GestaoAutomotiva.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Historico(string busca, string dataBusca = null) {
+        public IActionResult Historico(string busca, string dataBusca = null, int page = 1 ) {
             ViewData["Busca"] = busca;
             ViewData["DataBusca"] = dataBusca;
+
+            int pageSize = 10; // Quantidade de itens por página
 
             var atividades = _context.Atividades
             .Include(a => a.Funcionario)
@@ -312,7 +344,25 @@ namespace GestaoAutomotiva.Controllers
                     a.DataPrevista == dataBuscaConvertida.Date);
             }
 
-            return View(atividades.ToList());
+
+            // Total de atividades encontrados
+            var totalRegistros = atividades.Count();
+
+            // Calculando o total de páginas
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            // Pegando a página solicitada e aplicando Skip e Take
+            var atividadesPaginados = atividades
+                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
+                .Take(pageSize) // Pegar o número de itens da página atual
+                .ToList();
+
+            // Passando os dados para a View
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
+
+            return View(atividadesPaginados);
         }
         public IActionResult ExportarPdf() {
             var atividades = _context.Atividades

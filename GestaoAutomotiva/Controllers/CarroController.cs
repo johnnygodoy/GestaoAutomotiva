@@ -2,6 +2,7 @@
 using GestaoAutomotiva.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace GestaoAutomotiva.Controllers
 {
@@ -14,7 +15,10 @@ namespace GestaoAutomotiva.Controllers
         }
 
         // Tela de listagem dos Carros
-        public IActionResult Index(string busca = null) {
+        public IActionResult Index(string busca = null, int page = 1) {
+
+            int pageSize = 10; // Quantidade de itens por página
+
             var carros = _context.Carros
                 .Include(c => c.Cliente) // Inclui os Clientes para exibir os dados relacionados
                 .AsQueryable();
@@ -28,12 +32,32 @@ namespace GestaoAutomotiva.Controllers
                     c.Cliente.Nome.Contains(buscaUpper));
             }
 
-            return View(carros.ToList());
+            // Total de  Carros encontrados
+            var totalRegistros = carros.Count();
+
+            // Calculando o total de páginas
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            // Pegando a página solicitada e aplicando Skip e Take
+            var carrosPaginados = carros
+                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
+                .Take(pageSize) // Pegar o número de itens da página atual
+                .ToList();
+
+            // Passando os dados para a View
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
+
+
+            return View(carrosPaginados);
         }
 
         // Tela de Criar Carro
         public IActionResult Create() {
             ViewBag.Clientes = _context.Clientes.ToList();
+            var carros = _context.Carros.ToList(); // Obtém todos os carros do banco de dados
+            ViewBag.Carros = carros; // Passa a lista de carros para a View
             return View();
         }
 
@@ -102,9 +126,14 @@ namespace GestaoAutomotiva.Controllers
             if (carro == null)
                 return NotFound();
 
-            ViewBag.Clientes = _context.Clientes.ToList();
+            // Garantir que os dados não sejam null antes de passá-los para a view
+            ViewBag.Carros = _context.Carros.ToList() ?? new List<Carro>();
+            ViewBag.Clientes = _context.Clientes.ToList() ?? new List<Cliente>();
+
             return View(carro);
         }
+
+
 
         // Método POST para Editar Carro
         [HttpPost]
