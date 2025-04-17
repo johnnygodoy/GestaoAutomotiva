@@ -539,4 +539,13 @@ input[type="text"] {
 .highlight-box, .highlight-box2 {
     animation: fadeInDown 1s ease-in-out;
 }
+
+
+.campo-erro {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 4px;
+    display: block;
+}
 /* Fim das modificações */

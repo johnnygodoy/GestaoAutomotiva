@@ -5,30 +5,28 @@
     var isLoginPage = controller == "login" && (action == "index" || action == "cadastrar");
 }
 
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GestaoAutomotiva</title>
+
+    <!-- Estilos -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/GestaoAutomotiva.styles.css" asp-append-version="true" />
 
-    <!-- Incluindo o jQuery -->
+    <!-- jQuery (uma única vez) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Incluindo o jQuery Mask Plugin -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery Mask Plugin (para máscaras, se necessário globalmente) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
-
-
 </head>
+
 <body>
 
-    @* Alerta de licença visível em todas as páginas (inclusive login, se quiser) *@
+    @* Alerta de licença visível em todas as páginas *@
     @if (LicencaService.EstaEmModoTeste)
     {
         <div class="alert @(LicencaService.LicencaExpirada ? "alert-danger" : "alert-warning") text-center mb-0 rounded-0">
@@ -53,17 +51,14 @@
                                 <a class="nav-link text-dark" asp-controller="Funcionario" asp-action="Index">👨‍🏭 Funcionários</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Cliente" asp-action="Index">👥 Clientes</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="Carro" asp-action="Index">🚘 Carro/Cliente</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Servico" asp-action="Index">💼 Serviços</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Index"> 👷🏽‍♀️ Atividades</a>
-                            </li>             
+                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Index">👷🏽‍♀️ Atividades</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="Esteira" asp-action="Esteira">🪄 Esteira</a>
                             </li>
@@ -105,9 +100,11 @@
         </footer>
     }
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Scripts do Bootstrap e site -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* Carrega scripts específicos da view (como validação, JS adicional, etc.) *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

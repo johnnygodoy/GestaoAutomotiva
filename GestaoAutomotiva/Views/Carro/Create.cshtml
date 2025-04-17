@@ -3,58 +3,84 @@
 <h2 class="text-light">Adicionar Carro/Cliente</h2>
 
 <form method="post">
+    @Html.AntiForgeryToken() <!-- 🛡️ Proteção contra CSRF -->
+    <!-- Linha 1 - Carro -->
     <div class="row">
-        <!-- Código do Carro -->
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="IdCarro">Código do Carro</label>
-                <input type="text" id="IdCarro" name="IdCarro" class="form-control" required />
-            </div>
+        <div class="col-md-4">
+            <label asp-for="IdCarro"></label>
+            <input asp-for="IdCarro" class="form-control" />
+            <span asp-validation-for="IdCarro" class="campo-erro"></span>
         </div>
-
-        <!-- Modelo (Dropdown de Carros) -->
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="Modelo">Modelo</label>
-                <select id="Modelo" name="Modelo" class="form-control" required>
-                    <option value="">Selecione o modelo</option>
-                    @foreach (var carro in ViewBag.Carros as List<GestaoAutomotiva.Models.Carro>)
-                    {
-                        <option value="@carro.Modelo">@carro.Modelo</option>
-                    }
-                </select>
-            </div>
+        <div class="col-md-4">
+            <label asp-for="Modelo"></label>
+            <select asp-for="Modelo" class="form-control" asp-items="@(new SelectList(ViewBag.Carros, "Modelo", "Modelo", Model.Modelo))">
+                <option value="">Selecione o modelo</option>
+            </select>
+            <span asp-validation-for="Modelo" class="campo-erro" style="font-size: 1rem;"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Cor"></label>
+            <input asp-for="Cor" class="form-control" />
+            <span asp-validation-for="Cor" class="campo-erro"></span>
         </div>
     </div>
 
-    <div class="row mt-3">
-        <!-- Cor -->
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="Cor">Cor</label>
-                <input type="text" id="Cor" name="Cor" class="form-control" required />
-            </div>
+    <h4 class="text-light mt-4">Dados do Cliente</h4>
+
+    <!-- Linha 2 - Cliente -->
+    <div class="row">
+        <div class="col-md-4">
+            <label asp-for="Cliente.Nome"></label>
+            <input asp-for="Cliente.Nome" class="form-control" />
+            <span asp-validation-for="Cliente.Nome" class="campo-erro"></span>
         </div>
-
-        <!-- Cliente -->
-
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="ClienteId">Cliente</label>
-                <select id="ClienteId" name="ClienteId" class="form-control" required>
-                    <option value="">Selecione um cliente</option>
-                    @foreach (var cliente in ViewBag.Clientes as List<GestaoAutomotiva.Models.Cliente>)
-                    {
-                        <option value="@cliente.Id">@cliente.Nome</option>
-                    }
-                </select>
-            </div>
+        <div class="col-md-4">
+            <label asp-for="Cliente.Endereco"></label>
+            <input asp-for="Cliente.Endereco" class="form-control" />
+            <span asp-validation-for="Cliente.Endereco" class="campo-erro"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Cliente.Telefone"></label>
+            <input asp-for="Cliente.Telefone" class="form-control" id="Cliente_Telefone" />
+            <span asp-validation-for="Cliente.Telefone" class="campo-erro"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Cliente.CPF"></label>
+            <input asp-for="Cliente.CPF" class="form-control" id="Cliente_CPF" />
+            <span asp-validation-for="Cliente.CPF" class="campo-erro"></span>
         </div>
     </div>
 
-    <!-- Botões de Salvar e Cancelar -->
+    <!-- Botões -->
     <div class="d-flex justify-content-between mt-4">
-        <button type="submit" class="btn btn-outline-light">Salvar Carro</button>
+        <button type="submit" class="btn btn-outline-light">Salvar</button>
         <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const telefoneInput = document.getElementById('Cliente_Telefone');
+            if (telefoneInput) {
+                telefoneInput.addEventListener('input', function () {
+                    let value = telefoneInput.value.replace(/\D/g, '');
+                    if (value.length <= 10) {
+                        telefoneInput.value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                    } else {
+                        telefoneInput.value = value.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+                    }
+                });
+            }
+
+            const cpfInput = document.getElementById('Cliente_CPF');
+            if (cpfInput) {
+                cpfInput.addEventListener('input', function () {
+                    let value = cpfInput.value.replace(/\D/g, '');
+                    cpfInput.value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
+                });
+            }
+        });
+    </script>
+}

@@ -1,16 +1,23 @@
-﻿namespace GestaoAutomotiva.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GestaoAutomotiva.Models
 {
     public class Carro
     {
         public int Id { get; set; }
 
-        public string IdCarro { get; set; } // Código do Carro
-        public string Modelo { get; set; } // Modelo do Carro
+        [Required(ErrorMessage = "O campo Código do Carro é obrigatório.")]
+        public string IdCarro { get; set; }
 
-        public string Cor { get; set; } // Cor do Carro       
+        [Required(ErrorMessage = "O campo Modelo é obrigatório.")]
+        public string Modelo { get; set; }
 
-        // Relacionamento com Cliente
-        public int ClienteId { get; set; } // Chave estrangeira para Cliente
-        public Cliente Cliente { get; set; } // Navegação para o Cliente
+        [Required(ErrorMessage = "O campo Cor é obrigatório.")]
+        public string Cor { get; set; }
+
+        public int ClienteId { get; set; }
+
+        public Cliente Cliente { get; set; }
     }
+
 }

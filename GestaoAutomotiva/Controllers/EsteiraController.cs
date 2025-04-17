@@ -19,10 +19,12 @@ namespace GestaoAutomotiva.Controllers
                 .Include(a => a.Funcionario)
                 .Include(a => a.Servico)
                 .Include(a => a.Etapa)  // Garantindo que a Etapa seja carregada com as atividades
-                //.Where(a => a.Status == "Em Andamento")
-                .Include(a=> a.Carro)
+                                        //.Where(a => a.Status == "Em Andamento")
+                .Include(a => a.Carro)
+    .ThenInclude(c => c.Cliente)
+
                 .ToList();
-            
+
             var viewModel = new EsteiraViewModel
             {
                 Etapas = etapas,

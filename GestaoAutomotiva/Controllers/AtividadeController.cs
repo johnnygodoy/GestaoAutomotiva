@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace GestaoAutomotiva.Controllers
 {
@@ -48,7 +45,8 @@ namespace GestaoAutomotiva.Controllers
                 .Include(a => a.Funcionario)
                 .Include(a => a.Servico)
                 .Include(a => a.Carro) // Incluindo o carro para usar seus dados na pesquisa
-                .ThenInclude(c => c.Cliente) // Incluindo o cliente relacionado ao carro
+                .ThenInclude(c => c.Cliente)
+                .OrderByDescending(c => c.Id)              
                 .AsQueryable();
 
             // Busca por texto (funcionário, carro, modelo, serviço, status, etc.)
@@ -200,14 +198,8 @@ namespace GestaoAutomotiva.Controllers
             ViewBag.Carros = new SelectList(carros, "Id", "ModeloCliente"); // ModeloCliente contém o modelo + cliente
         }
 
-
         private DateTime CalcularDataPrevista(DateTime dataInicio, int diasUteis) {
-            var feriados = new List<DateTime>
-            {
-                new DateTime(dataInicio.Year, 1, 1),   // Ano Novo
-                new DateTime(dataInicio.Year, 12, 25)  // Natal
-                // Pode adicionar mais aqui ou carregar de banco no futuro
-            };
+            var feriados = DataUtil.ObterFeriados(dataInicio.Year);
 
             DateTime data = dataInicio;
             int adicionados = 0;
@@ -321,6 +313,7 @@ namespace GestaoAutomotiva.Controllers
             .Include(a => a.Servico)
             .Include(a => a.Carro)
             .ThenInclude(c => c.Cliente)
+            .OrderByDescending(c => c.Id)
             .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(busca))
