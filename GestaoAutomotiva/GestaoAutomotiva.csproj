@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Docs\LEIA-ME - GESTÃO AUTOMOTIVA.txt" />
+    <None Remove="Docs\sistemaAutomotiva.bat" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.104.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
@@ -22,6 +27,12 @@
   <Content Include="Data\gestaoAutomotiva.db">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+  </Content>
+  <Content Include="Docs\LEIA-ME - GESTÃO AUTOMOTIVA.txt">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </Content>
+  <Content Include="Docs\sistemaAutomotiva.bat">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
   </Content>
 </ItemGroup>
   <ItemGroup>
