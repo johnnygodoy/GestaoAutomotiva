@@ -1,6 +1,7 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -139,15 +140,39 @@ namespace GestaoAutomotiva.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Carro carro) {
-            if (ModelState.IsValid)
+
+
+            bool temErro = false;
+
+            if (carro.IdCarro ==null)
             {
-                _context.Carros.Update(carro);
-                _context.SaveChanges();
-                return RedirectToAction("Index"); // Redireciona para a lista de carros
+                ModelState.AddModelError("IdCarro", "O campo Código Carro  obrigatório");
+                temErro = true;
+            }
+            if (string.IsNullOrEmpty(carro.Modelo))
+            {
+                ModelState.AddModelError("Modelo", "O campo Modelo obrigatório");
+                temErro = true;
             }
 
+            if (string.IsNullOrEmpty(carro.Cor))
+            {
+                ModelState.AddModelError("Cor", "O campo Cor obrigatório");
+                temErro = true;
+            }
+
+
             ViewBag.Clientes = _context.Clientes.ToList();
-            return View(carro);
+
+
+            if (temErro)
+            {
+                return View(carro);
+            }
+
+            _context.Carros.Update(carro);
+            _context.SaveChanges();
+            return RedirectToAction("Index"); // Redireciona para a lista de carros
         }
 
         // Tela de Excluir Carro

@@ -23,17 +23,25 @@
         </div>
     </div>
 
-    <!-- Outros campos -->
     <div class="row mt-3">
-        <!-- Cliente -->
-        <div class="col-md-12">
+        <!-- Cor -->
+        <div class="col-md-6">
             <div class="form-group">
-                <label for="ClienteId">Cliente</label>
-                <select asp-for="ClienteId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientes, "Id", "Nome"))" required>
-                    <option value="">Selecione um cliente</option>
-                </select>
+                <label for="Cor">Cor</label>
+                <input type="text" id="Cor" name="Cor" class="form-control" asp-for="Cor" required />
             </div>
         </div>
+       
+            <!-- Cliente -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="ClienteId">Cliente</label>
+                    <select asp-for="ClienteId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientes, "Id", "Nome"))" required>
+                        <option value="">Selecione um cliente</option>
+                    </select>
+                </div>
+            </div>
+        
     </div>
 
     <!-- Botões de Salvar e Cancelar -->
