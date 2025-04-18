@@ -3,6 +3,7 @@ using System;
 using GestaoAutomotiva.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestaoAutomotiva.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250417160102_AjustesOrdemServico")]
+    partial class AjustesOrdemServico
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -25,10 +28,6 @@ namespace GestaoAutomotiva.Migrations
 
                     b.Property<int>("CarroId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Cor")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DataInicio")
                         .HasColumnType("TEXT");
@@ -174,16 +173,10 @@ namespace GestaoAutomotiva.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Almoxarifado")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("AtividadeId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("CarroId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ClienteId")
+                    b.Property<int>("CarroId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DataAbertura")
@@ -193,13 +186,14 @@ namespace GestaoAutomotiva.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("FuncionarioId")
+                    b.Property<int>("EtapaId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Inspetor")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("FuncionarioId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Observacoes")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Prioridade")
@@ -207,11 +201,18 @@ namespace GestaoAutomotiva.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Tarefas")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AtividadeId");
+
+                    b.HasIndex("CarroId");
+
+                    b.HasIndex("EtapaId");
+
+                    b.HasIndex("FuncionarioId");
 
                     b.ToTable("OrdemServicos");
                 });
@@ -332,7 +333,31 @@ namespace GestaoAutomotiva.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GestaoAutomotiva.Models.Carro", "Carro")
+                        .WithMany()
+                        .HasForeignKey("CarroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GestaoAutomotiva.Models.Etapa", "Etapa")
+                        .WithMany()
+                        .HasForeignKey("EtapaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GestaoAutomotiva.Models.Funcionario", "Funcionario")
+                        .WithMany()
+                        .HasForeignKey("FuncionarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Atividade");
+
+                    b.Navigation("Carro");
+
+                    b.Navigation("Etapa");
+
+                    b.Navigation("Funcionario");
                 });
 
             modelBuilder.Entity("GestaoAutomotiva.Models.Cliente", b =>

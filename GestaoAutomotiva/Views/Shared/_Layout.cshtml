@@ -57,14 +57,21 @@
                                 <a class="nav-link text-dark" asp-controller="Servico" asp-action="Index">💼 Serviços</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Index">👷🏽‍♀️ Atividades</a>
+                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Index">🔧 Atividades</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Esteira" asp-action="Esteira">🪄 Esteira</a>
+                                <a class="nav-link text-light" asp-controller="OrdemServico" asp-action="Index">📋 Oderm Serviço</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Historico">📊 Histórico das Atividades</a>
+                                <a class="nav-link text-light" asp-controller="Esteira" asp-action="Esteira">🧩 Esteira</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="Atividade" asp-action="Historico">🧾 Histórico das Atividades</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Planejamento" asp-action="Index">📊 Planejamento</a>
+                            </li>
+
 
                             @if (User.IsInRole("Admin"))
                             {

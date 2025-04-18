@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GestaoAutomotiva.Models
 {
@@ -23,6 +24,11 @@ namespace GestaoAutomotiva.Models
 
         public int CarroId { get; set; }  // Relacionamento com Carro
         public Carro Carro { get; set; }  // Relacionamento com Carro
+
+        [NotMapped]
+        public bool Conflito { get; set; }
+
+        public string Cor { get; set; } // Usada para colorir o gráfico Gantt
 
     }
 

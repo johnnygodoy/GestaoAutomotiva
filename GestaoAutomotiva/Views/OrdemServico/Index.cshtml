@@ -1,0 +1,43 @@
+﻿@model IEnumerable<GestaoAutomotiva.Models.OrdemServico>
+
+@{
+    ViewData["Title"] = "Ordens de Serviço";
+}
+
+<h2 class="text-light">📋 Ordens de Serviço</h2>
+
+<a asp-controller="OrdemServico" asp-action="Create" class="btn btn-outline-light mb-3">Nova Ordem de Serviço</a>
+
+
+<table class="table table-dark table-hover">
+    <thead>
+        <tr>
+            <th>OS nº</th>
+            <th>Data de Abertura</th>
+            <th>Colaborador</th>
+            <th>Carro</th>
+            <th>Cliente</th>
+            <th>Etapa</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var os in Model)
+        {
+            <tr>
+                <td>@os.Id</td>
+                <td>@os.DataAbertura.ToString("dd/MM/yyyy")</td>
+                <td>@os.Atividade.Funcionario.Nome</td>
+                <td>@os.Atividade.Carro?.Modelo (@os.Atividade.Carro?.IdCarro)</td>
+                <td>@os.Atividade.Carro.Cliente?.Nome</td>
+                <td>@os.Atividade.Etapa</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@os.Id" class="btn btn-sm btn-primary">Visualizar</a>
+                    <a asp-action="Edit" asp-route-id="@os.Id" class="btn btn-sm btn-warning">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@os.Id" class="btn btn-sm btn-danger">Excluir</a>
+                    <a asp-action="ExportarPdf" asp-route-id="@os.Id" class="btn btn-sm btn-success">PDF</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

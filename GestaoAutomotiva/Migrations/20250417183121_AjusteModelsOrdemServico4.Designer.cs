@@ -3,6 +3,7 @@ using System;
 using GestaoAutomotiva.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestaoAutomotiva.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250417183121_AjusteModelsOrdemServico4")]
+    partial class AjusteModelsOrdemServico4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -25,10 +28,6 @@ namespace GestaoAutomotiva.Migrations
 
                     b.Property<int>("CarroId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Cor")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DataInicio")
                         .HasColumnType("TEXT");
@@ -175,6 +174,7 @@ namespace GestaoAutomotiva.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Almoxarifado")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("AtividadeId")
@@ -197,9 +197,11 @@ namespace GestaoAutomotiva.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Inspetor")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Observacoes")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Prioridade")
@@ -207,6 +209,7 @@ namespace GestaoAutomotiva.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Tarefas")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
