@@ -1,4 +1,6 @@
 ﻿@model List<GestaoAutomotiva.Models.Atividade>
+@using GestaoAutomotiva.Utils
+
 @{
     ViewData["Title"] = "Planejamento de Atividades";
     Layout = "_Layout";
@@ -29,7 +31,8 @@
         var selected = tipo == tipoConflitoSelecionado ? "selected" : "";
         htmlTipoConflito += $"<option value='{tipo}' {selected}>{texto}</option>";
     }
-}
+} 
+
 
 <h2 class="text-light">Planejamento de Atividades</h2>
 
@@ -191,20 +194,25 @@
     {
         if (!atividade.DataInicio.HasValue || !atividade.DataPrevista.HasValue) continue;
 
+        var nomeFuncionario = TextoHelper.RemoverCaracteresEspeciais(atividade.Funcionario.Nome);
+        var nomeCliente = TextoHelper.RemoverCaracteresEspeciais(atividade.Carro.Cliente?.Nome);
+        var modeloCarro = TextoHelper.RemoverCaracteresEspeciais(atividade.Carro.Modelo);
+        var tipoServico = TextoHelper.RemoverCaracteresEspeciais(atividade.Servico.Tipo);
+
         var tooltipHtml = $"<div style='padding:10px; font-size:13px;'>"
-        + $"<strong>Funcionário:</strong> {atividade.Funcionario.Nome}<br />"
-        + $"<strong>Serviço:</strong> {atividade.Servico.Tipo}<br />"
-        + $"<strong>Carro:</strong> {atividade.Carro.Modelo}<br />"
-        + $"<strong>Cliente:</strong> {atividade.Carro.Cliente?.Nome}<br />"
-        + $"<strong>Início:</strong> {atividade.DataInicio?.ToString("dd/MM/yyyy")}<br />"
-        + $"<strong>Previsão:</strong> {atividade.DataPrevista?.ToString("dd/MM/yyyy")}</div>"
-        .Replace("\"", "\\\"");
+            + $"<strong>Funcionário:</strong> {nomeFuncionario}<br />"
+            + $"<strong>Serviço:</strong> {tipoServico}<br />"
+            + $"<strong>Carro:</strong> {modeloCarro}<br />"
+            + $"<strong>Cliente:</strong> {nomeCliente}<br />"
+            + $"<strong>Início:</strong> {atividade.DataInicio?.ToString("dd/MM/yyyy")}<br />"
+            + $"<strong>Previsão:</strong> {atividade.DataPrevista?.ToString("dd/MM/yyyy")}</div>"
+            .Replace("\"", "\\\"");
 
         <text>
                     [
                         "@atividade.Id",
-                        "@atividade.Funcionario.Nome - @atividade.Carro.Cliente.Nome",
-                        "@atividade.Funcionario.Nome",
+                        "@nomeFuncionario - @nomeCliente",
+                        "@nomeFuncionario",
                         new Date(@atividade.DataInicio.Value.Year, @atividade.DataInicio.Value.Month - 1, @atividade.DataInicio.Value.Day),
                         new Date(@atividade.DataPrevista.Value.Year, @atividade.DataPrevista.Value.Month - 1, @atividade.DataPrevista.Value.Day),
                         null,
@@ -218,33 +226,26 @@
         ];
 
         if (atividades.length === 0) {
-            document.getElementById('gantt_chart').innerHTML = `
-                <div style="padding: 30px; text-align: center; font-size: 18px; color: #666;">
-                    Não há atividades para exibir com os filtros selecionados.
-                </div>`;
+            document.getElementById('gantt_chart').innerHTML = `<div style="padding: 30px; text-align: center; font-size: 18px; color: #666;">Não há atividades para exibir com os filtros selecionados.</div>`;
             return;
         }
 
         data.addRows(atividades);
 
-        var chartHeight = Math.max(@Model.Count * 45, 300); // altura mínima 300
         var options = {
-            height: chartHeight,
+            height: Math.max(@Model.Count * 45, 300),
             tooltip: { isHtml: true },
             backgroundColor: '#fff',
             chartArea: {
-                bottom: 80, // espaço extra para datas
-                  left: 120,
+                bottom: 80,
+                left: 120,
                 width: '88%',
                 height: '70%'
             },
             gantt: {
                 trackHeight: 40,
                 labelStyle: { fontSize: 14, color: '#000' },
-                innerGridHorizLine: {
-                    stroke: '#999',
-                    strokeWidth: 1
-                },
+                innerGridHorizLine: { stroke: '#999', strokeWidth: 1 },
                 innerGridTrack: { fill: '#f7f7f7' },
                 innerGridDarkTrack: { fill: '#e0e0e0' }
             }
@@ -252,7 +253,6 @@
 
         new google.visualization.Gantt(document.getElementById('gantt_chart')).draw(data, options);
     }
-
 
         function exportGantt() {
         const ganttSvg = document.querySelector('#gantt_chart svg');

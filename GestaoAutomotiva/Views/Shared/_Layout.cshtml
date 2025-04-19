@@ -71,6 +71,12 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Planejamento" asp-action="Index">📊 Planejamento</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="GraficoCarroEtapa" asp-action="Index">
+                                    <i class="bi bi-bar-chart-steps"></i> Gráfico de Etapas
+                                </a>
+                            </li>
+
 
 
                             @if (User.IsInRole("Admin"))

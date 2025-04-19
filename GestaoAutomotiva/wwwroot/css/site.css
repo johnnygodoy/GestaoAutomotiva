@@ -576,6 +576,18 @@ input[type="text"] {
     font-size: 14px;
 }
 
+#grafico_etapas {
+    background: #ffffff;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+
+    #grafico_etapas text {
+        font-size: 11px !important;
+    }
+
+
 @keyframes fadeInUp {
     from {
         opacity: 0;

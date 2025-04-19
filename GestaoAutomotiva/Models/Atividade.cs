@@ -10,7 +10,7 @@ namespace GestaoAutomotiva.Models
 
         public int FuncionarioId { get; set; }
         public int ServicoId { get; set; }
-     
+
         public DateTime? DataInicio { get; set; }
         public int EstimativaDias { get; set; }
         public DateTime? DataPrevista { get; set; }
@@ -29,6 +29,10 @@ namespace GestaoAutomotiva.Models
         public bool Conflito { get; set; }
 
         public string Cor { get; set; } // Usada para colorir o gráfico Gantt
+
+        [NotMapped]
+        public bool Atrasado => DataPrevista.HasValue && DataPrevista.Value.Date < DateTime.Today && Status != "Finalizado";
+
 
     }
 
