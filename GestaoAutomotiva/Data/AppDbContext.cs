@@ -12,6 +12,9 @@ namespace GestaoAutomotiva.Data
         public DbSet<Etapa> Etapas { get; set; }
         public DbSet<Carro> Carros { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<OrdemServico>OrdemServicos { get; set; }
+
+
 
         // Método para configurar o caminho do banco de dados
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
@@ -34,6 +37,28 @@ namespace GestaoAutomotiva.Data
                 .HasOne(c => c.Cliente)
                 .WithMany(cl => cl.Carros) // Um cliente pode ter vários carros
                 .HasForeignKey(c => c.ClienteId);
+
+            // ✅ Campos opcionais na Ordem de Serviço
+
+            modelBuilder.Entity<OrdemServico>()
+             .Property(o => o.Tarefas)
+             .IsRequired(false);
+
+            modelBuilder.Entity<OrdemServico>()
+            .Property(o => o.Observacoes)
+            .IsRequired(false);
+
+            modelBuilder.Entity<OrdemServico>()
+                .Property(o => o.Almoxarifado)
+                .IsRequired(false);
+
+            modelBuilder.Entity<OrdemServico>()
+                .Property(o => o.Inspetor)
+                .IsRequired(false);
+
+            modelBuilder.Entity<OrdemServico>()
+                .Property(o => o.Observacoes)
+                .IsRequired(false);
 
             modelBuilder.Entity<Usuario>().HasData(
                 new Usuario

@@ -11,7 +11,7 @@
 <a asp-action="Create" class="btn btn-outline-light mb-3">Nova Atividade</a>
 
 <form method="get" class="mb-3 d-flex gap-2">
-    <input type="text" name="busca" class="form-control" placeholder="Buscar por funcionário ou serviço..." value="@Context.Request.Query["busca"]" />
+    <input type="text" name="busca" class="form-control" placeholder="Buscar por funcionário,cliente,serviço ou Status..." value="@Context.Request.Query["busca"]" />
     <input type="date" class="form-control" name="dataBusca" value="@Context.Request.Query["dataBusca"]" placeholder="Buscar por Data..." />
     <button type="submit" class="btn btn-outline-light">Pesquisar</button>
     <a asp-action="Index" class="btn btn-secondary">Limpar</a>
@@ -60,10 +60,33 @@
                         {
                             <a asp-action="Finalizar" asp-route-id="@atividade.Id" class="btn btn-sm btn-success">Finalizar</a>
                         }
-
+                        <a class="btn btn-sm btn-primary"
+                           asp-controller="OrdemServico"
+                           asp-action="CriarOuEditar"
+                           asp-route-atividadeId="@atividade.Id">Gerar OS</a>
                     </td>
                 </tr>
             }
         </tbody>
+        <nav class="mt-4">
+        <tfoot>
+            <tr>
+                <td colspan="9" class="text-center bg-dark">
+                    <nav class="mt-3">
+                        <ul class="pagination justify-content-center mb-0">
+                                @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
+                                {
+                                <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = i, busca = ViewBag.BuscaNome })">
+                                            @i
+                                    </a>
+                                </li>
+                                }
+                        </ul>
+                    </nav>
+                </td>
+            </tr>
+        </tfoot>
+        </nav>
     </table>
 </div>

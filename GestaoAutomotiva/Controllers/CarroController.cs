@@ -1,7 +1,9 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace GestaoAutomotiva.Controllers
 {
@@ -14,9 +16,13 @@ namespace GestaoAutomotiva.Controllers
         }
 
         // Tela de listagem dos Carros
-        public IActionResult Index(string busca = null) {
+        public IActionResult Index(string busca = null, int page = 1) {
+
+            int pageSize = 10; // Quantidade de itens por página
+
             var carros = _context.Carros
-                .Include(c => c.Cliente) // Inclui os Clientes para exibir os dados relacionados
+                .Include(c => c.Cliente)
+                .OrderByDescending(c => c.Id)             
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(busca))
@@ -28,31 +34,55 @@ namespace GestaoAutomotiva.Controllers
                     c.Cliente.Nome.Contains(buscaUpper));
             }
 
-            return View(carros.ToList());
+            // Total de  Carros encontrados
+            var totalRegistros = carros.Count();
+
+            // Calculando o total de páginas
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            // Pegando a página solicitada e aplicando Skip e Take
+            var carrosPaginados = carros
+                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
+                .Take(pageSize) // Pegar o número de itens da página atual
+                .ToList();
+
+            // Passando os dados para a View
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
+
+
+            return View(carrosPaginados);
         }
 
         // Tela de Criar Carro
         public IActionResult Create() {
-            ViewBag.Clientes = _context.Clientes.ToList();
-            return View();
+            var carro = new Carro
+            {
+                Cliente = new Cliente() // ✅ evita NullReferenceException na View
+            };
+
+            ViewBag.Carros = _context.Carros.ToList();
+            return View(carro);
         }
+
 
         // Método POST para Criar Carro
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Carro carro) {
-
-
             bool temErro = false;
 
             if (string.IsNullOrEmpty(carro.IdCarro))
             {
-                ModelState.AddModelError("Carro", "Campo Código Carro Obrigatório.");
+                ModelState.AddModelError("IdCarro", "Campo Código Carro é obrigatório.");
+                temErro = true;
             }
 
             if (string.IsNullOrEmpty(carro.Modelo))
             {
-                ModelState.AddModelError("Modelo", "Campo Modelo Obrigatório");
+                ModelState.AddModelError("Modelo", "Campo Modelo é obrigatório.");
+                temErro = true;
             }
             else
             {
@@ -61,40 +91,63 @@ namespace GestaoAutomotiva.Controllers
 
             if (string.IsNullOrEmpty(carro.Cor))
             {
-                ModelState.AddModelError("Cor", "Campo Cor Obrigatório");
+                ModelState.AddModelError("Cor", "Campo Cor é obrigatório.");
+                temErro = true;
             }
             else
             {
                 carro.Cor = carro.Cor.ToUpper();
             }
 
-            var cliente = _context.Clientes.Find(carro.ClienteId);
-
-            if (cliente !=null)
+            // Validar Cliente
+            if (carro.Cliente == null)
             {
-                carro.Cliente = cliente;
-            }
-
-            // Verifica se o cliente foi selecionado e valida
-            if (carro.ClienteId == 0)
-            {
-                ModelState.AddModelError("Cliente", "Campo Cliente Obrigatório");
+                ModelState.AddModelError("Cliente", "Os dados do cliente são obrigatórios.");
+                temErro = true;
             }
             else
             {
-                _context.Carros.Add(carro);
-                _context.SaveChanges();
-                return RedirectToAction("Index"); // Redireciona para a lista de carros
-            }          
-            
+                if (string.IsNullOrEmpty(carro.Cliente.Nome))
+                {
+                    ModelState.AddModelError("Cliente.Nome", "Nome do cliente é obrigatório.");
+                    temErro = true;
+                }
+
+                if (string.IsNullOrEmpty(carro.Cliente.Endereco))
+                {
+                    ModelState.AddModelError("Cliente.Endereco", "Endereço do cliente é obrigatório.");
+                    temErro = true;
+                }
+
+                if (string.IsNullOrEmpty(carro.Cliente.Telefone))
+                {
+                    ModelState.AddModelError("Cliente.Telefone", "Telefone do cliente é obrigatório.");
+                    temErro = true;
+                }
+
+                if (string.IsNullOrEmpty(carro.Cliente.CPF))
+                {
+                    ModelState.AddModelError("Cliente.CPF", "CPF do cliente é obrigatório.");
+                    temErro = true;
+                }
+            }
+
             if (temErro)
             {
-                ViewBag.Clientes = _context.Clientes.ToList();
                 return View(carro);
             }
-           
-            return View(carro);
+
+            // Salvar Cliente e Carro
+            _context.Clientes.Add(carro.Cliente);
+            _context.SaveChanges(); // cliente.Id gerado aqui
+
+            carro.ClienteId = carro.Cliente.Id;
+            _context.Carros.Add(carro);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
+
 
         // Tela de Editar Carro
         public IActionResult Edit(int id) {
@@ -102,24 +155,105 @@ namespace GestaoAutomotiva.Controllers
             if (carro == null)
                 return NotFound();
 
-            ViewBag.Clientes = _context.Clientes.ToList();
+            // Garantir que os dados não sejam null antes de passá-los para a view
+            ViewBag.Carros = _context.Carros.ToList() ?? new List<Carro>();
+            ViewBag.Clientes = _context.Clientes.ToList() ?? new List<Cliente>();
+
             return View(carro);
         }
+
+
 
         // Método POST para Editar Carro
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Carro carro) {
-            if (ModelState.IsValid)
+            bool temErro = false;
+
+            if (string.IsNullOrEmpty(carro.IdCarro))
             {
-                _context.Carros.Update(carro);
-                _context.SaveChanges();
-                return RedirectToAction("Index"); // Redireciona para a lista de carros
+                ModelState.AddModelError("IdCarro", "O campo Código do Carro é obrigatório.");
+                temErro = true;
             }
 
-            ViewBag.Clientes = _context.Clientes.ToList();
-            return View(carro);
+            if (string.IsNullOrEmpty(carro.Modelo))
+            {
+                ModelState.AddModelError("Modelo", "O campo Modelo é obrigatório.");
+                temErro = true;
+            }
+            else
+            {
+                carro.Modelo = carro.Modelo.ToUpper();
+            }
+
+            if (string.IsNullOrEmpty(carro.Cor))
+            {
+                ModelState.AddModelError("Cor", "O campo Cor é obrigatório.");
+                temErro = true;
+            }
+            else
+            {
+                carro.Cor = carro.Cor.ToUpper();
+            }
+
+            if (carro.Cliente == null)
+            {
+                ModelState.AddModelError("Cliente", "Dados do cliente obrigatórios.");
+                temErro = true;
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(carro.Cliente.Nome))
+                {
+                    ModelState.AddModelError("Cliente.Nome", "Nome do cliente é obrigatório.");
+                    temErro = true;
+                }
+
+                if (string.IsNullOrEmpty(carro.Cliente.Telefone))
+                {
+                    ModelState.AddModelError("Cliente.Telefone", "Telefone é obrigatório.");
+                    temErro = true;
+                }
+
+                if (string.IsNullOrEmpty(carro.Cliente.Endereco))
+                {
+                    ModelState.AddModelError("Cliente.Endereco", "Endereço é obrigatório.");
+                    temErro = true;
+                }
+
+                if (string.IsNullOrEmpty(carro.Cliente.CPF))
+                {
+                    ModelState.AddModelError("Cliente.CPF", "CPF é obrigatório.");
+                    temErro = true;
+                }
+            }
+
+            if (temErro)
+            {
+                ViewBag.Carros = _context.Carros.ToList();
+                return View(carro);
+            }
+
+            // Atualiza o cliente primeiro
+            var clienteExistente = _context.Clientes.Find(carro.ClienteId);
+            if (clienteExistente != null)
+            {
+                clienteExistente.Nome = carro.Cliente.Nome.ToUpper();
+                clienteExistente.Endereco = carro.Cliente.Endereco.ToUpper();
+                clienteExistente.Telefone = carro.Cliente.Telefone;
+                clienteExistente.CPF = carro.Cliente.CPF;
+
+                _context.Clientes.Update(clienteExistente);
+            }
+
+            // Atualiza o carro
+            _context.Carros.Update(carro);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
+
+
 
         // Tela de Excluir Carro
         public IActionResult Delete(int id) {

@@ -1,34 +1,37 @@
 ﻿@{
     Layout = "_Layout";
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Gestão Automotiva";
 }
 
+<h2>@ViewData["Title"]</h2>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Login</title>
+    <title>Gestão Automotiva</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 </head>
-<body class="bg-dark text-light">
-    <div class="container mt-5 col-md-4">
-        <h3>Gestão Automotiva</h3>
-        <form method="post">
-            <div class="mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" required />
-            </div>
-            <div class="mb-3">
-                <label>Senha</label>
-                <input type="password" name="senha" class="form-control" required />
-            </div>
-            @if (ViewBag.Erro != null)
-            {
-                <div class="alert alert-danger">@ViewBag.Erro</div>
-            }
-            <button class="btn btn-primary">Entrar</button>
-        </form>
+<body class="login-body bg-dark ">
+    <div class=" highlight-box2 container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="login-card p-4 shadow-lg bg-glass  animate__animated animate__fadeInDown" style="min-width: 350px;">
+            <h3>Login</h3>
+            <form method="post">
+                <div class="mb-3">
+                    <label id="email">Email</label>
+                    <input type="email" name="email" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label id="senha">Senha</label>
+                    <input type="password" name="senha" class="form-control" required />
+                </div>
+                @if (ViewBag.Erro != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Erro</div>
+                }
+                <button class="btn btn-primary">Entrar</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

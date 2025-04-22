@@ -26,6 +26,10 @@ namespace GestaoAutomotiva.Migrations
                     b.Property<int>("CarroId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Cor")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("DataInicio")
                         .HasColumnType("TEXT");
 
@@ -164,6 +168,54 @@ namespace GestaoAutomotiva.Migrations
                     b.ToTable("Funcionarios");
                 });
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.OrdemServico", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Almoxarifado")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AtividadeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CarroId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataAbertura")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EtapaAtual")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("FuncionarioId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Inspetor")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Observacoes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Prioridade")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tarefas")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AtividadeId");
+
+                    b.ToTable("OrdemServicos");
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.Servico", b =>
                 {
                     b.Property<int>("Id")
@@ -270,6 +322,17 @@ namespace GestaoAutomotiva.Migrations
                         .IsRequired();
 
                     b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.OrdemServico", b =>
+                {
+                    b.HasOne("GestaoAutomotiva.Models.Atividade", "Atividade")
+                        .WithMany()
+                        .HasForeignKey("AtividadeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Atividade");
                 });
 
             modelBuilder.Entity("GestaoAutomotiva.Models.Cliente", b =>

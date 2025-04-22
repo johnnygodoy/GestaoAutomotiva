@@ -1,0 +1,206 @@
+﻿@model List<GestaoAutomotiva.Models.Atividade>
+@using GestaoAutomotiva.Utils
+
+@{
+    ViewData["Title"] = "Gráfico de Etapas";
+    Layout = "_Layout";
+}
+
+<h2 class="text-light">📊 Gráfico de Etapas dos Carros</h2>
+
+<div class="bg-white rounded shadow p-3 mb-4 border border-dark">
+
+    <form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
+
+        <!-- Campo Único de Pesquisa -->
+        <div class="d-flex flex-column" style="width: 220px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Buscar por Nome</label>
+            <input type="text" name="busca" value="@Context.Request.Query["busca"]" class="form-control form-control-sm" placeholder="Cliente, Carro ou Funcionário" />
+        </div>
+
+        <!-- Data Início -->
+        <div class="d-flex flex-column" style="width: 140px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Início</label>
+            <input type="date" name="dataInicio" class="form-control form-control-sm">
+        </div>
+
+        <!-- Data Fim -->
+        <div class="d-flex flex-column" style="width: 140px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Fim</label>
+            <input type="date" name="dataFim" class="form-control form-control-sm">
+        </div>
+
+        <!-- Etapa -->
+        <div class="d-flex flex-column" style="width: 180px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Etapa</label>
+            <select name="etapaId" class="form-select form-select-sm">
+                <option value="">Todas Etapas</option>
+                @foreach (var e in ViewBag.Etapas as List<SelectListItem>)
+                {
+                    <option value="@e.Value">@e.Text</option>
+                }
+            </select>
+        </div>
+
+        <!-- Status -->
+        <div class="d-flex flex-column" style="width: 160px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Status</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">Todos Status</option>
+                <option value="Em Andamento">Em Andamento</option>
+                <option value="Finalizado">Finalizado</option>
+                <option value="Pendente">Pendente</option>
+            </select>
+        </div>
+
+        <!-- Botões -->
+        <div class="d-flex gap-2 align-items-end">
+            <button type="submit" class="btn btn-outline-dark">Filtrar</button>
+            <a asp-action="Index" class="btn btn-secondary">Limpar</a>
+            <button type="button" onclick="exportGantt()" class="btn btn-success">📤 Exportar PDF</button>
+        </div>
+    </form>
+
+
+
+
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">Nenhuma atividade encontrada para os filtros selecionados.</div>
+    }
+    else
+    {
+        <div id="grafico_etapas" class="rounded border p-2" style="height:@(Model.Count * 60 + 120)px;"></div>
+    }
+</div>
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    google.charts.load('current', { packages: ['gantt'] });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'ID');
+        data.addColumn('string', 'Tarefa');
+        data.addColumn('string', 'Recurso');
+        data.addColumn('date', 'Início');
+        data.addColumn('date', 'Término');
+        data.addColumn('number', 'Duração');
+        data.addColumn('number', 'Percentual');
+        data.addColumn('string', 'Dependência');
+        data.addColumn({ type: 'string', role: 'style' });
+        data.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
+
+        data.addRows([
+    @foreach (var a in Model)
+    {
+        if (a.DataInicio.HasValue && a.DataPrevista.HasValue)
+        {
+            var nomeCliente = TextoHelper.RemoverCaracteresEspeciais(a.Carro.Cliente?.Nome);
+            var modeloCarro = TextoHelper.RemoverCaracteresEspeciais(a.Carro.Modelo);
+            var nomeEtapa = TextoHelper.RemoverCaracteresEspeciais(a.Etapa?.Nome);
+            var atrasado = a.Atrasado;
+            var tooltip = $"<div style='padding:10px; font-size:13px;'>"
+                + $"<strong>Cliente:</strong> {nomeCliente}<br />"
+                + $"<strong>Carro:</strong> {modeloCarro}<br />"
+                + $"<strong>Etapa:</strong> {nomeEtapa}<br />"
+                + $"<strong>Status:</strong> {(atrasado ? "🚨 Atrasado" : "✅ Em Dia")}<br />"
+                + $"<strong>Início:</strong> {a.DataInicio:dd/MM/yyyy}<br />"
+                + $"<strong>Previsão:</strong> {a.DataPrevista:dd/MM/yyyy}</div>"
+                .Replace("\"", "\\\"");
+
+            var cor = atrasado ? "#e74c3c" : "#2ecc71";
+
+            <text>
+                                [
+                                    "@a.Id",
+                                    "@modeloCarro - @nomeCliente - @nomeEtapa -Cod:@a.Carro.IdCarro",
+                                    "@nomeEtapa",
+                                    new Date(@a.DataInicio.Value.Year, @a.DataInicio.Value.Month - 1, @a.DataInicio.Value.Day),
+                                    new Date(@a.DataPrevista.Value.Year, @a.DataPrevista.Value.Month - 1, @a.DataPrevista.Value.Day),
+                                    null,
+                                    0,
+                                    null,
+                                    "fill: @cor",
+                                    "@tooltip"
+                                ],
+            </text>
+        }
+    }
+
+
+        ]);
+
+        var options = {
+            height: @Model.Count * 50 + 120,
+            tooltip: { isHtml: true },
+            backgroundColor: '#fff',
+            chartArea: {
+                left: 180,
+                bottom: 150,
+                top: 50,
+                height: '65%',
+                width: '85%'
+            },
+            gantt: {
+                trackHeight: 40,
+                labelStyle: {
+                    fontSize: 14,
+                    color: '#000'
+                },
+                innerGridHorizLine: {
+                    stroke: '#999',
+                    strokeWidth: 1
+                },
+                innerGridTrack: { fill: '#f7f7f7' },
+                innerGridDarkTrack: { fill: '#e0e0e0' }
+            }
+        };
+
+        new google.visualization.Gantt(document.getElementById('grafico_etapas')).draw(data, options);
+    }
+
+    function exportGantt() {
+        const svg = document.querySelector('#grafico_etapas svg');
+        if (!svg) {
+            alert("Gráfico ainda não carregado.");
+            return;
+        }
+
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement("canvas");
+        const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+
+        img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+
+            canvas.toBlob(function (blob) {
+                const formData = new FormData();
+                formData.append("grafico", blob, "grafico.png");
+
+                fetch("/GraficoCarroEtapa/GerarPdf", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "grafico_etapas.pdf";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            });
+        };
+
+        img.src = url;
+    }
+</script>

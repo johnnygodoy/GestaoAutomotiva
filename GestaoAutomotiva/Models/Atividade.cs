@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GestaoAutomotiva.Models
 {
@@ -9,7 +10,7 @@ namespace GestaoAutomotiva.Models
 
         public int FuncionarioId { get; set; }
         public int ServicoId { get; set; }
-     
+
         public DateTime? DataInicio { get; set; }
         public int EstimativaDias { get; set; }
         public DateTime? DataPrevista { get; set; }
@@ -23,6 +24,15 @@ namespace GestaoAutomotiva.Models
 
         public int CarroId { get; set; }  // Relacionamento com Carro
         public Carro Carro { get; set; }  // Relacionamento com Carro
+
+        [NotMapped]
+        public bool Conflito { get; set; }
+
+        public string Cor { get; set; } // Usada para colorir o gráfico Gantt
+
+        [NotMapped]
+        public bool Atrasado => DataPrevista.HasValue && DataPrevista.Value.Date < DateTime.Today && Status != "Finalizado";
+
 
     }
 

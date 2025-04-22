@@ -32,14 +32,17 @@
             </select>
             <span asp-validation-for="CarroId" class="text-danger"></span>
         </div>
+        <div class="col-md-6">
+            <label asp-for="DataInicio" class="form-label text-light">Data de Início</label>
+            <input asp-for="DataInicio" type="date" class="form-control" />
+            <span asp-validation-for="DataInicio" class="text-danger"></span>
+        </div>
+
     </div>
 
-    <div class="mt-3">
-        <label asp-for="DataInicio" class="form-label text-light">Data de Início</label>
-        <input asp-for="DataInicio" type="date" class="form-control" />
-        <span asp-validation-for="DataInicio" class="text-danger"></span>
+    <!-- Botões de Salvar e Cancelar -->
+    <div class="d-flex justify-content-between mt-4">
+        <button type="submit" class="btn btn-outline-light">Salvar Atividade</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </div>
-
-    <button type="submit" class="btn btn-outline-light mt-4">Salvar Atividade</button>
-    <a asp-action="Index" class="btn btn-secondary mt-4">Cancelar</a>
 </form>

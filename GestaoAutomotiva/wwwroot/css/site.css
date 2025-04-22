@@ -105,20 +105,6 @@ input[type="date"] {
     animation: fadeInUp 0.4s ease-in-out;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-
-
 /* Cores adicionais personalizadas */
 .bg-coral {
     background-color: #FF7F50; /* Coral */
@@ -472,9 +458,12 @@ input[type="text"] {
     }
 
     .table td .btn {
-        display: inline-block;
-        margin-top: 2px;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 5px;
+        white-space: nowrap;
     }
+    
 
 /* Ajustes nas variáveis do Bootstrap para garantir que as cores estejam de acordo */
 .table {
@@ -510,11 +499,113 @@ input[type="text"] {
 .form-group {
     flex: 1 1 45%; /* Cada campo ocupa até 45% da largura, ajustando para se adaptar */
 }
+/* Card central do login */
+.login-card {
+    background-color: rgba(33, 37, 41, 0.5);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+    /* Título com destaque */
+    .login-card h3 {
+        font-weight: bold;
+        color: red;
+    }
+    /* Título com destaque */
+#email, #senha {
+    font-weight: bold;
+    color: white;
+}
+
+.highlight-box, .highlight-box2 {
+    animation: fadeInDown 1s ease-in-out;
+}
+
+
+.campo-erro {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 4px;
+    display: block;
+}
+
+
+.grafico-titulo {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    margin-top: 20px;
+    color: #333;
+}
+
+.grafico-box {
+    border: 1px solid black;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #fff;
+    margin-bottom: 20px;
+}
+
+.grafico-header {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+#grafico_conflitos_funcionario,
+#gantt_chart {
+    background-color: white;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.grafico-footer {
+    margin-top: 10px;
+    text-align: right;
+}
+
+    .grafico-footer button {
+        margin-top: 10px;
+    }
+
+.legenda span {
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+#grafico_etapas {
+    background: #ffffff;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+
+    #grafico_etapas text {
+        font-size: 11px !important;
+    }
+
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 @media (max-width: 768px) {
     .form-group {
         flex: 1 1 100%; /* Quando a tela for pequena, os campos ocupam 100% da largura */
     }
 }
+
 
 /* Fim das modificações */

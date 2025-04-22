@@ -1,0 +1,38 @@
+
+📘 LEIA-ME - GESTÃO AUTOMOTIVA (VERSÃO DE TESTE)
+
+Versão: Modo Teste
+Validade: até 31/05/2025
+
+🛠️ Como executar o sistema:
+
+1. Extraia todos os arquivos do arquivo .zip para uma pasta no computador.
+   (ex: C:\GestaoAutomotiva)
+
+2. Dentro da pasta extraída, dê dois cliques no arquivo GestaoAutomotiva.exe
+
+3. O sistema será iniciado e abrirá no navegador padrão (ex: Google Chrome).
+
+🔑 Login de Acesso (usuário administrador):
+
+- Email: admin@teste.com
+- Senha: 123
+
+❗ Observações:
+
+- Esta versão está em Modo de Teste e funciona localmente, sem necessidade de internet.
+- Após o prazo de expiração (31/05/2025), o sistema deixará de funcionar.
+- Para ativar a versão completa, entre em contato com o suporte.
+
+📂 Arquivos importantes:
+
+- GestaoAutomotiva.exe → Executável principal
+- gestaoAutomotiva.db → Banco de dados local
+- appsettings.json → Configurações do sistema
+- wwwroot → Pasta com imagens e layout do sistema
+
+📞 Suporte
+
+Para dúvidas, sugestões ou ativação da versão completa, entre em contato:
+📧 joaorogodoy@gmail.com
+📱 (11) 9 7132-9882

@@ -80,7 +80,12 @@
                         <div class="card kanban-card @GetCardColor(etapa.index, Model.Etapas.Count) mb-2">
                             <div class="card-body p-2">
                                 <div class="d-flex justify-content-between">
-                                    <strong>@atividade.Carro.IdCarro — @atividade.Carro.Modelo</strong>
+                                    <strong>
+                                        @atividade.Carro.IdCarro — @atividade.Carro.Modelo
+                                        <br />
+                                        👤 @atividade.Carro.Cliente?.Nome
+                                    </strong>
+
                                     <span class="badge bg-light text-dark">@atividade.Etapa?.Nome</span>
                                 </div>
                                 <small>👨‍🔧 @atividade.Funcionario?.Nome</small><br />

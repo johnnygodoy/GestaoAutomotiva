@@ -1,0 +1,319 @@
+﻿@model List<GestaoAutomotiva.Models.Atividade>
+@using GestaoAutomotiva.Utils
+
+@{
+    ViewData["Title"] = "Planejamento de Atividades";
+    Layout = "_Layout";
+    var selectedId = Context.Request.Query["funcionarioId"].ToString();
+    var tipoConflitoSelecionado = Context.Request.Query["tipoConflito"].ToString();
+    var funcionarios = ViewBag.Funcionarios as List<SelectListItem>;
+
+    string htmlOptions = "<option value=''>Todos os Funcionários</option>";
+    foreach (var f in funcionarios)
+    {
+        var selectedAttr = (f.Value == selectedId) ? "selected" : "";
+        htmlOptions += $"<option value='{f.Value}' {selectedAttr}>{f.Text}</option>";
+    }
+
+    string htmlTipoConflito = "";
+    string[] tipos = { "Funcionario", "Carro", "Servico", "Status", "Qualquer" };
+    foreach (var tipo in tipos)
+    {
+        var texto = tipo switch
+        {
+            "Funcionario" => "Conflito por Funcionário",
+            "Carro" => "Conflito por Carro",
+            "Servico" => "Conflito por Serviço",
+            "Status" => "Conflito por Status",
+            "Qualquer" => "Qualquer Sobreposição",
+            _ => tipo
+        };
+        var selected = tipo == tipoConflitoSelecionado ? "selected" : "";
+        htmlTipoConflito += $"<option value='{tipo}' {selected}>{texto}</option>";
+    }
+} 
+
+
+<h2 class="text-light">Planejamento de Atividades</h2>
+
+@if (ViewBag.TemConflitos == true)
+{
+    var nomes = string.Join(", ", (List<string>)ViewBag.FuncionariosConflito);
+    int total = ViewBag.TotalConflitos;
+    <div class="alert alert-danger" role="alert">
+        <h5 class="mb-1">⚠️ Atenção!</h5>
+        <p class="mb-0">Existem <strong>@total</strong> atividade(s) em conflito de acordo com o critério selecionado.</p>
+        <p class="mb-0"><strong>Funcionários em conflito:</strong> @nomes</p>
+    </div>
+}
+
+<div class="bg-white rounded shadow p-3 mb-4 border border-dark">
+
+    <div class="d-flex gap-3 align-items-center mb-3">
+        <span><strong>Legenda:</strong></span>
+        <span style="color: #e74c3c;">⬛ Funcionário</span>
+        <span style="color: #f39c12;">⬛ Carro</span>
+        <span style="color: #2980b9;">⬛ Serviço</span>
+        <span style="color: #8e44ad;">⬛ Status</span>
+        <span style="color: #2ecc71;">⬛ Qualquer</span>
+        <span style="color: #3498db;">⬛ Sem Conflito</span>
+    </div>
+
+    <!-- GRÁFICO DE BARRAS -->
+    <div class="grafico-box">
+        <div class="grafico-titulo">Conflitos por Funcionário</div>
+        <div id="grafico_conflitos_funcionario" style="height: 180px;"></div>
+    </div>
+
+
+    <form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
+
+        <!-- Funcionário -->
+        <div class="d-flex flex-column" style="width: 220px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Funcionário</label>
+            <select name="funcionarioId" class="form-control form-control-sm">
+                @Html.Raw(htmlOptions)
+            </select>
+        </div>
+
+        <!-- Tipo de Conflito -->
+        <div class="d-flex flex-column" style="width: 220px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Tipo de Conflito</label>
+            <select name="tipoConflito" class="form-control form-control-sm">
+                @Html.Raw(htmlTipoConflito)
+            </select>
+        </div>
+
+        <!-- Data Início -->
+        <div class="d-flex flex-column" style="width: 140px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Início</label>
+            <input type="date" name="dataInicio" class="form-control form-control-sm">
+        </div>
+
+        <!-- Data Fim -->
+        <div class="d-flex flex-column" style="width: 140px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Fim</label>
+            <input type="date" name="dataFim" class="form-control form-control-sm">
+        </div>
+
+        <!-- Status -->
+        <div class="d-flex flex-column" style="width: 120px;">
+            <label class="form-label text-muted mb-1" style="font-size: 13px;">Status</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                @{
+                    var statusSelecionado = Context.Request.Query["status"].ToString();
+                    string[] statusList = { "Pendente", "Em Andamento", "Finalizado" };
+                    foreach (var status in statusList)
+                    {
+                        var selected = status == statusSelecionado ? "selected" : "";
+                        @Html.Raw($"<option value='{status}' {selected}>{status}</option>")
+                    }
+                }
+            </select>
+        </div>
+
+        <!-- Botões -->
+        <div class="d-flex gap-2 align-items-end">
+            <button type="submit" class="btn btn-outline-dark">Filtrar</button>
+            <a asp-action="Index" class="btn btn-secondary">Limpar</a>
+            <button type="button" onclick="exportGantt()" class="btn btn-success">📤 Exportar PDF</button>
+        </div>
+    </form>
+
+
+
+
+    <!-- GANTT + Exportação -->
+    <div class="grafico-box">
+        <div class="grafico-titulo">Distribuição de Atividades</div>
+        <div id="gantt_chart" style="height: 400px;"></div>
+
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    google.charts.load('current', { packages: ['corechart', 'gantt'] });
+    google.charts.setOnLoadCallback(drawCharts);
+
+    function drawCharts() {
+        drawBarChart();
+        drawGanttChart();
+    }
+
+    function drawBarChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Funcionário');
+        data.addColumn('number', 'Conflitos');
+        data.addRows([
+    @foreach (var item in (dynamic)ViewBag.ConflitosPorFuncionario)
+    {
+        <text>["@item.Funcionario", @item.Total],</text>
+    }
+        ]);
+
+       var options = {
+        height: 180,
+        legend: { position: 'none' },
+        colors: ['#e74c3c'],
+        backgroundColor: '#fff',
+        chartArea: { width: '80%', height: '70%' },
+        hAxis: {
+            minValue: 0,
+            gridlines: { color: '#666' },       // Linhas horizontais mais escuras
+            baselineColor: '#333',              // Linha base mais escura
+            textStyle: { color: '#222', fontSize: 12 }
+        },
+        vAxis: {
+            textStyle: { fontSize: 12, color: '#222' }, // Nomes dos funcionários mais visíveis
+            gridlines: { color: '#ccc' },
+            baselineColor: '#333'
+        }
+    };
+
+
+        new google.visualization.BarChart(document.getElementById('grafico_conflitos_funcionario')).draw(data, options);
+    }
+
+       function drawGanttChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'ID');
+        data.addColumn('string', 'Tarefa');
+        data.addColumn('string', 'Recurso');
+        data.addColumn('date', 'Início');
+        data.addColumn('date', 'Término');
+        data.addColumn('number', 'Duração');
+        data.addColumn('number', 'Percentual');
+        data.addColumn('string', 'Dependência');
+        data.addColumn({ type: 'string', role: 'style' });
+        data.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
+
+        var atividades = [
+    @foreach (var atividade in Model)
+    {
+        if (!atividade.DataInicio.HasValue || !atividade.DataPrevista.HasValue) continue;
+
+        var nomeFuncionario = TextoHelper.RemoverCaracteresEspeciais(atividade.Funcionario.Nome);
+        var nomeCliente = TextoHelper.RemoverCaracteresEspeciais(atividade.Carro.Cliente?.Nome);
+        var modeloCarro = TextoHelper.RemoverCaracteresEspeciais(atividade.Carro.Modelo);
+        var tipoServico = TextoHelper.RemoverCaracteresEspeciais(atividade.Servico.Tipo);
+
+        var tooltipHtml = $"<div style='padding:10px; font-size:13px;'>"
+            + $"<strong>Funcionário:</strong> {nomeFuncionario}<br />"
+            + $"<strong>Serviço:</strong> {tipoServico}<br />"
+            + $"<strong>Carro:</strong> {modeloCarro}<br />"
+            + $"<strong>Cliente:</strong> {nomeCliente}<br />"
+            + $"<strong>Início:</strong> {atividade.DataInicio?.ToString("dd/MM/yyyy")}<br />"
+            + $"<strong>Previsão:</strong> {atividade.DataPrevista?.ToString("dd/MM/yyyy")}</div>"
+            .Replace("\"", "\\\"");
+
+        <text>
+                    [
+                        "@atividade.Id",
+                        "@nomeFuncionario - @nomeCliente",
+                        "@nomeFuncionario",
+                        new Date(@atividade.DataInicio.Value.Year, @atividade.DataInicio.Value.Month - 1, @atividade.DataInicio.Value.Day),
+                        new Date(@atividade.DataPrevista.Value.Year, @atividade.DataPrevista.Value.Month - 1, @atividade.DataPrevista.Value.Day),
+                        null,
+                        0,
+                        null,
+                        "fill: @atividade.Cor",
+                        "@tooltipHtml"
+                    ],
+        </text>
+    }
+        ];
+
+        if (atividades.length === 0) {
+            document.getElementById('gantt_chart').innerHTML = `<div style="padding: 30px; text-align: center; font-size: 18px; color: #666;">Não há atividades para exibir com os filtros selecionados.</div>`;
+            return;
+        }
+
+        data.addRows(atividades);
+
+        var options = {
+            height: Math.max(@Model.Count * 45, 300),
+            tooltip: { isHtml: true },
+            backgroundColor: '#fff',
+            chartArea: {
+                bottom: 80,
+                left: 120,
+                width: '88%',
+                height: '70%'
+            },
+            gantt: {
+                trackHeight: 40,
+                labelStyle: { fontSize: 14, color: '#000' },
+                innerGridHorizLine: { stroke: '#999', strokeWidth: 1 },
+                innerGridTrack: { fill: '#f7f7f7' },
+                innerGridDarkTrack: { fill: '#e0e0e0' }
+            }
+        };
+
+        new google.visualization.Gantt(document.getElementById('gantt_chart')).draw(data, options);
+    }
+
+        function exportGantt() {
+        const ganttSvg = document.querySelector('#gantt_chart svg');
+        const barSvg = document.querySelector('#grafico_conflitos_funcionario svg');
+
+        if (!ganttSvg || !barSvg) {
+            alert("Gráficos ainda não carregados.");
+            return;
+        }
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const ganttImg = new Image();
+        const barImg = new Image();
+
+        let imagesLoaded = 0;
+
+        const checkAndGenerate = () => {
+            imagesLoaded++;
+            if (imagesLoaded < 2) return;
+
+            // Ajuste de largura e altura final do canvas
+            canvas.width = Math.max(barImg.width, ganttImg.width);
+            canvas.height = barImg.height + ganttImg.height + 40;
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.drawImage(barImg, 0, 0);
+            ctx.drawImage(ganttImg, 0, barImg.height + 20);
+
+            // Envia imagem combinada para gerar PDF
+            canvas.toBlob(function (blob) {
+                const formData = new FormData();
+                formData.append("grafico", blob, "grafico.png");
+
+                fetch("/Planejamento/GerarPdf", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.blob())
+                .then(blob => {
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = "planejamento.pdf";
+                    a.click();
+                    URL.revokeObjectURL(downloadUrl);
+                });
+            });
+        };
+
+        const serializeSvg = (svg) =>
+            URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" }));
+
+        ganttImg.onload = checkAndGenerate;
+        barImg.onload = checkAndGenerate;
+
+        ganttImg.src = serializeSvg(ganttSvg);
+        barImg.src = serializeSvg(barSvg);
+    }
+
+</script>

@@ -19,11 +19,13 @@ namespace GestaoAutomotiva.Controllers
             return View();
         }
 
-        public IActionResult Index(string busca = null) {
+        public IActionResult Index(string busca = null, int page = 1) {
 
             ViewData["Busca"] = busca;
 
-            var servicos = _context.Servicos.AsQueryable();          
+            int pageSize = 10; // Quantidade de itens por página
+
+            var servicos = _context.Servicos.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(busca))
             {
@@ -33,7 +35,24 @@ namespace GestaoAutomotiva.Controllers
 
             }
 
-            return View(servicos.ToList());
+            // Total de servicos encontrados
+            var totalRegistros = servicos.Count();
+
+            // Calculando o total de páginas
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            // Pegando a página solicitada e aplicando Skip e Take
+            var servicosPaginados = servicos
+                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
+                .Take(pageSize) // Pegar o número de itens da página atual
+                .ToList();
+
+            // Passando os dados para a View
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
+
+            return View(servicosPaginados);
         }
 
         [HttpPost]

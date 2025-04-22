@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<GestaoAutomotiva.Models.Carro>
 
-<h2 class="text-light">Lista de Carros</h2>
+<h2 class="text-light">Lista de Carro/Cliente</h2>
 
 <a href="@Url.Action("Create", "Carro")" class="btn btn-outline-light mb-3">Adicionar Novo Carro</a>
 
@@ -10,13 +10,16 @@
     <a asp-action="Index" class="btn btn-secondary">Limpar</a>
 </form>
 
-<div class="table-container">
-    <table class="table table-dark table-hover mt-3">
+<div class="table-responsive">
+    <table class="table table-dark table-hover">
         <thead>
             <tr>
-                <th>Código do Carro</th>
+                <th>Código</th>
                 <th>Modelo</th>
+                <th>Cor</th>
                 <th>Cliente</th>
+                <th>CPF</th>
+                <th>Telefone</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -26,7 +29,10 @@
                 <tr>
                     <td>@carro.IdCarro</td>
                     <td>@carro.Modelo</td>
+                    <td>@carro.Cor</td>
                     <td>@carro.Cliente?.Nome</td>
+                    <td>@carro.Cliente?.CPF</td>
+                    <td>@carro.Cliente?.Telefone</td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@carro.Id" class="btn btn-warning btn-sm">Editar</a>
                         <a asp-action="Delete" asp-route-id="@carro.Id" class="btn btn-danger btn-sm">Excluir</a>
@@ -34,5 +40,21 @@
                 </tr>
             }
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" class="text-center bg-dark">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
+                            {
+                                <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = i, busca = ViewBag.BuscaNome })">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 </div>
