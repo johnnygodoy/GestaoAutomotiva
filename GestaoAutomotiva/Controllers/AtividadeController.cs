@@ -135,10 +135,10 @@ namespace GestaoAutomotiva.Controllers
             }
             else
             {
-                atividade.Carro.Cor = atividade.Carro.Cor.ToUpper();
+                atividade.Carro.Cor = atividade.Carro.Cor.ToUpper();              
             }
 
-            
+
 
             if (!atividade.DataInicio.HasValue)
             {
@@ -164,6 +164,7 @@ namespace GestaoAutomotiva.Controllers
             atividade.EstimativaDias = (int)servico.EstimativaDias;
             atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
             atividade.Status = "Em Andamento";
+            atividade.Cor = "#2ecc71";
 
             // Verifica se a atividade é a primeira a ser criada
             if (atividade.EtapaId == 0 || atividade.EtapaId == null) // caso não tenha etapa associada
@@ -273,6 +274,7 @@ namespace GestaoAutomotiva.Controllers
 
             atividade.EstimativaDias = (int)servico.EstimativaDias;
             atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
+            atividade.Cor = "#2ecc71";
 
             _context.Atividades.Update(atividade);
             _context.SaveChanges();
@@ -358,7 +360,8 @@ namespace GestaoAutomotiva.Controllers
             return View(atividadesPaginados);
         }
         public IActionResult ExportarPdf() {
-            var atividades = _context.Atividades
+            var atividades = _context.Atividades              
+                .Include(a => a.Carro)
                 .Include(a => a.Funcionario)
                 .Include(a => a.Servico)
                 .Where(a => a.Status != "Em Andamento")
@@ -372,6 +375,7 @@ namespace GestaoAutomotiva.Controllers
         }
         public IActionResult ExportarExcel() {
             var atividades = _context.Atividades
+                .Include(a=>a.Carro)
                 .Include(a => a.Funcionario)
                 .Include(a => a.Servico)
                 .Where(a => a.Status != "Em Andamento")

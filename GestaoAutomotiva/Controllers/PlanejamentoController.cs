@@ -1,8 +1,4 @@
-﻿// ============================
-// CONTROLLER - PlanejamentoController.cs
-// ============================
-
-using GestaoAutomotiva.Data;
+﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -26,11 +22,12 @@ public class PlanejamentoController : Controller
         string status = null) {
         // 🔐 Carrega e já filtra atividades com DataInicio/DataPrevista nulas
         var atividades = _context.Atividades
-            .Include(a => a.Funcionario)
-            .Include(a => a.Carro).ThenInclude(c => c.Cliente)
-            .Include(a => a.Servico)
-            .Where(a => a.DataInicio.HasValue && a.DataPrevista.HasValue)
-            .ToList();
+       .Include(a => a.Funcionario)
+       .Include(a => a.Carro).ThenInclude(c => c.Cliente)
+       .Include(a => a.Servico)
+       .Where(a => a.DataInicio.HasValue && a.DataPrevista.HasValue && a.Status != "Finalizado")
+       .ToList();
+
 
         // 🧠 Filtros ANTES do processamento de conflitos
         if (funcionarioId.HasValue)

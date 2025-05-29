@@ -17,6 +17,47 @@ namespace GestaoAutomotiva.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.AcessoriosCarro", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CambioId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CapotaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CarroceriaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MotorId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RodasPneusId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SuspensaoId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CambioId");
+
+                    b.HasIndex("CapotaId");
+
+                    b.HasIndex("CarroceriaId");
+
+                    b.HasIndex("MotorId");
+
+                    b.HasIndex("RodasPneusId");
+
+                    b.HasIndex("SuspensaoId");
+
+                    b.ToTable("AcessoriosCarros");
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.Atividade", b =>
                 {
                     b.Property<int>("Id")
@@ -70,10 +111,43 @@ namespace GestaoAutomotiva.Migrations
                     b.ToTable("Atividades");
                 });
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.Cambio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cambios");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.Capota", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Capotas");
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.Carro", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AcessoriosCarroId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ClienteId")
@@ -93,9 +167,26 @@ namespace GestaoAutomotiva.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AcessoriosCarroId");
+
                     b.HasIndex("ClienteId");
 
                     b.ToTable("Carros");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.Carroceria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Carrocerias");
                 });
 
             modelBuilder.Entity("GestaoAutomotiva.Models.Cliente", b =>
@@ -168,6 +259,21 @@ namespace GestaoAutomotiva.Migrations
                     b.ToTable("Funcionarios");
                 });
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.Motor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Motors");
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.OrdemServico", b =>
                 {
                     b.Property<int>("Id")
@@ -177,7 +283,7 @@ namespace GestaoAutomotiva.Migrations
                     b.Property<string>("Almoxarifado")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("AtividadeId")
+                    b.Property<int?>("AtividadeId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("CarroId")
@@ -216,6 +322,21 @@ namespace GestaoAutomotiva.Migrations
                     b.ToTable("OrdemServicos");
                 });
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.RodaPneu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RodasPneus");
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.Servico", b =>
                 {
                     b.Property<int>("Id")
@@ -236,6 +357,21 @@ namespace GestaoAutomotiva.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Servicos");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.Suspensao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Suspensaos");
                 });
 
             modelBuilder.Entity("GestaoAutomotiva.Models.Usuario", b =>
@@ -273,6 +409,57 @@ namespace GestaoAutomotiva.Migrations
                             Senha = "admin123",
                             Tipo = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.AcessoriosCarro", b =>
+                {
+                    b.HasOne("GestaoAutomotiva.Models.Cambio", "Cambio")
+                        .WithMany()
+                        .HasForeignKey("CambioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GestaoAutomotiva.Models.Capota", "Capota")
+                        .WithMany()
+                        .HasForeignKey("CapotaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GestaoAutomotiva.Models.Carroceria", "Carroceria")
+                        .WithMany()
+                        .HasForeignKey("CarroceriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GestaoAutomotiva.Models.Motor", "Motor")
+                        .WithMany()
+                        .HasForeignKey("MotorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GestaoAutomotiva.Models.RodaPneu", "RodasPneus")
+                        .WithMany()
+                        .HasForeignKey("RodasPneusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GestaoAutomotiva.Models.Suspensao", "Suspensao")
+                        .WithMany()
+                        .HasForeignKey("SuspensaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cambio");
+
+                    b.Navigation("Capota");
+
+                    b.Navigation("Carroceria");
+
+                    b.Navigation("Motor");
+
+                    b.Navigation("RodasPneus");
+
+                    b.Navigation("Suspensao");
                 });
 
             modelBuilder.Entity("GestaoAutomotiva.Models.Atividade", b =>
@@ -315,11 +502,17 @@ namespace GestaoAutomotiva.Migrations
 
             modelBuilder.Entity("GestaoAutomotiva.Models.Carro", b =>
                 {
+                    b.HasOne("GestaoAutomotiva.Models.AcessoriosCarro", "Acessorios")
+                        .WithMany()
+                        .HasForeignKey("AcessoriosCarroId");
+
                     b.HasOne("GestaoAutomotiva.Models.Cliente", "Cliente")
                         .WithMany("Carros")
                         .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Acessorios");
 
                     b.Navigation("Cliente");
                 });
@@ -329,8 +522,7 @@ namespace GestaoAutomotiva.Migrations
                     b.HasOne("GestaoAutomotiva.Models.Atividade", "Atividade")
                         .WithMany()
                         .HasForeignKey("AtividadeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Atividade");
                 });

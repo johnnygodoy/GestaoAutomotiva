@@ -1,0 +1,104 @@
+﻿@model GestaoAutomotiva.Models.AcessoriosCarro
+
+@if (TempData["Mensagem"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Mensagem"]
+        @if (TempData["MaisUm"] != null)
+        {
+            <form method="get" asp-action="Create" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-success ms-3">Adicionar outro</button>
+            </form>
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h2 class="text-light">Criar Acessórios</h2>
+
+<!-- Formulário para criar um novo acessório -->
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="col-md-4">
+            <label asp-for="Motor"></label>
+            <select asp-for="MotorId" class="form-control" asp-items="ViewBag.Motores">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Cambio"></label>
+            <select asp-for="CambioId" class="form-control" asp-items="ViewBag.Cambios">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Suspensao"></label>
+            <select asp-for="SuspensaoId" class="form-control" asp-items="ViewBag.Suspensoes">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label asp-for="RodasPneus"></label>
+            <select asp-for="RodasPneusId" class="form-control" asp-items="ViewBag.RodasPneus">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Carroceria"></label>
+            <select asp-for="CarroceriaId" class="form-control" asp-items="ViewBag.Carrocerias">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Capota"></label>
+            <select asp-for="CapotaId" class="form-control" asp-items="ViewBag.Capotas">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-between">
+        <button type="submit" class="btn btn-outline-light">Salvar Acessórios</button>
+        <a asp-controller="Carro" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+<hr>
+
+<!-- Tabela com todos os acessórios -->
+<h3 class="text-light mt-5">Acessórios Criados</h3>
+<table class="table table-dark table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Motor</th>
+            <th>Câmbio</th>
+            <th>Suspensão</th>
+            <th>Rodas/Pneus</th>
+            <th>Carroceria</th>
+            <th>Capota</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewBag.AcessoriosList)
+        {
+            <tr>
+                <td>@item.Motor?.Descricao</td>
+                <td>@item.Cambio?.Descricao</td>
+                <td>@item.Suspensao?.Descricao</td>
+                <td>@item.RodasPneus?.Descricao</td>
+                <td>@item.Carroceria?.Descricao</td>
+                <td>@item.Capota?.Descricao</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

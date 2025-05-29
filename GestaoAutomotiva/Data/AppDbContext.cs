@@ -13,7 +13,14 @@ namespace GestaoAutomotiva.Data
         public DbSet<Carro> Carros { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<OrdemServico>OrdemServicos { get; set; }
+        public DbSet<AcessoriosCarro> AcessoriosCarros { get; set; }
 
+        public DbSet<Motor>Motors { get; set; }
+        public DbSet<Cambio> Cambios { get; set; }
+        public DbSet<Suspensao> Suspensaos { get; set; }
+        public DbSet<RodaPneu> RodasPneus { get; set; }
+        public DbSet<Carroceria> Carrocerias { get; set; }
+        public DbSet<Capota> Capotas { get; set; }
 
 
         // Método para configurar o caminho do banco de dados
@@ -55,10 +62,13 @@ namespace GestaoAutomotiva.Data
             modelBuilder.Entity<OrdemServico>()
                 .Property(o => o.Inspetor)
                 .IsRequired(false);
+   
 
             modelBuilder.Entity<OrdemServico>()
-                .Property(o => o.Observacoes)
-                .IsRequired(false);
+    .HasOne(o => o.Atividade)
+    .WithMany()
+    .HasForeignKey(o => o.AtividadeId)
+    .OnDelete(DeleteBehavior.SetNull); // ou .Restrict
 
             modelBuilder.Entity<Usuario>().HasData(
                 new Usuario

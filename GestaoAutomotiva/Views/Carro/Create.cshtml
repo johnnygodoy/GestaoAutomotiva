@@ -1,62 +1,125 @@
 ﻿@model GestaoAutomotiva.Models.Carro
+@{
+    ViewData["Title"] = "Adicionar Carro/Cliente";
+}
 
-<h2 class="text-light">Adicionar Carro/Cliente</h2>
+<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
+    <h2 class="mb-4">Adicionar Carro/Cliente</h2>
 
-<form method="post">
-    @Html.AntiForgeryToken() <!-- 🛡️ Proteção contra CSRF -->
-    <!-- Linha 1 - Carro -->
-    <div class="row">
-        <div class="col-md-4">
-            <label asp-for="IdCarro"></label>
-            <input asp-for="IdCarro" class="form-control" />
-            <span asp-validation-for="IdCarro" class="campo-erro"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Modelo"></label>
-            <select asp-for="Modelo" class="form-control" asp-items="@(new SelectList(ViewBag.Carros, "Modelo", "Modelo", Model.Modelo))">
-                <option value="">Selecione o modelo</option>
-            </select>
-            <span asp-validation-for="Modelo" class="campo-erro" style="font-size: 1rem;"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Cor"></label>
-            <input asp-for="Cor" class="form-control" />
-            <span asp-validation-for="Cor" class="campo-erro"></span>
-        </div>
-    </div>
+    <form method="post">
+        @Html.AntiForgeryToken()
 
-    <h4 class="text-light mt-4">Dados do Cliente</h4>
+        <!-- Linha 1: Código, Modelo, Cor -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label asp-for="IdCarro" class="form-label">Código Carro</label>
+                <input asp-for="IdCarro" class="form-control" />
+                <span asp-validation-for="IdCarro" class="text-danger"></span>
+            </div>
 
-    <!-- Linha 2 - Cliente -->
-    <div class="row">
-        <div class="col-md-4">
-            <label asp-for="Cliente.Nome"></label>
-            <input asp-for="Cliente.Nome" class="form-control" />
-            <span asp-validation-for="Cliente.Nome" class="campo-erro"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Cliente.Endereco"></label>
-            <input asp-for="Cliente.Endereco" class="form-control" />
-            <span asp-validation-for="Cliente.Endereco" class="campo-erro"></span>
-        </div>
-        <div class="col-md-2">
-            <label asp-for="Cliente.Telefone"></label>
-            <input asp-for="Cliente.Telefone" class="form-control" id="Cliente_Telefone" />
-            <span asp-validation-for="Cliente.Telefone" class="campo-erro"></span>
-        </div>
-        <div class="col-md-2">
-            <label asp-for="Cliente.CPF"></label>
-            <input asp-for="Cliente.CPF" class="form-control" id="Cliente_CPF" />
-            <span asp-validation-for="Cliente.CPF" class="campo-erro"></span>
-        </div>
-    </div>
+            <div class="col-md-4">
+                <label asp-for="Modelo" class="form-label">Modelo</label>
+                <input asp-for="Modelo" class="form-control" list="modelos" />
+                <datalist id="modelos">
+                    @if (ViewBag.Modelos != null)
+                    {
+                        foreach (var modelo in ViewBag.Modelos as List<string>)
+                        {
+                            <option value="@modelo"></option>
+                        }
+                    }
+                </datalist>
+                <span asp-validation-for="Modelo" class="text-danger"></span>
+            </div>
 
-    <!-- Botões -->
-    <div class="d-flex justify-content-between mt-4">
-        <button type="submit" class="btn btn-outline-light">Salvar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </div>
-</form>
+            <div class="col-md-4">
+                <label asp-for="Cor" class="form-label">Cor</label>
+                <input asp-for="Cor" class="form-control" />
+                <span asp-validation-for="Cor" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Título -->
+        <h4 class="mt-4">Customização do Carro</h4>
+
+        <!-- Linha 2: Motor, Câmbio, Suspensão -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Motor</label>
+                <select name="Acessorios.MotorId" class="form-control" asp-items="@(ViewBag.Motores as SelectList)">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Câmbio</label>
+                <select name="Acessorios.CambioId" class="form-control" asp-items="@(ViewBag.Cambios as SelectList)">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Suspensão</label>
+                <select name="Acessorios.SuspensaoId" class="form-control" asp-items="@(ViewBag.Suspensoes as SelectList)">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Linha 3: Rodas, Carroceria, Capota -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="form-label">Rodas e Pneus</label>
+                <select name="Acessorios.RodasPneusId" class="form-control" asp-items="@(ViewBag.RodasPneus as SelectList)">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Carroceria</label>
+                <select name="Acessorios.CarroceriaId" class="form-control" asp-items="@(ViewBag.Carrocerias as SelectList)">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Capota</label>
+                <select name="Acessorios.CapotaId" class="form-control" asp-items="@(ViewBag.Capotas as SelectList)">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Título -->
+        <h4>Dados do Cliente</h4>
+
+        <!-- Linha 4: Nome, Endereço, Telefone, CPF -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label asp-for="Cliente.Nome" class="form-label">Nome</label>
+                <input asp-for="Cliente.Nome" class="form-control" />
+                <span asp-validation-for="Cliente.Nome" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Cliente.Endereco" class="form-label">Endereço</label>
+                <input asp-for="Cliente.Endereco" class="form-control" />
+                <span asp-validation-for="Cliente.Endereco" class="text-danger"></span>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Cliente.Telefone" class="form-label">Telefone</label>
+                <input asp-for="Cliente.Telefone" class="form-control" id="Cliente_Telefone" />
+                <span asp-validation-for="Cliente.Telefone" class="text-danger"></span>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Cliente.CPF" class="form-label">CPF</label>
+                <input asp-for="Cliente.CPF" class="form-control" id="Cliente_CPF" />
+                <span asp-validation-for="Cliente.CPF" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-outline-light px-4">Salvar</button>
+            <a asp-action="Index" class="btn btn-secondary px-4">Cancelar</a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

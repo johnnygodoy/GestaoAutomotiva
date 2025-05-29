@@ -121,9 +121,6 @@
         </div>
     </form>
 
-
-
-
     <!-- GANTT + Exportação -->
     <div class="grafico-box">
         <div class="grafico-titulo">Distribuição de Atividades</div>
@@ -131,6 +128,8 @@
 
     </div>
 </div>
+
+<div class="mb-5"></div>
 
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
@@ -199,30 +198,74 @@
         var modeloCarro = TextoHelper.RemoverCaracteresEspeciais(atividade.Carro.Modelo);
         var tipoServico = TextoHelper.RemoverCaracteresEspeciais(atividade.Servico.Tipo);
 
+        var inicio = atividade.DataInicio.Value;
+        var fim = atividade.DataPrevista.Value;
+        var agora = DateTime.Now;
+
+        double percentual;
+        if (atividade.Status == "Finalizado")
+        {
+            percentual = 100;
+        }
+        else if (agora <= inicio)
+        {
+            percentual = 0;
+        }
+        else if (agora >= fim)
+        {
+            percentual = 100;
+        }
+        else
+        {
+            var total = (fim - inicio).TotalDays;
+            var feito = (agora - inicio).TotalDays;
+            percentual = Math.Round((feito / total) * 100);
+        }
+
+        // 🔥 Define cor com base no status e data
+        string cor;
+        if (atividade.Status == "Finalizado")
+            cor = "#27ae60"; // Verde
+        else if (fim < agora && percentual < 100)
+            cor = "#c0392b"; // Vermelho escuro - Atrasado
+        else
+            cor = atividade.Cor ?? "#3498db"; // Sem conflito (ou cor padrão)
+
+        string icone = "";
+        if (atividade.Status == "Finalizado")
+            icone = "✅ Finalizado";
+        else if (fim < agora && percentual < 100)
+            icone = "⚠️ Atrasado";
+        else
+            icone = $"{percentual}% concluído";
+
         var tooltipHtml = $"<div style='padding:10px; font-size:13px;'>"
             + $"<strong>Funcionário:</strong> {nomeFuncionario}<br />"
             + $"<strong>Serviço:</strong> {tipoServico}<br />"
             + $"<strong>Carro:</strong> {modeloCarro}<br />"
             + $"<strong>Cliente:</strong> {nomeCliente}<br />"
-            + $"<strong>Início:</strong> {atividade.DataInicio?.ToString("dd/MM/yyyy")}<br />"
-            + $"<strong>Previsão:</strong> {atividade.DataPrevista?.ToString("dd/MM/yyyy")}</div>"
+            + $"<strong>Início:</strong> {inicio:dd/MM/yyyy}<br />"
+            + $"<strong>Previsão:</strong> {fim:dd/MM/yyyy}<br />"
+            + $"<strong>Status:</strong> {icone}</div>"
             .Replace("\"", "\\\"");
 
         <text>
-                    [
-                        "@atividade.Id",
-                        "@nomeFuncionario - @nomeCliente",
-                        "@nomeFuncionario",
-                        new Date(@atividade.DataInicio.Value.Year, @atividade.DataInicio.Value.Month - 1, @atividade.DataInicio.Value.Day),
-                        new Date(@atividade.DataPrevista.Value.Year, @atividade.DataPrevista.Value.Month - 1, @atividade.DataPrevista.Value.Day),
-                        null,
-                        0,
-                        null,
-                        "fill: @atividade.Cor",
-                        "@tooltipHtml"
-                    ],
+                [
+                    "@atividade.Id",
+                    "@nomeFuncionario - @nomeCliente",
+                    "@nomeFuncionario",
+                    new Date(@inicio.Year, @inicio.Month - 1, @inicio.Day),
+                    new Date(@fim.Year, @fim.Month - 1, @fim.Day),
+                    null,
+            @percentual,
+                    null,
+                    "fill: @cor",
+                    "@tooltipHtml"
+                ],
         </text>
     }
+
+
         ];
 
         if (atividades.length === 0) {

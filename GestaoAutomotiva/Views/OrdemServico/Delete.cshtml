@@ -1,10 +1,13 @@
 ﻿@model GestaoAutomotiva.Models.OrdemServico
 
-<h2 class="text-danger">Confirmar Exclusão</h2>
-<p>Tem certeza que deseja excluir a Ordem de Serviço nº @Model.Id?</p>
+<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
 
-<form asp-action="Delete">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Confirmar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+    <h2 class="text-danger">Confirmar Exclusão</h2>
+    <p>Tem certeza que deseja excluir a Ordem de Serviço nº @Model.Id?</p>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Excluir</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

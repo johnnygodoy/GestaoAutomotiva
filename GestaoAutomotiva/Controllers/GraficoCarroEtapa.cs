@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
+using System;
+using System.Linq;
 
 namespace GestaoAutomotiva.Controllers
 {
@@ -24,7 +26,7 @@ namespace GestaoAutomotiva.Controllers
                 .Include(a => a.Carro).ThenInclude(c => c.Cliente)
                 .ToList();
 
-            // 🔍 Filtro de texto único
+            // 🔍 Filtro
             if (!string.IsNullOrWhiteSpace(busca))
             {
                 var termo = busca.ToLower();
@@ -43,20 +45,52 @@ namespace GestaoAutomotiva.Controllers
                 (string.IsNullOrEmpty(status) || a.Status == status)
             ).ToList();
 
-            // 🎨 Status visual
-            foreach (var a in atividadesFiltradas)
-            {
-                a.Cor = a.Atrasado ? "#e74c3c" : "#2ecc71"; // vermelho se está atrasado
-            }
+            // 📊 Agrupar por carro
+            var carrosAgrupados = atividadesFiltradas
+                .Where(a => a.DataInicio.HasValue && a.DataPrevista.HasValue)
+                .GroupBy(a => a.Carro.IdCarro)
+                .Select(g =>
+                {
+                    var primeiro = g.First();
+                    var clienteNome = TextoHelper.RemoverCaracteresEspeciais(primeiro.Carro.Cliente?.Nome);
+                    var modelo = TextoHelper.RemoverCaracteresEspeciais(primeiro.Carro.Modelo);
+                    var nomeCompleto = $"{modelo} - {clienteNome}";
 
+                    var dataInicio = g.Min(a => a.DataInicio.Value);
+                    var dataFim = g.Max(a => a.DataPrevista.Value);
+
+                    var totalAtividades = g.Count();
+                    var concluidas = g.Count(a => a.Status == "Finalizado");
+                    var percentual = (int)Math.Round((double)concluidas / totalAtividades * 100);
+
+                    var atrasado = g.Any(a => a.Atrasado);
+                    var cor = percentual == 100 ? "#27ae60" : (atrasado ? "#c0392b" : "#2980b9");
+
+                    var tooltip = $"<div style='padding:10px; font-size:13px;'>"
+                                + $"<strong>Cliente:</strong> {clienteNome}<br />"
+                                + $"<strong>Carro:</strong> {modelo}<br />"
+                                + $"<strong>Status:</strong> {(percentual == 100 ? "✅ Finalizado" : atrasado ? "🚨 Atrasado" : $"{percentual}% concluído")}<br />"
+                                + $"<strong>Início:</strong> {dataInicio:dd/MM/yyyy}<br />"
+                                + $"<strong>Previsão:</strong> {dataFim:dd/MM/yyyy}</div>";
+
+                    return new CarroResumoViewModel
+                    {
+                        Id = primeiro.Carro.Id,
+                        Nome = nomeCompleto,
+                        DataInicio = dataInicio,
+                        DataFim = dataFim,
+                        Percentual = percentual,
+                        Cor = cor,
+                        Tooltip = tooltip
+                    };
+                }).ToList();
 
             ViewBag.Etapas = _context.Etapas
                 .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.Nome })
                 .ToList();
 
-            return View(atividadesFiltradas);
+            return View(carrosAgrupados);
         }
-
 
         [HttpPost]
         public IActionResult GerarPdf(IFormFile grafico) {

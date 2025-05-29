@@ -1,0 +1,174 @@
+﻿@using GestaoAutomotiva.Models
+@{
+    ViewData["Title"] = "Cadastro de Acessórios";
+}
+
+<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4 mb-5">
+    <h2 class="text-light">Cadastro de Acessórios</h2>
+
+    @if (TempData["Mensagem"] != null)
+    {
+        <div class="alert alert-info mt-3">@TempData["Mensagem"]</div>
+    }
+
+    <hr class="text-light mb-4" />
+
+    <!-- LINHA 1: Motor + Câmbio -->
+    <div class="row mb-5">
+        <!-- MOTOR -->
+        <div class="col-md-6">
+            <h5 class="text-light">Adicionar novo motor</h5>
+            <form asp-action="CriarMotor" asp-controller="CadastroAcessorios" method="post">
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <input name="descricao" class="form-control" placeholder="Descrição do motor" />
+                    <button type="submit" class="btn btn-success ms-2">Adicionar</button>
+                </div>
+            </form>
+
+            <ul class="list-group mt-2">
+                @foreach (var motor in ViewBag.Motores as List<Motor>)
+                {
+                    <li class="list-group-item d-flex justify-content-between bg-dark text-light">
+                        @motor.Descricao
+                        <form asp-action="Excluir" asp-route-tipo="motor" asp-route-id="@motor.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-danger">Excluir</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- CÂMBIO -->
+        <div class="col-md-6">
+            <h5 class="text-light">Adicionar novo câmbio</h5>
+            <form asp-action="CriarCambio" asp-controller="CadastroAcessorios" method="post">
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <input name="descricao" class="form-control" placeholder="Descrição do câmbio" />
+                    <button type="submit" class="btn btn-success ms-2">Adicionar</button>
+                </div>
+            </form>
+
+            <ul class="list-group mt-2">
+                @foreach (var cambio in ViewBag.Cambios as List<Cambio>)
+                {
+                    <li class="list-group-item d-flex justify-content-between bg-dark text-light">
+                        @cambio.Descricao
+                        <form asp-action="Excluir" asp-route-tipo="cambio" asp-route-id="@cambio.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-danger">Excluir</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- LINHA 2: Suspensão + Rodas/Pneus -->
+    <div class="row mb-5">
+        <!-- SUSPENSÃO -->
+        <div class="col-md-6">
+            <h5 class="text-light">Adicionar nova suspensão</h5>
+            <form asp-action="CriarSuspensao" asp-controller="CadastroAcessorios" method="post">
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <input name="descricao" class="form-control" placeholder="Descrição da suspensão" />
+                    <button type="submit" class="btn btn-success ms-2">Adicionar</button>
+                </div>
+            </form>
+
+            <ul class="list-group mt-2">
+                @foreach (var suspensao in ViewBag.Suspensoes as List<Suspensao>)
+                {
+                    <li class="list-group-item d-flex justify-content-between bg-dark text-light">
+                        @suspensao.Descricao
+                        <form asp-action="Excluir" asp-route-tipo="suspensao" asp-route-id="@suspensao.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-danger">Excluir</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- RODAS/PNEUS -->
+        <div class="col-md-6">
+            <h5 class="text-light">Adicionar novas rodas/pneus</h5>
+            <form asp-action="CriarRodasPneus" asp-controller="CadastroAcessorios" method="post">
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <input name="descricao" class="form-control" placeholder="Descrição das rodas/pneus" />
+                    <button type="submit" class="btn btn-success ms-2">Adicionar</button>
+                </div>
+            </form>
+
+            <ul class="list-group mt-2">
+                @foreach (var rodaPneu in ViewBag.RodasPneus as List<RodaPneu>)
+                {
+                    <li class="list-group-item d-flex justify-content-between bg-dark text-light">
+                        @rodaPneu.Descricao
+                        <form asp-action="Excluir" asp-route-tipo="rodaspneus" asp-route-id="@rodaPneu.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-danger">Excluir</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- LINHA 3: Carroceria + Capota -->
+    <div class="row mb-5">
+        <!-- CARROCERIA -->
+        <div class="col-md-6">
+            <h5 class="text-light">Adicionar nova carroceria</h5>
+            <form asp-action="CriarCarroceria" asp-controller="CadastroAcessorios" method="post">
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <input name="descricao" class="form-control" placeholder="Descrição da carroceria" />
+                    <button type="submit" class="btn btn-success ms-2">Adicionar</button>
+                </div>
+            </form>
+
+            <ul class="list-group mt-2">
+                @foreach (var carroceria in ViewBag.Carrocerias as List<Carroceria>)
+                {
+                    <li class="list-group-item d-flex justify-content-between bg-dark text-light">
+                        @carroceria.Descricao
+                        <form asp-action="Excluir" asp-route-tipo="carroceria" asp-route-id="@carroceria.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-danger">Excluir</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- CAPOTA -->
+        <div class="col-md-6">
+            <h5 class="text-light">Adicionar nova capota</h5>
+            <form asp-action="CriarCapota" asp-controller="CadastroAcessorios" method="post">
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <input name="descricao" class="form-control" placeholder="Descrição da capota" />
+                    <button type="submit" class="btn btn-success ms-2">Adicionar</button>
+                </div>
+            </form>
+
+            <ul class="list-group mt-2">
+                @foreach (var capota in ViewBag.Capotas as List<Capota>)
+                {
+                    <li class="list-group-item d-flex justify-content-between bg-dark text-light">
+                        @capota.Descricao
+                        <form asp-action="Excluir" asp-route-tipo="capota" asp-route-id="@capota.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-danger">Excluir</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

@@ -3,8 +3,8 @@
     public class OrdemServico
     {
         public int Id { get; set; }
-        public int AtividadeId { get; set; }
-        public Atividade Atividade { get; set; }
+        public int? AtividadeId { get; set; }
+        public Atividade? Atividade { get; set; }
 
         public string Prioridade { get; set; }
         public string EtapaAtual { get; set; }

@@ -5,40 +5,41 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
+    <form asp-action="Create" method="post">
+        <div class="row">
+            <!-- Descrição do Serviço -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="Descricao">Descrição do Serviço</label>
+                    <input asp-for="Descricao" class="form-control" />
+                    <span class="text-danger" asp-validation-for="Descricao"></span>
+                </div>
+            </div>
 
-<form asp-action="Create" method="post">
-    <div class="row">
-        <!-- Descrição do Serviço -->
-        <div class="col-md-4">
-            <div class="form-group">
-                <label asp-for="Descricao">Descrição do Serviço</label>
-                <input asp-for="Descricao" class="form-control" />
-                <span class="text-danger" asp-validation-for="Descricao"></span>
+            <!-- Tipo do Serviço -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="Tipo">Tipo do Serviço</label>
+                    <input asp-for="Tipo" class="form-control" />
+                    <span class="text-danger" asp-validation-for="Tipo"></span>
+                </div>
+            </div>
+
+            <!-- Estimativa de Dias -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="EstimativaDias">Estimativa de Dias</label>
+                    <input asp-for="EstimativaDias" class="form-control" />
+                    <span class="text-danger" asp-validation-for="EstimativaDias"></span>
+                </div>
             </div>
         </div>
 
-        <!-- Tipo do Serviço -->
-        <div class="col-md-4">
-            <div class="form-group">
-                <label asp-for="Tipo">Tipo do Serviço</label>
-                <input asp-for="Tipo" class="form-control" />
-                <span class="text-danger" asp-validation-for="Tipo"></span>
-            </div>
+        <!-- Botões de Salvar e Voltar -->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-outline-light">Salvar</button>
+            <a asp-action="Index" class="btn btn-secondary">Voltar</a>
         </div>
-
-        <!-- Estimativa de Dias -->
-        <div class="col-md-4">
-            <div class="form-group">
-                <label asp-for="EstimativaDias">Estimativa de Dias</label>
-                <input asp-for="EstimativaDias" class="form-control" />
-                <span class="text-danger" asp-validation-for="EstimativaDias"></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Botões de Salvar e Voltar -->
-    <div class="d-flex justify-content-between mt-4">
-        <button type="submit" class="btn btn-outline-light">Salvar</button>
-        <a asp-action="Index" class="btn btn-secondary">Voltar</a>
-    </div>
-</form>
+    </form>
+</div>

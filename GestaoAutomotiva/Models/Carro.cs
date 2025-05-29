@@ -18,6 +18,9 @@ namespace GestaoAutomotiva.Models
         public int ClienteId { get; set; }
 
         public Cliente Cliente { get; set; }
+
+        public int? AcessoriosCarroId { get; set; }  // FK
+        public AcessoriosCarro Acessorios { get; set; }
     }
 
 }

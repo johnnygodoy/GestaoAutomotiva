@@ -244,50 +244,6 @@ input[type="text"] {
 }
 
 
-/* Ajustando o layout do card */
-.card-body {
-    text-align: left; /* Alinha o conteúdo à esquerda */
-    padding: 10px; /* Adiciona um padding mais confortável ao redor */
-    font-size: 13px;
-}
-
-    /* Garantindo que o ícone e texto do serviço fiquem mais próximos */
-    .card-body small {
-        display: inline-flex; /* Faz com que o ícone e texto fiquem na mesma linha */
-        align-items: center; /* Alinha verticalmente o ícone e o texto */
-        margin-bottom: 5px; /* Ajuste do espaço entre os itens */
-        font-size: 10px;
-    }
-
-        .card-body small i {
-            margin-right: 5px; /* Adiciona um pequeno espaço entre o ícone e o texto */
-        }
-
-    /* Ajuste para os botões de navegação */
-    .card-body .btn {
-        font-size: 20px; /* Ajusta o tamanho do texto */
-        padding: 10px 15px; /* Ajuste de padding para os botões */
-        margin-top: 5px; /* Ajuste de margem para garantir que os botões não fiquem cortados */
-        width: 40%; /* Ajusta a largura dos botões para garantir que eles não quebrem */
-    }
-
-    /* Ajuste do layout do formulário de navegação, colocando os botões mais próximos */
-    .card-body .d-flex {
-        justify-content: flex-start; /* Alinha os botões na esquerda */
-        gap: 5px; /* Adiciona um espaçamento entre os botões */
-    }
-
-/* Ajuste na posição do botão de navegação */
-.card .btn-outline-light {
-    font-size: 20px; /* Ajuste o tamanho da fonte */
-    padding: 1px; /* Ajuste o preenchimento interno */
-    min-width: 60px; /* Largura mínima maior */
-    margin-top: -10px; /* Ajuste o espaço superior */
-    margin-right: 10px; /* Espaçamento entre os botões */
-    display: inline-block; /* Garante que o botão fique dentro do layout */
-    box-sizing: border-box; /* Inclui o padding e a largura no cálculo total da largura */
-}
-
 /* Cores adicionais personalizadas */
 .bg-coral {
     background-color: #FF7F50; /* Coral */
@@ -403,6 +359,14 @@ input[type="text"] {
     display: inline-block; /* Garante que o botão fique dentro do layout */
     box-sizing: border-box; /* Inclui o padding e a largura no cálculo total da largura */
 }
+
+.badge {
+    white-space: normal; /* Permite quebra de linha */      
+    font-size: 8px; /* Reduz um pouco a fonte */
+    max-width: 100%; /* Impede de ultrapassar o container */
+    display: inline-block; /* Garante que ele respeite o fluxo */
+}
+
 
 .btn {
     font-size: 18px;

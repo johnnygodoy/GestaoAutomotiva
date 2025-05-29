@@ -16,14 +16,11 @@ namespace GestaoAutomotiva.Controllers
             _context = context;
         }
 
-        // 🔁 Método auxiliar para carregar dropdowns
         private void CarregarViewBags(OrdemServico ordem = null) {
-            ViewBag.Funcionarios = new SelectList(_context.Funcionarios, "Id", "Nome", ordem.FuncionarioId);
-            ViewBag.Carros = new SelectList(_context.Carros, "Id", "Modelo", ordem.CarroId);
-            ViewBag.Clientes = new SelectList(_context.Clientes, "Id", "Nome", ordem.ClienteId);
-
+            ViewBag.Funcionarios = new SelectList(_context.Funcionarios, "Id", "Nome", ordem?.FuncionarioId);
+            ViewBag.Carros = new SelectList(_context.Carros, "Id", "Modelo", ordem?.CarroId);
+            ViewBag.Clientes = new SelectList(_context.Clientes, "Id", "Nome", ordem?.ClienteId);
         }
-
 
         public IActionResult Index() {
             var ordens = _context.OrdemServicos
@@ -34,91 +31,117 @@ namespace GestaoAutomotiva.Controllers
                 .Include(o => o.Atividade)
                     .ThenInclude(a => a.Carro)
                         .ThenInclude(c => c.Cliente)
+                .Include(o => o.Atividade)
+                    .ThenInclude(a => a.Etapa)
+                .ToList();
+
+            ViewBag.Funcionarios = _context.Funcionarios
+                .Select(f => new SelectListItem { Value = f.Id.ToString(), Text = f.Nome })
+                .ToList();
+
+            ViewBag.Clientes = _context.Clientes
+                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Nome })
                 .ToList();
 
             return View(ordens);
         }
 
-        public IActionResult CriarOuEditar(int atividadeId) {
-            var ordemExistente = _context.OrdemServicos.FirstOrDefault(o => o.AtividadeId == atividadeId);
 
-            if (ordemExistente != null)
-                return RedirectToAction("Edit", new { id = ordemExistente.Id });
+        public IActionResult CriarOuEditar(int atividadeId) {
+            var existente = _context.OrdemServicos.FirstOrDefault(o => o.AtividadeId == atividadeId);
+            if (existente != null)
+                return RedirectToAction("Edit", new { id = existente.Id });
 
             return RedirectToAction("Create", new { atividadeId });
         }
 
-
         public IActionResult Create(int? atividadeId) {
-            OrdemServico ordem;
+
+
+            OrdemServico ordem = new OrdemServico
+            {
+                DataAbertura = DateTime.Today,
+                EtapaAtual = "N/A",
+                Prioridade = "Normal"
+            };
 
             if (atividadeId.HasValue)
             {
                 var atividade = _context.Atividades
                     .Include(a => a.Funcionario)
                     .Include(a => a.Servico)
-                    .Include(a => a.Etapa)
                     .Include(a => a.Carro).ThenInclude(c => c.Cliente)
+                    .Include(a => a.Etapa)
                     .FirstOrDefault(a => a.Id == atividadeId.Value);
 
-                if (atividade == null) return NotFound();
-
-                ordem = new OrdemServico
+                if (atividade != null)
                 {
-                    AtividadeId = atividade.Id,
-                    Atividade = atividade,
-                    DataAbertura = DateTime.Today,
-                    EtapaAtual = atividade.Etapa?.Nome,
-                    Prioridade = "Normal",
-                    FuncionarioId = atividade.Funcionario?.Id,
-                    CarroId = atividade.Carro?.Id,
-                    ClienteId = atividade.Carro?.Cliente?.Id
-                };
-
-            }
-            else
-            {
-                ordem = new OrdemServico
-                {
-                    DataAbertura = DateTime.Today,
-                    EtapaAtual = "N/A",
-                    Prioridade = "Normal"
-                };
+                    ordem.AtividadeId = atividade.Id;
+                    ordem.Atividade = atividade;
+                    ordem.EtapaAtual = atividade.Etapa?.Nome ?? "N/A";
+                    ordem.FuncionarioId = atividade.Funcionario?.Id;
+                    ordem.CarroId = atividade.Carro?.Id;
+                    ordem.ClienteId = atividade.Carro?.Cliente?.Id;
+                }
             }
 
-    
             CarregarViewBags(ordem);
             return View(ordem);
         }
 
-
         [HttpPost]
         public IActionResult Create(OrdemServico ordem) {
-
             bool temErro = false;
-            if (ordem.EtapaAtual == null)
+
+            if (string.IsNullOrWhiteSpace(ordem.EtapaAtual))
             {
-                ModelState.AddModelError("EtapaAtual", "O campo Etapa Atual é obrigatória.");
+                ModelState.AddModelError("EtapaAtual", "O campo Etapa Atual é obrigatório.");
                 temErro = true;
             }
 
-            if (ordem.Prioridade == null)
+            if (string.IsNullOrWhiteSpace(ordem.Prioridade))
             {
-                ModelState.AddModelError("Prioridade", "O campo Prioridade é obrigatória.");
+                ModelState.AddModelError("Prioridade", "O campo Prioridade é obrigatório.");
                 temErro = true;
             }
-        
+
+            if (ordem.AtividadeId == 0)
+            {
+                ModelState.AddModelError("AtividadeId", "A Atividade vinculada é obrigatória.");
+                temErro = true;
+            }
 
             if (temErro)
             {
-                CarregarViewBags(ordem); // apenas chama
+                CarregarViewBags(ordem);
                 return View(ordem);
+            }
+
+            if (ordem.AtividadeId.HasValue && ordem.AtividadeId > 0)
+            {
+                var atividade = _context.Atividades
+                    .Include(a => a.Funcionario)
+                    .Include(a => a.Carro).ThenInclude(c => c.Cliente)
+                    .Include(a => a.Etapa)
+                    .FirstOrDefault(a => a.Id == ordem.AtividadeId);
+
+                if (atividade == null)
+                {
+                    ModelState.AddModelError("AtividadeId", "Atividade não encontrada.");
+                    CarregarViewBags(ordem);
+                    return View(ordem);
+                }
+
+                ordem.FuncionarioId = atividade.Funcionario?.Id;
+                ordem.CarroId = atividade.Carro?.Id;
+                ordem.ClienteId = atividade.Carro?.Cliente?.Id;
+                ordem.EtapaAtual = atividade.Etapa?.Nome ?? "N/A";
             }
 
             _context.OrdemServicos.Add(ordem);
             _context.SaveChanges();
-            return RedirectToAction("Index");
 
+            return RedirectToAction("Index");
         }
 
         public IActionResult Edit(int id) {
@@ -126,50 +149,32 @@ namespace GestaoAutomotiva.Controllers
                 .Include(o => o.Atividade).ThenInclude(a => a.Funcionario)
                 .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Cliente)
                 .Include(o => o.Atividade).ThenInclude(a => a.Servico)
+                .Include(o => o.Atividade).ThenInclude(a => a.Etapa)
                 .FirstOrDefault(o => o.Id == id);
 
             if (ordem == null) return NotFound();
 
-            ViewBag.Funcionarios = _context.Funcionarios
-                .Select(f => new SelectListItem
-                {
-                    Value = f.Id.ToString(),
-                    Text = f.Nome
-                })
-                .ToList();
-
-            ViewBag.Carros = _context.Carros
-                .Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Modelo
-                })
-                .Distinct()
-                .ToList();
-
-            ViewBag.Clientes = _context.Clientes
-                .Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Nome
-                })
-                .ToList();
-
-            return View("Edit", ordem);
+            CarregarViewBags(ordem);
+            return View(ordem);
         }
-
 
         [HttpPost]
         public IActionResult Edit(OrdemServico ordem) {
-            if (ModelState.IsValid)
-            {
-                _context.OrdemServicos.Update(ordem);
-                _context.SaveChanges();
-                return RedirectToAction("Index");
-            }
+            if (ordem == null || ordem.Id == 0)
+                return BadRequest();
 
-            CarregarViewBags(ordem);
-            return View(ordem);
+            var original = _context.OrdemServicos.FirstOrDefault(o => o.Id == ordem.Id);
+            if (original == null)
+                return NotFound();
+
+            original.EtapaAtual = ordem.EtapaAtual;
+            original.Prioridade = ordem.Prioridade;
+            original.FuncionarioId = ordem.FuncionarioId;
+            original.CarroId = ordem.CarroId;
+            original.ClienteId = ordem.ClienteId;
+
+            _context.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         public IActionResult Delete(int id) {
@@ -178,7 +183,6 @@ namespace GestaoAutomotiva.Controllers
                 .FirstOrDefault(o => o.Id == id);
 
             if (ordem == null) return NotFound();
-
             return View(ordem);
         }
 
@@ -199,6 +203,24 @@ namespace GestaoAutomotiva.Controllers
                 .Include(o => o.Atividade).ThenInclude(a => a.Servico)
                 .FirstOrDefault(o => o.Id == id);
 
+            // Se não tiver Atividade, carrega dados manualmente
+            if (ordem.Atividade == null)
+            {
+                ordem.FuncionarioId ??= 0;
+                ordem.CarroId ??= 0;
+                ordem.ClienteId ??= 0;
+
+                ordem.Atividade = new Atividade
+                {
+                    Funcionario = _context.Funcionarios.Find(ordem.FuncionarioId),
+                    Carro = _context.Carros
+                        .Include(c => c.Cliente)
+                        .FirstOrDefault(c => c.Id == ordem.CarroId),
+                    Servico = null, // Se necessário, você pode adicionar campo ServicoId na Ordem
+                    Etapa = null
+                };
+            }
+
             if (ordem == null) return NotFound();
             return View(ordem);
         }
@@ -214,10 +236,21 @@ namespace GestaoAutomotiva.Controllers
                 .Include(o => o.Atividade).ThenInclude(a => a.Servico)
                 .FirstOrDefault(o => o.Id == id);
 
-            if (ordem == null)
-                return NotFound();
+            // Se não houver atividade, busca os dados manualmente
+            if (ordem.Atividade == null)
+            {
+                ordem.Atividade = new Atividade
+                {
+                    Funcionario = _context.Funcionarios.Find(ordem.FuncionarioId),
+                    Carro = _context.Carros
+                        .Include(c => c.Cliente)
+                        .FirstOrDefault(c => c.Id == ordem.CarroId),
+                    Servico = null,
+                    Etapa = null
+                };
+            }
 
-            var doc = new RelatorioOrdemServicoPdf(ordem); // agora 1 única OS
+            var doc = new RelatorioOrdemServicoPdf(ordem);
             var pdf = doc.GeneratePdf();
 
             return File(pdf, "application/pdf", $"ordem_servico_{id}.pdf");

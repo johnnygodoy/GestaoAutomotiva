@@ -1,37 +1,39 @@
 ﻿@model GestaoAutomotiva.Models.Servico
 
-<h2>Editar Serviço</h2>
+<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
+    <h2>Editar Serviço</h2>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
 
-    <!-- Usando o grid system do Bootstrap para criar 3 colunas ajustadas -->
-    <div class="row">
-        <!-- Descrição do Serviço -->
-        <div class="col-sm-12 col-md-4 mb-3">
-            <label asp-for="Descricao" class="form-label">Descrição do Serviço</label>
-            <input asp-for="Descricao" class="form-control" />
-            <span asp-validation-for="Descricao" class="text-danger"></span>
+        <!-- Usando o grid system do Bootstrap para criar 3 colunas ajustadas -->
+        <div class="row">
+            <!-- Descrição do Serviço -->
+            <div class="col-sm-12 col-md-4 mb-3">
+                <label asp-for="Descricao" class="form-label">Descrição do Serviço</label>
+                <input asp-for="Descricao" class="form-control" />
+                <span asp-validation-for="Descricao" class="text-danger"></span>
+            </div>
+
+            <!-- Tipo do Serviço -->
+            <div class="col-sm-12 col-md-4 mb-3">
+                <label asp-for="Tipo" class="form-label">Tipo do Serviço</label>
+                <input asp-for="Tipo" class="form-control" />
+                <span asp-validation-for="Tipo" class="text-danger"></span>
+            </div>
+
+            <!-- Estimativa de Dias -->
+            <div class="col-sm-12 col-md-4 mb-3">
+                <label asp-for="EstimativaDias" class="form-label">Estimativa de Dias</label>
+                <input asp-for="EstimativaDias" class="form-control" />
+                <span asp-validation-for="EstimativaDias" class="text-danger"></span>
+            </div>
         </div>
 
-        <!-- Tipo do Serviço -->
-        <div class="col-sm-12 col-md-4 mb-3">
-            <label asp-for="Tipo" class="form-label">Tipo do Serviço</label>
-            <input asp-for="Tipo" class="form-control" />
-            <span asp-validation-for="Tipo" class="text-danger"></span>
+        <!-- Botões de Salvar e Cancelar -->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-outline-light">Salvar</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
         </div>
-
-        <!-- Estimativa de Dias -->
-        <div class="col-sm-12 col-md-4 mb-3">
-            <label asp-for="EstimativaDias" class="form-label">Estimativa de Dias</label>
-            <input asp-for="EstimativaDias" class="form-control" />
-            <span asp-validation-for="EstimativaDias" class="text-danger"></span>
-        </div>
-    </div>
-
-    <!-- Botões de Salvar e Cancelar -->
-    <div class="d-flex justify-content-between mt-4">
-        <button type="submit" class="btn btn-outline-light">Salvar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </div>
-</form>
+    </form>
+</div>

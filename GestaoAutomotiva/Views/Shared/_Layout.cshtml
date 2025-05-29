@@ -62,9 +62,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="OrdemServico" asp-action="Index">📋 Oderm Serviço</a>
                             </li>
-                            <li class="nav-item">
+                          @*   <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="Esteira" asp-action="Esteira">🧩 Esteira</a>
-                            </li>
+                            </li> *@
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="Atividade" asp-action="Historico">🧾 Histórico das Atividades</a>
                             </li>
@@ -103,12 +103,14 @@
             @RenderBody()
         </main>
     </div>
+    <div class="mb-5"></div>
 
     @if (!isLoginPage)
     {
-        <footer class="border-top footer text-muted">
+        <footer class="border-top footer text-center text-light py-3">
             <div class="container">
-                &copy; 2025 - GestaoAutomotiva - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                &copy; 2025 - <strong>Gestão Automotiva</strong> —
+                <a asp-controller="Home" asp-action="Privacy" class="text-light text-decoration-underline">Privacidade</a>
             </div>
         </footer>
     }

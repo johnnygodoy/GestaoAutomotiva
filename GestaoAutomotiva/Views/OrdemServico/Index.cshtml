@@ -1,13 +1,17 @@
 ﻿@model IEnumerable<GestaoAutomotiva.Models.OrdemServico>
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     ViewData["Title"] = "Ordens de Serviço";
+
+    // Essas variáveis são necessárias para evitar erro ao usar ViewBag com casting
+    var listaFuncionarios = ViewBag.Funcionarios as List<SelectListItem> ?? new List<SelectListItem>();
+    var listaClientes = ViewBag.Clientes as List<SelectListItem> ?? new List<SelectListItem>();
 }
 
 <h2 class="text-light">📋 Ordens de Serviço</h2>
 
 <a asp-controller="OrdemServico" asp-action="Create" class="btn btn-outline-light mb-3">Nova Ordem de Serviço</a>
-
 
 <table class="table table-dark table-hover">
     <thead>
@@ -24,13 +28,38 @@
     <tbody>
         @foreach (var os in Model)
         {
+            var nomeFuncionario = os.Atividade?.Funcionario?.Nome;
+            if (string.IsNullOrEmpty(nomeFuncionario) && os.FuncionarioId.HasValue)
+            {
+                nomeFuncionario = listaFuncionarios.FirstOrDefault(f => f.Value == os.FuncionarioId.Value.ToString())?.Text;
+            }
+
+            var nomeCliente = os.Atividade?.Carro?.Cliente?.Nome;
+            if (string.IsNullOrEmpty(nomeCliente) && os.ClienteId.HasValue)
+            {
+                nomeCliente = listaClientes.FirstOrDefault(c => c.Value == os.ClienteId.Value.ToString())?.Text;
+            }
+
             <tr>
                 <td>@os.Id</td>
                 <td>@os.DataAbertura.ToString("dd/MM/yyyy")</td>
-                <td>@os.Atividade.Funcionario.Nome</td>
-                <td>@os.Atividade.Carro?.Modelo (@os.Atividade.Carro?.IdCarro)</td>
-                <td>@os.Atividade.Carro.Cliente?.Nome</td>
-                <td>@os.Atividade.Etapa</td>
+                <td>@(nomeFuncionario ?? "N/A")</td>
+                <td>
+                    @if (os.Atividade?.Carro != null)
+                    {
+                        @($"{os.Atividade.Carro.Modelo} ({os.Atividade.Carro.IdCarro})")
+                    }
+                    else if (os.CarroId.HasValue)
+                    {
+                        @($"ID {os.CarroId}")
+                    }
+                    else
+                    {
+                        @("N/A")
+                    }
+                </td>
+                <td>@(nomeCliente ?? "N/A")</td>
+                <td>@(os.Atividade?.Etapa?.Nome ?? os.EtapaAtual ?? "N/A")</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@os.Id" class="btn btn-sm btn-primary">Visualizar</a>
                     <a asp-action="Edit" asp-route-id="@os.Id" class="btn btn-sm btn-warning">Editar</a>
