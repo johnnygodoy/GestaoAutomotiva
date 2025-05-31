@@ -23,140 +23,126 @@ namespace GestaoAutomotiva.Utils
 
             container.Page(page =>
             {
-                page.Margin(20);
                 page.Size(PageSizes.A4);
+                page.Margin(20);
                 page.DefaultTextStyle(x => x.FontSize(11));
 
-                // ✅ Conteúdo principal
-                page.Content().Border(1).Padding(15).Column(col =>
+                page.Header().Column(header =>
                 {
-                    // ✅ Banner no topo
-                    col.Item().Image(logoPath);
+                    header.Item().AlignCenter().Image(logoPath, ImageScaling.FitWidth);
 
-                    // Número da OS e Data
-                    col.Item().PaddingVertical(10).Row(row =>
+                    header.Item().PaddingVertical(5).Row(row =>
                     {
-                        row.RelativeItem().Table(table =>
-                        {
-                            table.ColumnsDefinition(c =>
+                        row.RelativeItem().Text($"Número da OS: {_ordem.Id}").Bold();
+                        row.RelativeItem().AlignRight().Text($"Data de abertura: {_ordem.DataAbertura:dd/MM/yyyy}").Bold();
+                    });
+
+                    header.Item().PaddingBottom(5).Text(txt =>
+                    {
+                        header.Item().PaddingTop(5).AlignCenter().Text("SERVIÇO A SER PRESTADO").Bold().FontSize(12);
+                        header.Item().PaddingBottom(5).AlignCenter().Text(_ordem.Atividade?.Servico?.Descricao ?? "Não informado").FontSize(11);
+
+                    });
+                });
+
+
+
+                page.Content().Column(content =>
+                {
+                    // 🧾 Informações principais
+                    content.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(c => c.RelativeColumn());
+
+                        void AddLinha(string label, string valor) {
+                            table.Cell().Border(1).Padding(3).AlignLeft().Text(text =>
                             {
-                                c.RelativeColumn();
-                                c.RelativeColumn();
+                                text.Span(label + ": ").Bold();
+                                text.Span(valor ?? "");
                             });
-
-                            table.Cell().Border(1).Padding(5).Text("Número da OS").Bold();
-                            table.Cell().Border(1).Padding(5).Text(_ordem.Id.ToString());
-
-                            table.Cell().Border(1).Padding(5).Text("Data de abertura").Bold();
-                            table.Cell().Border(1).Padding(5).Text(_ordem.DataAbertura.ToString("dd/MM/yyyy"));
-                        });
+                        }
+                        AddLinha("Código do Carro", _ordem.Atividade?.Carro?.IdCarro);
+                        AddLinha("Modelo de Carro", _ordem.Atividade?.Carro?.Modelo?.Nome ?? "Modelo não informado");
+                        AddLinha("Cliente", _ordem.Atividade?.Carro?.Cliente?.Nome);
+                        AddLinha("Prioridade", _ordem.Prioridade);
+                        AddLinha("Colaborador", _ordem.Atividade?.Funcionario?.Nome);                
+                        AddLinha("Prazo", _ordem.Atividade?.DataPrevista?.ToString("dd/MM/yyyy"));
                     });
 
-                    // Serviço a ser prestado
-                    col.Item().PaddingBottom(10).AlignCenter().Text(txt =>
-                    {
-                        txt.Span("Serviço a ser prestado: ").Bold().FontSize(13);
-                        txt.Span(_ordem.Atividade?.Servico?.Descricao ?? "").FontSize(13);
-                    });
+                    // ✅ Conferência (com mesmo estilo dos campos superiores)
+                    content.Item().PaddingTop(10).Text("Conferência (com data)").Bold().AlignCenter();
 
-                    // 🧾 Tabela de dados da OS
-                    col.Item().Table(table =>
+                    content.Item().Table(table =>
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn();
-                            c.RelativeColumn();
-                        });
+                        table.ColumnsDefinition(c => c.RelativeColumn());
 
-                        void Add(string label, string value) {
-                            table.Cell().Border(1).Padding(5).Text(label).Bold();
-                            table.Cell().Border(1).Padding(5).Text(value ?? "");
+                        void AddLinha(string label, string valor) {
+                            table.Cell().Border(1).Padding(3).AlignLeft().Text(text =>
+                            {
+                                text.Span(label + ": ").Bold();
+                                text.Span(valor ?? "");
+                            });
                         }
 
-                        Add("Prioridade", _ordem.Prioridade);
-                        Add("Colaborador", _ordem.Atividade?.Funcionario?.Nome);
-                        Add("Modelo de Carro", _ordem.Atividade?.Carro?.Modelo);
-                        Add("Cliente", _ordem.Atividade?.Carro?.Cliente?.Nome);
-                        Add("Carro nº", _ordem.Atividade?.Carro?.IdCarro);
-                        Add("Prazo", _ordem.Atividade?.DataPrevista?.ToString("dd/MM/yyyy"));
+                        AddLinha("Almoxarifado", _ordem.Almoxarifado);
+                        AddLinha("Colaborador", _ordem.Atividade?.Funcionario?.Nome);
+                        AddLinha("Inspetor", _ordem.Inspetor);
                     });
 
-                    // ✅ Conferência (embaixo)
-                    col.Item().PaddingTop(10).Table(table =>
-                    {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn();
-                            c.RelativeColumn();
-                        });
 
-                        table.Cell().ColumnSpan(2).Border(1).AlignCenter().Padding(5).Text("Conferência (com data)").Bold();
+                    // TAREFAS
+                    content.Item().PaddingTop(12).Text("TAREFAS").Bold();
+                    content.Item().Border(1).Height(120).Padding(5).Text(_ordem.Tarefas ?? "");
 
-                        void Conf(string label, string assinatura) {
-                            table.Cell().Border(1).Padding(5).Text(label);
-                            table.Cell().Border(1).Padding(5).Text(assinatura ?? "");
-                        }
+                    // OBSERVAÇÕES
+                    content.Item().PaddingTop(10).Text("Observações:").Bold();
+                    content.Item().Border(1).Height(120).Padding(5).Text(_ordem.Observacoes ?? "");
+                });
 
-                        Conf("Almoxarifado", _ordem.Almoxarifado);
-                        Conf("Colaborador", _ordem.Atividade?.Funcionario?.Nome);
-                        Conf("Inspetor", _ordem.Inspetor);
-                    });
-
-                    // Tarefas
-                    col.Item().PaddingTop(15).Text("TAREFAS").Bold();
-                    col.Item().Border(1).Height(60).Padding(5).Text(_ordem.Tarefas ?? "");
-
-                    // Observações
-                    col.Item().PaddingTop(10).Text("Observações:").Bold();
-                    col.Item().Border(1).Height(100).Padding(5).Text(_ordem.Observacoes ?? "");
-
-                    // Espaço entre tabelas e rodapé
-                    col.Item().PaddingTop(30);
-
-                    // Início e Término - Centralizado
-                    col.Item().AlignCenter().Row(row =>
+                // ✅ Rodapé fixo
+                page.Footer().Column(footer =>
+                {
+                    // INÍCIO / TÉRMINO
+                    footer.Item().PaddingTop(10).AlignCenter().Row(row =>
                     {
                         void Hora(string label) {
                             row.ConstantItem(80).Text(label).AlignLeft();
                             row.ConstantItem(120).BorderBottom(1).Height(12);
-                            row.ConstantItem(40); // Espaço entre
+                            row.ConstantItem(40);
                         }
 
-                        Hora("INÍCIO:   HS");
-                        Hora("TÉRMINO:   HS");
+                        Hora("INÍCIO: HS");
+                        Hora("TÉRMINO: HS");
                     });
 
-                    // Espaço
-                    col.Item().PaddingTop(25);
-
                     // Nome e Assinatura
-                    col.Item().Row(row =>
+                    footer.Item().PaddingTop(10).Row(row =>
                     {
-                        // Nome
                         row.RelativeItem().Column(col2 =>
                         {
                             col2.Item().BorderBottom(1).Height(15);
                             col2.Item().AlignCenter().Text("Nome do Responsável").FontSize(9);
                         });
 
-                        row.ConstantItem(40); // Espaço entre
+                        row.ConstantItem(40);
 
-                        // Assinatura
                         row.RelativeItem().Column(col2 =>
                         {
                             col2.Item().BorderBottom(1).Height(15);
                             col2.Item().AlignCenter().Text("Assinatura").FontSize(9);
                         });
                     });
-                });
 
-                // ✅ Rodapé
-                page.Footer().AlignCenter().Text(txt =>
-                {
-                    txt.Span("Documento gerado por GestãoAutomotiva - ");
-                    txt.Span(DateTime.Now.ToString("dd/MM/yyyy")).SemiBold();
+                    // Linha final
+                    footer.Item().PaddingTop(10).AlignCenter().Text(txt =>
+                    {
+                        txt.Span("Documento gerado por GestãoAutomotiva - ");
+                        txt.Span(DateTime.Now.ToString("dd/MM/yyyy")).SemiBold();
+                    });
                 });
             });
         }
+
+
     }
 }

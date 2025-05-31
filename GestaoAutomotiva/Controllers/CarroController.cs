@@ -1,10 +1,10 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+using System.Globalization;
+using System.Text;
 
 namespace GestaoAutomotiva.Controllers
 {
@@ -16,168 +16,104 @@ namespace GestaoAutomotiva.Controllers
             _context = context;
         }
 
-        // Tela de listagem dos Carros
-        public IActionResult Index(string busca = null, int page = 1) {
-
-            int pageSize = 10; // Quantidade de itens por página
-
-            var carros = _context.Carros
-      .Include(c => c.Cliente)
-      .Include(c => c.Acessorios)
-          .ThenInclude(a => a.Capota)
-      .Include(c => c.Acessorios)
-          .ThenInclude(a => a.Cambio)
-      .Include(c => c.Acessorios)
-          .ThenInclude(a => a.Carroceria)
-      .Include(c => c.Acessorios)
-          .ThenInclude(a => a.Motor)
-      .Include(c => c.Acessorios)
-          .ThenInclude(a => a.Suspensao)
-      .Include(c => c.Acessorios)
-          .ThenInclude(a => a.RodasPneus)
-      .OrderByDescending(c => c.Id)
-      .AsQueryable();
-
-
-            if (!string.IsNullOrWhiteSpace(busca))
-            {
-                var buscaUpper = busca.ToUpper();
-                carros = carros.Where(c =>
-                    c.IdCarro.Contains(buscaUpper) ||
-                    c.Modelo.Contains(buscaUpper) ||
-                    c.Cliente.Nome.Contains(buscaUpper));
+        public IActionResult Index(string busca, string tipoManutencao, int page = 1) {
+            // Função para remover acentos
+            string RemoverAcentos(string texto) {
+                if (string.IsNullOrWhiteSpace(texto)) return texto;
+                var normalized = texto.Normalize(NormalizationForm.FormD);
+                var charsSemAcento = normalized
+                    .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark);
+                return new string(charsSemAcento.ToArray()).ToLowerInvariant();
             }
 
-
-
-            // Total de  Carros encontrados
-            var totalRegistros = carros.Count();
-
-            // Calculando o total de páginas
-            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
-
-            // Pegando a página solicitada e aplicando Skip e Take
-            var carrosPaginados = carros
-                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
-                .Take(pageSize) // Pegar o número de itens da página atual
+            // Carregar todos os dados em memória (necessário para usar funções C# como RemoverAcentos)
+            var lista = _context.Carros
+                .Include(c => c.Cliente)
+                .Include(c => c.Modelo)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Motor)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Cambio)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Suspensao)
+                .Include(c => c.Acessorios).ThenInclude(a => a.RodasPneus)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Carroceria)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Capota)
                 .ToList();
 
-            // Passando os dados para a View
-            ViewBag.TotalPaginas = totalPaginas;
+            // Aplicar filtro de busca textual (sem acentos)
+            if (!string.IsNullOrWhiteSpace(busca))
+            {
+                string buscaNormalizada = RemoverAcentos(busca);
+
+                lista = lista.Where(c =>
+                    RemoverAcentos(c.IdCarro ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Modelo?.Nome ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Cor ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Cliente?.Nome ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Cliente?.CPF ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Cliente?.Telefone ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Motor?.Nome ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Cambio?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Suspensao?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.RodasPneus?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Carroceria?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Capota?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.TipoManutencao ?? "").Contains(buscaNormalizada)
+                ).ToList();
+            }
+
+            // Aplicar filtro por tipo de manutenção
+            if (!string.IsNullOrWhiteSpace(tipoManutencao))
+            {
+                lista = lista.Where(c => c.TipoManutencao == tipoManutencao).ToList();
+            }
+
+            // Paginação
+            int pageSize = 10;
+            int total = lista.Count();
+            var carros = lista
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Manter valores nos filtros após busca
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / pageSize);
             ViewBag.PaginaAtual = page;
             ViewBag.BuscaNome = busca;
+            ViewBag.TipoManutencao = tipoManutencao;
 
-
-            return View(carrosPaginados);
+            return View(carros);
         }
 
-        // Tela de Criar Carro
+
         public IActionResult Create() {
+
+            ViewBag.TiposManutencao = new SelectList(new[]
+{
+    new { Value = "Producao", Text = "Produção" },
+    new { Value = "Revisao", Text = "Revisão" }
+}, "Value", "Text");
+            PopularViewBags();
             var carro = new Carro
             {
                 Cliente = new Cliente(),
                 Acessorios = new AcessoriosCarro()
             };
-
-            // Carregar os modelos de carros, com valores temporários se não houver dados
-            if (_context.Carros.Any())
-            {
-                ViewBag.Modelos = _context.Carros.Select(c => c.Modelo).Distinct().ToList();
-            }
-            else
-            {
-                ViewBag.Modelos = new List<string> { "FURLAN GT40", "FURLAN COBRA", "FURLAN DAYTONA", "FURLAN SSK1929" };
-            }
-
-            // Carregar acessórios: Se os dados existem, carregar do banco, caso contrário, valores temporários
-            ViewBag.Motores = _context.Motors.Any()
-         ? new SelectList(_context.Motors.ToList(), "Id", "Descricao")
-         : new SelectList(new List<Motor>
-         {
-        new Motor { Id = 1, Descricao = "V4 200cc 2.0" },
-        new Motor { Id = 2, Descricao = "V6 220cc 2.0" },
-        new Motor { Id = 3, Descricao = "V8 280cc 4.7" },
-        new Motor { Id = 4, Descricao = "V8 400cc 4.4" },
-        new Motor { Id = 5, Descricao = "V8 550cc 5.0" },
-         }, "Id", "Descricao");
-
-
-            ViewBag.Cambios = _context.Cambios.Any()
-                ? new SelectList(_context.Cambios.ToList(), "Id", "Descricao")
-                : new SelectList(new List<Cambio>
-                {
-                    new Cambio {Id =1, Descricao ="Cambio Manual" },
-                     new Cambio {Id =2, Descricao ="Cambio Automático" },
-                }, "Id", "Descricao");
-
-
-            ViewBag.Suspensoes = _context.Suspensaos.Any()
-                ? new SelectList(_context.Suspensaos.ToList(), "Id", "Descricao")
-                : new SelectList(new List<Suspensao>
-                {
-                    new Suspensao{ Id=1,Descricao = "Suspensão Rua" },
-                    new Suspensao{ Id=2,Descricao = "Suspensão Pista" },
-
-                }, "Id", "Descricao");
-
-
-
-            ViewBag.RodasPneus = _context.RodasPneus.Any()
-                ? new SelectList(_context.RodasPneus.ToList(), "Id", "Descricao")
-                : new SelectList(new List<RodaPneu>
-                {new  RodaPneu{ Id =1, Descricao = "ARO 17 Pneu Nacional" },
-
-                new RodaPneu{Id=2, Descricao =  "ARO 15 Pneu Importado"},
-
-                }, "Id", "Descricao");
-
-
-
-            ViewBag.Carrocerias = _context.Carrocerias.Any()
-                ? new SelectList(_context.Carrocerias.ToList(), "Id", "Descricao")
-                : new SelectList(new List<Carroceria>
-
-                {
-                    new Carroceria { Id= 1, Descricao =  "Carroceria de Fibra de Carbono"},
-                    new Carroceria { Id= 2, Descricao =  "Carroceria de Fibra de Vidro"},
-                    new Carroceria { Id= 3, Descricao =  "Carroceria Hibrida"},
-            }, "Id", "Descricao");
-
-
-            ViewBag.Capotas = _context.Capotas.Any()
-              ? new SelectList(_context.Capotas.ToList(), "Id", "Descricao")
-              : new SelectList(new List<Capota>
-
-              {
-                    new Capota { Id= 1, Descricao =  "Escamoteável"},
-                    new Capota { Id= 2, Descricao =  "Hard Top"},
-                    new Capota { Id= 3, Descricao =  "Marítima"},
-          }, "Id", "Descricao");
-
-
             return View(carro);
         }
 
-
-
-
-
-        // Método POST para Criar Carro
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Carro carro) {
             bool temErro = false;
 
-            // Validações básicas (poderiam ser mantidas com ModelState.IsValid, mas vamos com as manuais que você já usa)
             if (string.IsNullOrEmpty(carro.IdCarro))
             {
                 ModelState.AddModelError("IdCarro", "Campo Código Carro é obrigatório.");
                 temErro = true;
             }
 
-            if (string.IsNullOrEmpty(carro.Modelo))
+            if (carro.ModeloId <= 0)
             {
-                ModelState.AddModelError("Modelo", "Campo Modelo é obrigatório.");
+                ModelState.AddModelError("ModeloId", "Campo Modelo é obrigatório.");
                 temErro = true;
             }
 
@@ -187,7 +123,6 @@ namespace GestaoAutomotiva.Controllers
                 temErro = true;
             }
 
-            // Cliente
             if (carro.Cliente == null ||
                 string.IsNullOrWhiteSpace(carro.Cliente.Nome) ||
                 string.IsNullOrWhiteSpace(carro.Cliente.Endereco) ||
@@ -198,7 +133,6 @@ namespace GestaoAutomotiva.Controllers
                 temErro = true;
             }
 
-            // Acessórios
             var acessorios = carro.Acessorios;
             if (acessorios == null ||
                 acessorios.CapotaId == null ||
@@ -214,15 +148,14 @@ namespace GestaoAutomotiva.Controllers
 
             if (temErro)
             {
+                PopularViewBags();
                 return View(carro);
             }
 
-            // 1️⃣ Salva o cliente primeiro
             _context.Clientes.Add(carro.Cliente);
             _context.SaveChanges();
             carro.ClienteId = carro.Cliente.Id;
 
-            // 2️⃣ Cria e salva os acessórios (apenas com os IDs)
             var novoAcessorio = new AcessoriosCarro
             {
                 CapotaId = acessorios.CapotaId,
@@ -232,101 +165,49 @@ namespace GestaoAutomotiva.Controllers
                 RodasPneusId = acessorios.RodasPneusId,
                 MotorId = acessorios.MotorId
             };
+
             _context.AcessoriosCarros.Add(novoAcessorio);
             _context.SaveChanges();
-            carro.AcessoriosCarroId = novoAcessorio.Id;
 
-            // 3️⃣ Desanexa objetos para evitar conflito de reinsert
+            carro.AcessoriosCarroId = novoAcessorio.Id;
             carro.Cliente = null;
             carro.Acessorios = null;
 
-            // 4️⃣ Salva o carro
             _context.Carros.Add(carro);
             _context.SaveChanges();
 
             return RedirectToAction("Index");
         }
 
-
-
-
-        // Tela de Editar Carro
+        [HttpGet]
         public IActionResult Edit(int id) {
-            var carro = _context.Carros.Include(c => c.Cliente).FirstOrDefault(c => c.Id == id);
-            carro = _context.Carros.Include(a => a.Acessorios).FirstOrDefault(a => a.Id == id);
+            var carro = _context.Carros
+                .Include(c => c.Cliente)
+                .Include(c => c.Modelo)
+                .Include(c => c.Acessorios)
+                .Include(c => c.Modelo)
+                .FirstOrDefault(c => c.Id == id);
 
             if (carro == null)
                 return NotFound();
 
-            // Garantir que os dados não sejam null antes de passá-los para a view
-            ViewBag.Carros = _context.Carros.ToList() ?? new List<Carro>();
-            ViewBag.Clientes = _context.Clientes.ToList() ?? new List<Cliente>();
+            ViewBag.TiposManutencao = new SelectList(new[]
+            {
+        new { Value = "Producao", Text = "Produção" },
+        new { Value = "Revisao", Text = "Revisão" }
+    }, "Value", "Text", carro.TipoManutencao); // pré-selecionar valor atual
 
-
-            // Carregar os modelos de carros, com valores temporários se não houver dados
-            var modelos = _context.Carros
-            .Select(c => c.Modelo)
-            .Distinct()
-            .ToList();
-
-            ViewBag.Modelos = modelos.Any()
-                ? modelos
-                : new List<string> { "FURLAN GT40", "FURLAN COBRA", "FURLAN DAYTONA", "FURLAN SSK1929" };
-
-            // Carregar acessórios: Se os dados existem, carregar do banco, caso contrário, valores temporários
-
-            ViewBag.Motores = new SelectList(
-                 _context.Motors.ToList(), // Todos os motores disponíveis
-                 "Id",
-                 "Descricao",
-                 carro.Acessorios?.MotorId // Motor salvo no carro atual
-            );
-
-            ViewBag.Cambios = new SelectList(
-                _context.Cambios.ToList(),
-                "Id",
-                "Descricao",
-                carro.Acessorios?.CambioId
-             );
-
-            ViewBag.Suspensoes = new SelectList(
-                _context.Suspensaos.ToList(),
-                "Id",
-                "Descricao",
-                carro.Acessorios?.SuspensaoId
-                );
-
-            ViewBag.RodasPneus = new SelectList(
-
-                _context.RodasPneus.ToList(),
-                "Id",
-                "Descricao",
-                carro.Acessorios.RodasPneusId
-                );
-
-            ViewBag.Carrocerias = new SelectList(
-            _context.Carrocerias.ToList(),
-            "Id",
-            "Descricao",
-            carro.Acessorios.CarroceriaId
-            );
-
-            ViewBag.Capotas = new SelectList(
-            _context.Capotas.ToList(),
-            "Id",
-            "Descricao",
-            carro.Acessorios.CapotaId
-            );
-
+            PopularViewBags();
             return View(carro);
         }
 
 
-
-        // Método POST para Editar Carro
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Carro carro) {
+        public IActionResult Edit(int id, Carro carro) {
+            if (id != carro.Id)
+                return BadRequest();
+
             bool temErro = false;
 
             if (string.IsNullOrEmpty(carro.IdCarro))
@@ -335,14 +216,10 @@ namespace GestaoAutomotiva.Controllers
                 temErro = true;
             }
 
-            if (string.IsNullOrEmpty(carro.Modelo))
+            if (carro.ModeloId == 0)
             {
-                ModelState.AddModelError("Modelo", "O campo Modelo é obrigatório.");
+                ModelState.AddModelError("ModeloId", "O campo Modelo é obrigatório.");
                 temErro = true;
-            }
-            else
-            {
-                carro.Modelo = carro.Modelo.ToUpper();
             }
 
             if (string.IsNullOrEmpty(carro.Cor))
@@ -353,6 +230,17 @@ namespace GestaoAutomotiva.Controllers
             else
             {
                 carro.Cor = carro.Cor.ToUpper();
+            }
+
+            if (string.IsNullOrEmpty(carro.TipoManutencao))
+            {
+                ModelState.AddModelError("TipoManutencao", "Tipo de Manutenção é obrigatório.");
+                temErro = true;
+            }
+            else
+            {
+                carro.TipoManutencao = carro.TipoManutencao;
+
             }
 
             if (carro.Cliente == null)
@@ -385,113 +273,115 @@ namespace GestaoAutomotiva.Controllers
                     ModelState.AddModelError("Cliente.CPF", "CPF é obrigatório.");
                     temErro = true;
                 }
+            }
 
-                if (carro.Acessorios.MotorId == null)
+            if (carro.Acessorios == null)
+            {
+                ModelState.AddModelError("Acessorios", "Dados de acessórios obrigatórios.");
+                temErro = true;
+            }
+            else
+            {
+                if (carro.Acessorios.MotorId == 0)
                 {
-                    ModelState.AddModelError("carro.Acessorios.Motor", "Motor é obrigatório.");
+                    ModelState.AddModelError("Acessorios.MotorId", "Motor é obrigatório.");
                     temErro = true;
                 }
 
-                if (carro.Acessorios.CambioId == null)
+                if (carro.Acessorios.CambioId == 0)
                 {
-                    ModelState.AddModelError("carro.Acessorios.Motor", "Câmbio é obrigatório.");
+                    ModelState.AddModelError("Acessorios.CambioId", "Câmbio é obrigatório.");
                     temErro = true;
                 }
 
-                if (carro.Acessorios.SuspensaoId == null)
+                if (carro.Acessorios.SuspensaoId == 0)
                 {
-                    ModelState.AddModelError("carro.Acessorios.SuspensaoId", "Suspensão é obrigatório.");
+                    ModelState.AddModelError("Acessorios.SuspensaoId", "Suspensão é obrigatória.");
                     temErro = true;
                 }
             }
 
             if (temErro)
             {
-                ViewBag.Carros = _context.Carros.ToList();
+                PopularViewBags();
                 return View(carro);
             }
 
-            // Busca entidades existentes
-            var carroExistente = _context.Carros.Find(carro.Id);
-            var clienteExistente = _context.Clientes.Find(carro.ClienteId);
-            var acessoriosExistente = _context.AcessoriosCarros.Find(carro.AcessoriosCarroId);
-            if (clienteExistente != null)
-            {
-                clienteExistente.Nome = carro.Cliente.Nome.ToUpper();
-                clienteExistente.Endereco = carro.Cliente.Endereco.ToUpper();
-                clienteExistente.Telefone = carro.Cliente.Telefone;
-                clienteExistente.CPF = carro.Cliente.CPF;
-                _context.Clientes.Update(clienteExistente);
-            }
-            else
-            {
-                ModelState.AddModelError("ClienteId", "Cliente não encontrado.");
-                return View(carro);
-            }
+            var carroExistente = _context.Carros
+                .Include(c => c.Cliente)
+                .Include(c => c.Acessorios)
+                .FirstOrDefault(c => c.Id == id);
 
-            // Atualiza os acessórios
+            if (carroExistente == null)
+                return NotFound();
 
-            if (acessoriosExistente != null)
-            {
-                acessoriosExistente.MotorId = carro.Acessorios.MotorId;
-                acessoriosExistente.CambioId = carro.Acessorios.CambioId;
-                acessoriosExistente.SuspensaoId = carro.Acessorios.SuspensaoId;
-                acessoriosExistente.CarroceriaId = carro.Acessorios.CarroceriaId;
-                acessoriosExistente.RodasPneusId = carro.Acessorios.RodasPneusId;
-                _context.AcessoriosCarros.Update(acessoriosExistente);
-            }
-            else
-            {
-                ModelState.AddModelError("AcessoriosCarroId", "Acessório não encontrado.");
-                return View(carro);
-            }
-
-            // Atualiza Carro
+            // Atualiza dados principais do carro
             carroExistente.IdCarro = carro.IdCarro;
-            carroExistente.Modelo = carro.Modelo?.ToUpper();
-            carroExistente.Cor = carro.Cor?.ToUpper();
-            carroExistente.ClienteId = carro.ClienteId;
-            carroExistente.AcessoriosCarroId = carro.AcessoriosCarroId;
+            carroExistente.ModeloId = carro.ModeloId;
+            carroExistente.Cor = carro.Cor;
 
-            _context.Carros.Update(carroExistente);
+            // Atualiza dados do cliente
+            carroExistente.Cliente.Nome = carro.Cliente.Nome;
+            carroExistente.Cliente.Endereco = carro.Cliente.Endereco;
+            carroExistente.Cliente.Telefone = carro.Cliente.Telefone;
+            carroExistente.Cliente.CPF = carro.Cliente.CPF;
 
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException ex)
-            {
-                // Aqui você pode logar o erro ou mostrar mensagem ao usuário
-                ModelState.AddModelError("", "Erro ao salvar as alterações. Verifique os dados.");
-                return View(carro);
-            }
+            // Atualiza acessórios
+            carroExistente.Acessorios.MotorId = carro.Acessorios.MotorId;
+            carroExistente.Acessorios.CambioId = carro.Acessorios.CambioId;
+            carroExistente.Acessorios.SuspensaoId = carro.Acessorios.SuspensaoId;
+            carroExistente.Acessorios.RodasPneusId = carro.Acessorios.RodasPneusId;
+            carroExistente.Acessorios.CarroceriaId = carro.Acessorios.CarroceriaId;
+            carroExistente.Acessorios.CapotaId = carro.Acessorios.CapotaId;
 
-            return RedirectToAction("Index");
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
         }
 
 
-
-
-        // Tela de Excluir Carro
+        [HttpGet]
         public IActionResult Delete(int id) {
-            var carro = _context.Carros.Include(c => c.Cliente).FirstOrDefault(c => c.Id == id);
+            var carro = _context.Carros
+                .Include(c => c.Cliente)
+                .Include(c => c.Modelo)
+                .Include(c => c.Acessorios)
+                .FirstOrDefault(c => c.Id == id);
+
             if (carro == null)
                 return NotFound();
 
             return View(carro);
         }
 
-        // Método POST para Excluir Carro
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id) {
-            var carro = _context.Carros.Find(id);
+            var carro = _context.Carros
+                .Include(c => c.Cliente)
+                .Include(c => c.Acessorios)
+                .FirstOrDefault(c => c.Id == id);
+
             if (carro == null)
                 return NotFound();
 
+            _context.Clientes.Remove(carro.Cliente);
+            _context.AcessoriosCarros.Remove(carro.Acessorios);
             _context.Carros.Remove(carro);
             _context.SaveChanges();
-            return RedirectToAction("Index"); // Redireciona para a lista de carros
+
+            return RedirectToAction(nameof(Index));
         }
+
+        private void PopularViewBags() {
+            ViewBag.Modelos = new SelectList(_context.Modelos.ToList(), "Id", "Nome");
+            ViewBag.Motores = new SelectList(_context.Motors.ToList(), "Id", "Nome");
+            ViewBag.Cambios = new SelectList(_context.Cambios.ToList(), "Id", "Descricao");
+            ViewBag.Suspensoes = new SelectList(_context.Suspensaos.ToList(), "Id", "Descricao");
+            ViewBag.RodasPneus = new SelectList(_context.RodasPneus.ToList(), "Id", "Descricao");
+            ViewBag.Carrocerias = new SelectList(_context.Carrocerias.ToList(), "Id", "Descricao");
+            ViewBag.Capotas = new SelectList(_context.Capotas.ToList(), "Id", "Descricao");
+        }
+
+
     }
 }

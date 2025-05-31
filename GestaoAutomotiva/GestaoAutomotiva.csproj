@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Data\gestaoAutomotiva.db" />
     <None Remove="Docs\LEIA-ME - GESTÃO AUTOMOTIVA.txt" />
     <None Remove="Docs\sistemaAutomotiva.bat" />
   </ItemGroup>
@@ -26,9 +25,6 @@
     <PackageReference Include="QuestPDF" Version="2025.4.0" />
   </ItemGroup>
   <ItemGroup>
-  <Content Include="Data\gestaoAutomotiva.db">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
   <Content Include="Docs\LEIA-ME - GESTÃO AUTOMOTIVA.txt">
     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
   </Content>

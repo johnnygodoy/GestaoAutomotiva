@@ -9,8 +9,9 @@ namespace GestaoAutomotiva.Models
         [Required(ErrorMessage = "O campo Código do Carro é obrigatório.")]
         public string IdCarro { get; set; }
 
-        [Required(ErrorMessage = "O campo Modelo é obrigatório.")]
-        public string Modelo { get; set; }
+        [Display(Name = "Tipo de Manutenção")]
+        [Required(ErrorMessage = "O campo Tipo de Manutenção é obrigatório.")]
+        public string TipoManutencao { get; set; }
 
         [Required(ErrorMessage = "O campo Cor é obrigatório.")]
         public string Cor { get; set; }
@@ -21,6 +22,10 @@ namespace GestaoAutomotiva.Models
 
         public int? AcessoriosCarroId { get; set; }  // FK
         public AcessoriosCarro Acessorios { get; set; }
+
+        public int ModeloId { get; set; }
+        public Modelo Modelo { get; set; }
+
     }
 
 }

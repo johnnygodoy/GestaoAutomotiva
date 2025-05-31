@@ -1,4 +1,4 @@
-html {
+Ôªøhtml {
     font-size: 14px;
     position: relative;
     min-height: 100%;
@@ -75,10 +75,10 @@ a.btn-outline-light {
 .hero {
     height: 100vh; /* Usar 100vh para ocupar toda a altura da tela */
     width: 100%; /* Definir largura para ocupar toda a tela */
-    position: relative; /* Necess·rio para posicionamento dos elementos dentro */
-    display: flex; /* Usar flexbox para centralizar o conte˙do */
-    align-items: center; /* Alinha verticalmente o conte˙do */
-    justify-content: center; /* Alinha horizontalmente o conte˙do */
+    position: relative; /* Necess√°rio para posicionamento dos elementos dentro */
+    display: flex; /* Usar flexbox para centralizar o conte√∫do */
+    align-items: center; /* Alinha verticalmente o conte√∫do */
+    justify-content: center; /* Alinha horizontalmente o conte√∫do */
     text-align: center; /* Garante que o texto fique centralizado */
 }
 
@@ -96,9 +96,9 @@ input[type="date"] {
     border: 1px solid #555;
 }
 
-    /* Õcone do calend·rio (Chrome/WebKit) */
+    /* √çcone do calend√°rio (Chrome/WebKit) */
     input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(1); /* inverte o Ìcone - ˙til para modo escuro */
+        filter: invert(1); /* inverte o √≠cone - √∫til para modo escuro */
     }
 
 .kanban-card {
@@ -111,7 +111,7 @@ input[type="date"] {
 }
 
 .bg-salmon {
-    background-color: #FA8072; /* Salm„o */
+    background-color: #FA8072; /* Salm√£o */
 }
 
 .bg-azure {
@@ -119,7 +119,7 @@ input[type="date"] {
 }
 
 .bg-charcoal {
-    background-color: #36454F; /* Carv„o */
+    background-color: #36454F; /* Carv√£o */
 }
 
 .bg-olive {
@@ -131,7 +131,7 @@ input[type="date"] {
 }
 
 .bg-powderblue {
-    background-color: #B0E0E6; /* Azul claro em pÛ */
+    background-color: #B0E0E6; /* Azul claro em p√≥ */
 }
 
 .bg-lightgreen {
@@ -167,40 +167,40 @@ input[type="text"] {
 }
 
 .table-container {
-    max-height: 100vh; /* Garante que a altura m·xima seja 100% da altura da tela */
+    max-height: 100vh; /* Garante que a altura m√°xima seja 100% da altura da tela */
     width: 100%; /* Garante que a largura seja 100% */
-    overflow-y: auto; /* Ativa rolagem vertical se necess·rio */
-    margin-top: 20px; /* EspaÁamento superior */
-    margin-bottom: 150px; /* EspaÁamento inferior */
+    overflow-y: auto; /* Ativa rolagem vertical se necess√°rio */
+    margin-top: 20px; /* Espa√ßamento superior */
+    margin-bottom: 150px; /* Espa√ßamento inferior */
     display: flex; /* Usar flexbox para alinhamento */
     flex-wrap: wrap; /* Permite que os itens quebrem para a linha seguinte */
-    justify-content: space-evenly; /* EspaÁa os cards de forma igual */
-    gap: 15px; /* EspaÁo entre os cards */
-    padding-left: 10px; /* Adiciona margem ‡ esquerda */
-    padding-right: 10px; /* Adiciona margem ‡ direita */
+    justify-content: space-evenly; /* Espa√ßa os cards de forma igual */
+    gap: 15px; /* Espa√ßo entre os cards */
+    padding-left: 10px; /* Adiciona margem √† esquerda */
+    padding-right: 10px; /* Adiciona margem √† direita */
     font-size: 12px;
     border-color: black;
 }
 
     .table-container .col-md {
         flex: 0 1 calc(4% - 10px); /* Ajuste da largura para 3 colunas com margens */
-        max-width: calc(4% - 10px); /* Limita a largura m·xima */
-        min-width: 200px; /* Largura mÌnima para cada card */
+        max-width: calc(4% - 10px); /* Limita a largura m√°xima */
+        min-width: 200px; /* Largura m√≠nima para cada card */
         box-sizing: border-box; /* Garante que o padding e as margens sejam considerados no tamanho */
     }
 
 .card {
-    margin-bottom: 10px; /* EspaÁamento inferior para cada card */
-    flex: 1 1 auto; /* Garante que o card seja flexÌvel */
+    margin-bottom: 10px; /* Espa√ßamento inferior para cada card */
+    flex: 1 1 auto; /* Garante que o card seja flex√≠vel */
     display: flex;
     flex-direction: column; /* Alinha os elementos verticalmente dentro do card */
-    overflow: hidden; /* Impede que o conte˙do ultrapasse os limites do card */
+    overflow: hidden; /* Impede que o conte√∫do ultrapasse os limites do card */
     word-wrap: break-word; /* Quebra as palavras longas para que se ajustem */
 }
 
     .card .card-header {
-        font-size: 1.2rem; /* Define um tamanho de fonte menor para o tÌtulo */
-        white-space: nowrap; /* Evita que o tÌtulo quebre */
+        font-size: 1.2rem; /* Define um tamanho de fonte menor para o t√≠tulo */
+        white-space: nowrap; /* Evita que o t√≠tulo quebre */
         overflow: hidden; /* Impede que o texto ultrapasse o limite */
         text-overflow: ellipsis; /* Adiciona '...' no final se o texto for muito longo */
         text-align: center; /* Alinha o texto no centro */
@@ -211,36 +211,36 @@ input[type="text"] {
     overflow: hidden; /* Impede que o texto ultrapasse o limite do card */
     text-overflow: ellipsis; /* Adiciona '...' se o texto for muito longo */
     display: -webkit-box;
-    -webkit-line-clamp: 6; /* Limita o n˙mero de linhas visÌveis */
+    -webkit-line-clamp: 6; /* Limita o n√∫mero de linhas vis√≠veis */
     -webkit-box-orient: vertical;
     line-height: 1.5;
-    height: 10rem; /* Ajuste de altura para limitar o espaÁo */
+    height: 10rem; /* Ajuste de altura para limitar o espa√ßo */
     text-align: center; /* Centraliza o texto */
 }
 
     .card-body p {
-        margin: 0; /* Remove qualquer margem do par·grafo */
+        margin: 0; /* Remove qualquer margem do par√°grafo */
         word-wrap: break-word; /* Faz com que o texto quebre de linha */
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-/* Reduzindo o tamanho dos botıes */
+/* Reduzindo o tamanho dos bot√µes */
 .btn {
     font-size: 18px; /* Menor tamanho de fonte */
-    padding: 5px 10px; /* Reduzindo o padding para diminuir o tamanho geral do bot„o */
-    height: 35px; /* Ajustando a altura dos botıes */
+    padding: 5px 10px; /* Reduzindo o padding para diminuir o tamanho geral do bot√£o */
+    height: 35px; /* Ajustando a altura dos bot√µes */
 }
 
-/* Para botıes dentro de um container com classe especÌfica */
+/* Para bot√µes dentro de um container com classe espec√≠fica */
 .table-container .btn {
-    margin: auto; /* Adicionando espaÁo inferior entre os botıes dentro do container */
+    margin: auto; /* Adicionando espa√ßo inferior entre os bot√µes dentro do container */
 }
-/* Ajustando o tamanho da fonte no cabeÁalho da Etapa */
+/* Ajustando o tamanho da fonte no cabe√ßalho da Etapa */
 .table-container .text-center.border-bottom.pb-2 {
-    font-size: 12px; /* Ajuste o tamanho conforme necess·rio */
+    font-size: 12px; /* Ajuste o tamanho conforme necess√°rio */
     line-height: 1.2; /* Ajusta a altura da linha para um melhor alinhamento */
-    padding-bottom: 5px; /* Ajusta o espaÁo abaixo do texto */
+    padding-bottom: 5px; /* Ajusta o espa√ßo abaixo do texto */
 }
 
 
@@ -250,7 +250,7 @@ input[type="text"] {
 }
 
 .bg-salmon {
-    background-color: #FA8072; /* Salm„o */
+    background-color: #FA8072; /* Salm√£o */
 }
 
 .bg-azure {
@@ -258,7 +258,7 @@ input[type="text"] {
 }
 
 .bg-charcoal {
-    background-color: #36454F; /* Carv„o */
+    background-color: #36454F; /* Carv√£o */
 }
 
 .bg-olive {
@@ -270,7 +270,7 @@ input[type="text"] {
 }
 
 .bg-powderblue {
-    background-color: #B0E0E6; /* Azul claro em pÛ */
+    background-color: #B0E0E6; /* Azul claro em p√≥ */
 }
 
 .bg-lightgreen {
@@ -305,59 +305,59 @@ input[type="text"] {
     text-transform: uppercase;
 }
 
-/* Para botıes dentro de um container com classe especÌfica */
+/* Para bot√µes dentro de um container com classe espec√≠fica */
 .table-container .btn {
-    margin: auto; /* Adicionando espaÁo inferior entre os botıes dentro do container */
+    margin: auto; /* Adicionando espa√ßo inferior entre os bot√µes dentro do container */
 }
-/* Ajustando o tamanho da fonte no cabeÁalho da Etapa */
+/* Ajustando o tamanho da fonte no cabe√ßalho da Etapa */
 .table-container .text-center.border-bottom.pb-2 {
-    font-size: 12px; /* Ajuste o tamanho conforme necess·rio */
+    font-size: 12px; /* Ajuste o tamanho conforme necess√°rio */
     line-height: 1.2; /* Ajusta a altura da linha para um melhor alinhamento */
-    padding-bottom: 5px; /* Ajusta o espaÁo abaixo do texto */
+    padding-bottom: 5px; /* Ajusta o espa√ßo abaixo do texto */
 }
 
 /* Ajustando o layout do card */
 .card-body {
-    text-align: left; /* Alinha o conte˙do ‡ esquerda */
-    padding: 10px; /* Adiciona um padding mais confort·vel ao redor */
+    text-align: left; /* Alinha o conte√∫do √† esquerda */
+    padding: 10px; /* Adiciona um padding mais confort√°vel ao redor */
     font-size: 13px;
 }
 
-    /* Garantindo que o Ìcone e texto do serviÁo fiquem mais prÛximos */
+    /* Garantindo que o √≠cone e texto do servi√ßo fiquem mais pr√≥ximos */
     .card-body small {
-        display: inline-flex; /* Faz com que o Ìcone e texto fiquem na mesma linha */
-        align-items: center; /* Alinha verticalmente o Ìcone e o texto */
-        margin-bottom: 5px; /* Ajuste do espaÁo entre os itens */
+        display: inline-flex; /* Faz com que o √≠cone e texto fiquem na mesma linha */
+        align-items: center; /* Alinha verticalmente o √≠cone e o texto */
+        margin-bottom: 5px; /* Ajuste do espa√ßo entre os itens */
         font-size: 10px;
     }
 
         .card-body small i {
-            margin-right: 5px; /* Adiciona um pequeno espaÁo entre o Ìcone e o texto */
+            margin-right: 5px; /* Adiciona um pequeno espa√ßo entre o √≠cone e o texto */
         }
 
-    /* Ajuste para os botıes de navegaÁ„o */
+    /* Ajuste para os bot√µes de navega√ß√£o */
     .card-body .btn {
         font-size: 20px; /* Ajusta o tamanho do texto */
-        padding: 10px 15px; /* Ajuste de padding para os botıes */
-        margin-top: 5px; /* Ajuste de margem para garantir que os botıes n„o fiquem cortados */
-        width: 40%; /* Ajusta a largura dos botıes para garantir que eles n„o quebrem */
+        padding: 10px 15px; /* Ajuste de padding para os bot√µes */
+        margin-top: 5px; /* Ajuste de margem para garantir que os bot√µes n√£o fiquem cortados */
+        width: 40%; /* Ajusta a largura dos bot√µes para garantir que eles n√£o quebrem */
     }
 
-    /* Ajuste do layout do formul·rio de navegaÁ„o, colocando os botıes mais prÛximos */
+    /* Ajuste do layout do formul√°rio de navega√ß√£o, colocando os bot√µes mais pr√≥ximos */
     .card-body .d-flex {
-        justify-content: flex-start; /* Alinha os botıes na esquerda */
-        gap: 5px; /* Adiciona um espaÁamento entre os botıes */
+        justify-content: flex-start; /* Alinha os bot√µes na esquerda */
+        gap: 5px; /* Adiciona um espa√ßamento entre os bot√µes */
     }
 
-/* Ajuste na posiÁ„o do bot„o de navegaÁ„o */
+/* Ajuste na posi√ß√£o do bot√£o de navega√ß√£o */
 .card .btn-outline-light {
     font-size: 20px; /* Ajuste o tamanho da fonte */
     padding: 1px; /* Ajuste o preenchimento interno */
-    min-width: 60px; /* Largura mÌnima maior */
-    margin-top: -10px; /* Ajuste o espaÁo superior */
-    margin-right: 10px; /* EspaÁamento entre os botıes */
-    display: inline-block; /* Garante que o bot„o fique dentro do layout */
-    box-sizing: border-box; /* Inclui o padding e a largura no c·lculo total da largura */
+    min-width: 60px; /* Largura m√≠nima maior */
+    margin-top: -10px; /* Ajuste o espa√ßo superior */
+    margin-right: 10px; /* Espa√ßamento entre os bot√µes */
+    display: inline-block; /* Garante que o bot√£o fique dentro do layout */
+    box-sizing: border-box; /* Inclui o padding e a largura no c√°lculo total da largura */
 }
 
 .badge {
@@ -393,11 +393,11 @@ input[type="text"] {
 
     .table th, .table td {
         text-align: center;
-        border: 1px solid #444; /* Borda cinza escuro para todas as cÈlulas */       
+        border: 1px solid #444; /* Borda cinza escuro para todas as c√©lulas */       
     }
 
 
-    /* Estilo para as cÈlulas de aÁıes */
+    /* Estilo para as c√©lulas de a√ß√µes */
     .table td .btn {
         font-size: 10px;
         padding: 6px 12px;
@@ -429,7 +429,7 @@ input[type="text"] {
     }
     
 
-/* Ajustes nas vari·veis do Bootstrap para garantir que as cores estejam de acordo */
+/* Ajustes nas vari√°veis do Bootstrap para garantir que as cores estejam de acordo */
 .table {
     --bs-table-bg: transparent;
     --bs-table-accent-bg: transparent;
@@ -442,26 +442,26 @@ input[type="text"] {
     margin-bottom: 1rem;
     color: #212529;
     vertical-align: top;
-    border-collapse: collapse; /* Para garantir que n„o haja espaÁos entre as bordas */
+    border-collapse: collapse; /* Para garantir que n√£o haja espa√ßos entre as bordas */
 }
 
 
 /* Remove o fundo transparente para o hover e aplica o vermelho */
 .table tbody tr:hover {
     background-color: #2e2e2e !important; /* Cor de fundo para todas as linhas quando passar o mouse */
-    cursor: pointer; /* Alterar o cursor para uma m„ozinha */
+    cursor: pointer; /* Alterar o cursor para uma m√£ozinha */
 }
 
 
 /* Ajuste do layout com flexbox para campos lado a lado */
 .form-row {
     display: flex;
-    flex-wrap: wrap; /* Faz com que os campos quebrem para a linha seguinte quando necess·rio */
-    gap: 15px; /* EspaÁamento entre os campos */
+    flex-wrap: wrap; /* Faz com que os campos quebrem para a linha seguinte quando necess√°rio */
+    gap: 15px; /* Espa√ßamento entre os campos */
 }
 
 .form-group {
-    flex: 1 1 45%; /* Cada campo ocupa atÈ 45% da largura, ajustando para se adaptar */
+    flex: 1 1 45%; /* Cada campo ocupa at√© 45% da largura, ajustando para se adaptar */
 }
 /* Card central do login */
 .login-card {
@@ -472,12 +472,12 @@ input[type="text"] {
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
 }
 
-    /* TÌtulo com destaque */
+    /* T√≠tulo com destaque */
     .login-card h3 {
         font-weight: bold;
         color: red;
     }
-    /* TÌtulo com destaque */
+    /* T√≠tulo com destaque */
 #email, #senha {
     font-weight: bold;
     color: white;
@@ -571,5 +571,17 @@ input[type="text"] {
     }
 }
 
+/* üì¶ √Årea central responsiva e estilizada */
+.container-area-central {
+    background-color: rgba(0, 0, 0, 0.75); /* fundo escuro com opacidade */
+    color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-top: 2rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-/* Fim das modificaÁıes */
+
+/* Fim das modifica√ß√µes */

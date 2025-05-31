@@ -1,7 +1,6 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 public class CadastroAcessoriosController : Controller
@@ -14,123 +13,116 @@ public class CadastroAcessoriosController : Controller
 
     [HttpGet]
     public IActionResult Create() {
-        ViewBag.Motores = _context.Motors.OrderBy(m => m.Descricao).ToList();
-        ViewBag.Cambios = _context.Cambios.OrderBy(c => c.Descricao).ToList();
-        ViewBag.Suspensoes = _context.Suspensaos.OrderBy(s => s.Descricao).ToList();
-        ViewBag.RodasPneus = _context.RodasPneus.OrderBy(r => r.Descricao).ToList();
-        ViewBag.Carrocerias = _context.Carrocerias.OrderBy(c => c.Descricao).ToList();
-        ViewBag.Capotas = _context.Capotas.OrderBy(c => c.Descricao).ToList();
+        ViewBag.Motores = _context.Motors?.OrderBy(m => m.Nome).ToList() ?? new List<Motor>();
+        ViewBag.Cambios = _context.Cambios?.OrderBy(c => c.Descricao).ToList() ?? new List<Cambio>();
+        ViewBag.Suspensoes = _context.Suspensaos?.OrderBy(s => s.Descricao).ToList() ?? new List<Suspensao>();
+        ViewBag.RodasPneus = _context.RodasPneus?.OrderBy(r => r.Descricao).ToList() ?? new List<RodaPneu>();
+        ViewBag.Carrocerias = _context.Carrocerias?.OrderBy(c => c.Descricao).ToList() ?? new List<Carroceria>();
+        ViewBag.Capotas = _context.Capotas?.OrderBy(c => c.Descricao).ToList() ?? new List<Capota>();
+        ViewBag.Modelos = _context.Modelos.OrderBy(m => m.Nome).ToList();
 
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult CriarMotor(string descricao) {
-        if (!string.IsNullOrWhiteSpace(descricao) && !_context.Motors.Any(m => m.Descricao.ToUpper() == descricao.ToUpper()))
+    public IActionResult CriarModeloCarro(string nome) {
+        if (!string.IsNullOrWhiteSpace(nome) && !_context.Modelos.Any(m => m.Nome.ToUpper() == nome.ToUpper()))
         {
-            _context.Motors.Add(new Motor { Descricao = descricao.ToUpper() });
+            _context.Modelos.Add(new Modelo { Nome = nome.ToUpper() });
             _context.SaveChanges();
-            TempData["Mensagem"] = "Motor cadastrado com sucesso!";
+            TempData["Mensagem"] = "Modelo de carro cadastrado com sucesso!";
         }
         else
         {
-            TempData["Mensagem"] = "Motor já cadastrado ou inválido.";
+            TempData["Mensagem"] = "Modelo já cadastrado ou inválido.";
         }
         return RedirectToAction("Create");
     }
 
-    // Repete o padrão para os demais tipos:
+    private bool AdicionarAcessorio<T>(DbSet<T> dbSet, Func<T, string> propSelector, Func<string, T> factory, string descricao) where T : class {
+        if (!string.IsNullOrWhiteSpace(descricao) &&
+            !dbSet.AsEnumerable().Any(e => (propSelector(e) ?? "").ToUpper() == descricao.ToUpper()))
+        {
+            dbSet.Add(factory(descricao.ToUpper()));
+            _context.SaveChanges();
+            return true;
+        }
+        return false;
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult CriarMotor(string descricao) {
+        TempData["Mensagem"] = AdicionarAcessorio(_context.Motors, m => m.Nome, nome => new Motor { Nome = nome }, descricao)
+            ? "Motor cadastrado com sucesso!"
+            : "Motor já cadastrado ou inválido.";
+        return RedirectToAction("Create");
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult CriarCambio(string descricao) {
-        if (!string.IsNullOrWhiteSpace(descricao) && !_context.Cambios.Any(c => c.Descricao.ToUpper() == descricao.ToUpper()))
-        {
-            _context.Cambios.Add(new Cambio { Descricao = descricao.ToUpper() });
-            _context.SaveChanges();
-            TempData["Mensagem"] = "Câmbio cadastrado com sucesso!";
-        }
-        else
-        {
-            TempData["Mensagem"] = "Câmbio já cadastrado ou inválido.";
-        }
+        TempData["Mensagem"] = AdicionarAcessorio(_context.Cambios, c => c.Descricao, desc => new Cambio { Descricao = desc }, descricao)
+            ? "Câmbio cadastrado com sucesso!"
+            : "Câmbio já cadastrado ou inválido.";
         return RedirectToAction("Create");
     }
 
-    // Suspensão
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult CriarSuspensao(string descricao) {
-        if (!string.IsNullOrWhiteSpace(descricao) && !_context.Suspensaos.Any(s => s.Descricao.ToUpper() == descricao.ToUpper()))
-        {
-            _context.Suspensaos.Add(new Suspensao { Descricao = descricao.ToUpper() });
-            _context.SaveChanges();
-            TempData["Mensagem"] = "Suspensão cadastrada com sucesso!";
-        }
-        else
-        {
-            TempData["Mensagem"] = "Suspensão já cadastrada ou inválida.";
-        }
+    public IActionResult CriarSuspensao(string descricao, int modeloId) {
+
+        TempData["Mensagem"] = AdicionarAcessorio(_context.Suspensaos, c => c.Descricao, desc => new Suspensao { Descricao = desc }, descricao)
+          ? "Suspensão cadastrado com sucesso!"
+          : "Suspensão já cadastrado ou inválido.";
         return RedirectToAction("Create");
+
     }
 
-    // Rodas/Pneus
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult CriarRodasPneus(string descricao) {
-        if (!string.IsNullOrWhiteSpace(descricao) && !_context.RodasPneus.Any(r => r.Descricao.ToUpper() == descricao.ToUpper()))
-        {
-            _context.RodasPneus.Add(new RodaPneu { Descricao = descricao.ToUpper() });
-            _context.SaveChanges();
-            TempData["Mensagem"] = "Rodas/Pneus cadastrados com sucesso!";
-        }
-        else
-        {
-            TempData["Mensagem"] = "Rodas/Pneus já cadastrados ou inválidos.";
-        }
+        TempData["Mensagem"] = AdicionarAcessorio(_context.RodasPneus, r => r.Descricao, desc => new RodaPneu { Descricao = desc }, descricao)
+            ? "Rodas/Pneus cadastrados com sucesso!"
+            : "Rodas/Pneus já cadastrados ou inválidos.";
         return RedirectToAction("Create");
     }
 
-    // Carroceria
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult CriarCarroceria(string descricao) {
-        if (!string.IsNullOrWhiteSpace(descricao) && !_context.Carrocerias.Any(c => c.Descricao.ToUpper() == descricao.ToUpper()))
-        {
-            _context.Carrocerias.Add(new Carroceria { Descricao = descricao.ToUpper() });
-            _context.SaveChanges();
-            TempData["Mensagem"] = "Carroceria cadastrada com sucesso!";
-        }
-        else
-        {
-            TempData["Mensagem"] = "Carroceria já cadastrada ou inválida.";
-        }
+        TempData["Mensagem"] = AdicionarAcessorio(_context.Carrocerias, c => c.Descricao, desc => new Carroceria { Descricao = desc }, descricao)
+            ? "Carroceria cadastrada com sucesso!"
+            : "Carroceria já cadastrada ou inválida.";
         return RedirectToAction("Create");
     }
 
-    // Capota
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult CriarCapota(string descricao) {
-        if (!string.IsNullOrWhiteSpace(descricao) && !_context.Capotas.Any(c => c.Descricao.ToUpper() == descricao.ToUpper()))
-        {
-            _context.Capotas.Add(new Capota { Descricao = descricao.ToUpper() });
-            _context.SaveChanges();
-            TempData["Mensagem"] = "Capota cadastrada com sucesso!";
-        }
-        else
-        {
-            TempData["Mensagem"] = "Capota já cadastrada ou inválida.";
-        }
+        TempData["Mensagem"] = AdicionarAcessorio(_context.Capotas, c => c.Descricao, desc => new Capota { Descricao = desc }, descricao)
+            ? "Capota cadastrada com sucesso!"
+            : "Capota já cadastrada ou inválida.";
         return RedirectToAction("Create");
     }
 
-    // Exclusão genérica (por tipo)
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Excluir(string tipo, int id) {
+        if (string.IsNullOrWhiteSpace(tipo))
+        {
+            TempData["Mensagem"] = "Tipo inválido.";
+            return RedirectToAction("Create");
+        }
+
         switch (tipo.ToLower())
         {
+            case "modelo":
+                var modelo = _context.Modelos.Find(id);
+                if (modelo != null) _context.Modelos.Remove(modelo);
+                break;
             case "motor":
                 var motor = _context.Motors.Find(id);
                 if (motor != null) _context.Motors.Remove(motor);
@@ -162,4 +154,3 @@ public class CadastroAcessoriosController : Controller
         return RedirectToAction("Create");
     }
 }
-

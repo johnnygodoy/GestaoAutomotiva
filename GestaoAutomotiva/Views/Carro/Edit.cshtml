@@ -20,18 +20,28 @@
                 <span asp-validation-for="IdCarro" class="campo-erro"></span>
             </div>
             <div class="col-md-4">
-                <label asp-for="Modelo"></label>
-                <select asp-for="Modelo" class="form-control" asp-items="@(new SelectList(ViewBag.Carros, "Modelo", "Modelo", Model.Modelo))">
+                <label asp-for="ModeloId">Modelo</label>
+                <select asp-for="ModeloId" class="form-control" asp-items="@(ViewBag.Modelos as SelectList)">
                     <option value="">Selecione o modelo</option>
                 </select>
-                <span asp-validation-for="Modelo" class="campo-erro" style="font-size: 1rem;"></span>
+                <span asp-validation-for="ModeloId" class="campo-erro"></span>
             </div>
+
             <div class="col-md-4">
                 <label asp-for="Cor"></label>
                 <input asp-for="Cor" class="form-control" />
                 <span asp-validation-for="Cor" class="campo-erro"></span>
             </div>
+
+            <div class="col-md-4">
+                <label asp-for="TipoManutencao" class="form-label">Tipo Manutenção</label>
+                <select asp-for="TipoManutencao" class="form-control" asp-items="ViewBag.TiposManutencao">
+                    <option value="">Selecione</option>
+                </select>
+                <span asp-validation-for="TipoManutencao" class="campo-erro"></span>
+            </div>
         </div>
+
 
         <!-- Customização do Carro -->
         <h4 class="text-light mt-4">Customização do Carro</h4>

@@ -5,14 +5,14 @@
 namespace GestaoAutomotiva.Migrations
 {
     /// <inheritdoc />
-    public partial class NovaTelaPlanejamentoGrafico : Migration
+    public partial class AddTipoManutencaoToCarro : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "Cor",
-                table: "Atividades",
+                name: "TipoManutencao",
+                table: "Carros",
                 type: "TEXT",
                 nullable: false,
                 defaultValue: "");
@@ -22,8 +22,8 @@ namespace GestaoAutomotiva.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Cor",
-                table: "Atividades");
+                name: "TipoManutencao",
+                table: "Carros");
         }
     }
 }

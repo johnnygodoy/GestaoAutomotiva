@@ -21,10 +21,10 @@
     <table class="table table-dark table-hover mt-3">
         <thead>
             <tr>
-                <th>Funcionário</th>
-                <th>Cliente</th>
                 <th>Código Carro</th>
-                <th>Modelo</th>
+                <th>Carro</th>
+                <th>Cliente</th>
+                <th>Funcionário</th>            
                 <th>Serviço</th>
                 <th>Início</th>
                 <th>Previsão</th>
@@ -34,17 +34,22 @@
         <tbody>
             @foreach (var atividade in Model)
             {
-                var statusClass = atividade.Status == "Cancelado" ? "text-danger fw-bold" : "text-success";
+                bool atrasado = atividade.Status.ToLower().Contains("atraso") || atividade.Status.ToLower().Contains("cancelado");
+                string statusTexto = atividade.Status;
 
                 <tr>
+                    <td>@atividade.Carro?.IdCarro</td>
+                    <td>@atividade.Carro?.Modelo?.Nome</td>
+                    <td>@atividade.Carro?.Cliente?.Nome</td>
                     <td>@atividade.Funcionario?.Nome</td>
-                    <td>@atividade.Carro.Cliente.Nome</td>
-                    <td>@atividade.Carro.IdCarro</td>
-                    <td>@atividade.Carro.Modelo</td>
                     <td>@atividade.Servico?.Descricao</td>
                     <td>@atividade.DataInicio?.ToString("dd/MM/yyyy")</td>
                     <td>@atividade.DataPrevista?.ToString("dd/MM/yyyy")</td>
-                    <td class="@statusClass">@atividade.Status</td>
+                    <td>
+                        <span class="badge px-3 py-2 fs-6 white-space: normal; word-break: break-word; " style="background-color:@atividade.Cor; color: black;">
+                            @statusTexto
+                        </span>
+                    </td>
                 </tr>
             }
         </tbody>

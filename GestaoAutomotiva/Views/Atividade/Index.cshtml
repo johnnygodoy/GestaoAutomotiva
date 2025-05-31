@@ -20,11 +20,11 @@
     <table class="table table-dark table-hover align-middle">
         <thead>
             <tr>
-                <th>Funcionário</th>
-                <th>Serviço</th>
-                <th>Cliente</th>
                 <th>Código do Carro</th>
                 <th>Carro</th>
+                <th>Cliente</th>
+                <th>Funcionário</th>
+                <th>Serviço</th>
                 <th>Início</th>
                 <th>Previsão</th>
                 <th>Status</th>
@@ -34,23 +34,27 @@
         <tbody>
             @foreach (var atividade in Model)
             {
-                var atrasado = atividade.DataPrevista < DateTime.Now.Date && atividade.Status == "Em Andamento";
-                var statusClass = atrasado ? "text-danger fw-bold" : "text-success";
+                bool emAndamento = atividade.Status == "Em Andamento";
+                bool estaAtrasado = atividade.DataPrevista < DateTime.Now.Date;
+                int diasAtraso = (DateTime.Now.Date - atividade.DataPrevista.GetValueOrDefault().Date).Days;
 
+                string statusTexto = atividade.Status;
+                if (emAndamento && estaAtrasado)
+                {
+                    statusTexto += $" (atraso de {diasAtraso} dia{(diasAtraso > 1 ? "s" : "")})";
+                }              
                 <tr>
+                    <td>@atividade.Carro?.IdCarro</td>
+                    <td>@atividade.Carro?.Modelo.Nome?.ToUpper()</td>
+                    <td>@atividade.Carro?.Cliente?.Nome?.ToLower()</td>
                     <td>@atividade.Funcionario?.Nome</td>
                     <td>@atividade.Servico?.Descricao?.ToUpper()</td>
-                    <td>@atividade.Carro?.Cliente?.Nome?.ToLower()</td>
-                    <td>@atividade.Carro?.IdCarro</td>
-                    <td>@atividade.Carro?.Modelo?.ToUpper()</td>
                     <td>@atividade.DataInicio?.ToString("dd/MM/yyyy")</td>
                     <td>@atividade.DataPrevista?.ToString("dd/MM/yyyy")</td>
-                    <td class="@statusClass">
-                        @atividade.Status
-                        @if (atrasado)
-                        {
-                            <span class="badge bg-danger ms-2">Atrasado</span>
-                        }
+                    <td>
+                        <span class="badge px-3 py-2 fs-6 white-space: normal; word-break: break-word;" style="background-color:@atividade.Cor; color: black;">
+                            @statusTexto
+                        </span>
                     </td>
                     <td class="text-center">
                         <div class="d-grid gap-1">
@@ -70,6 +74,7 @@
                 </tr>
             }
         </tbody>
+
         <tfoot>
             <tr>
                 <td colspan="9" class="text-center bg-dark">

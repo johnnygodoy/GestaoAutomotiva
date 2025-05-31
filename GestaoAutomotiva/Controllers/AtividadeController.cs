@@ -14,11 +14,11 @@ namespace GestaoAutomotiva.Controllers
 
         public AtividadeController(AppDbContext context) {
             _context = context;
-        }      
+        }
 
         [HttpGet]
         public IActionResult Create() {
-            PreencherDropdowns(); // apenas chama
+            PreencherDropdowns(); // apenas chama        
 
             return View();
         }
@@ -27,14 +27,39 @@ namespace GestaoAutomotiva.Controllers
             var atividade = _context.Atividades.Find(id);
             if (atividade == null) return NotFound();
 
-            atividade.Status = "Finalizado";
-            _context.SaveChanges();
+            if (atividade.DataPrevista.HasValue && atividade.DataPrevista.Value < DateTime.Today)
+            {
+                var diasAtraso = (DateTime.Today - atividade.DataPrevista.Value).Days;
+                atividade.Status = $"Finalizado com atraso de {diasAtraso} dia{(diasAtraso > 1 ? "s" : "")}";
+                atividade.Cor = DefinirCorStatus(atividade.Status);
+                // vermelho
+            }
+            else
+            {
+                atividade.Status = "Finalizado";
+                atividade.Cor = DefinirCorStatus(atividade.Status);
+            }
 
+            _context.SaveChanges();
             return RedirectToAction("Index");
         }
 
+        private string DefinirCorStatus(string status) {
+            return status switch
+            {
+                var s when s.Contains("Finalizado com atraso") => "#e74c3c",
+                "Finalizado" => "#2ecc71",
+                "Parado" => "#f1c40f",
+                "Nao Iniciado" => "#e67e22",
+                "Em Andamento" => "#3498db",
+                "Cancelado" => "#e74c3c",
+                _ => "#ffffff" // branco ou neutro
+            };
+        }
 
-        public IActionResult Index(string busca = null, string dataBusca = null,int page = 1) {
+
+
+        public IActionResult Index(string busca = null, string dataBusca = null, int page = 1) {
             ViewData["Busca"] = busca;
             ViewData["DataBusca"] = dataBusca;
 
@@ -44,9 +69,11 @@ namespace GestaoAutomotiva.Controllers
             var atividades = _context.Atividades
                 .Include(a => a.Funcionario)
                 .Include(a => a.Servico)
-                .Include(a => a.Carro) // Incluindo o carro para usar seus dados na pesquisa
+                .Include(a => a.Carro)
                 .ThenInclude(c => c.Cliente)
-                .OrderByDescending(c => c.Id)              
+                .Include(a => a.Carro)
+                .ThenInclude(c => c.Modelo)
+                .OrderByDescending(c => c.Id)
                 .AsQueryable();
 
             // Busca por texto (funcionário, carro, modelo, serviço, status, etc.)
@@ -56,7 +83,7 @@ namespace GestaoAutomotiva.Controllers
 
                 atividades = atividades.Where(a =>
                     a.Carro.Cliente.Nome.ToUpper().Contains(buscaUpper) ||  // Cliente
-                    a.Carro.Modelo.ToUpper().Contains(buscaUpper) ||        // Modelo do carro
+                    a.Carro.Modelo.Nome.ToUpper().Contains(buscaUpper) ||        // Modelo do carro
                     a.Funcionario.Nome.ToUpper().Contains(buscaUpper) ||    // Nome do funcionário
                     a.Servico.Descricao.ToUpper().Contains(buscaUpper) ||   // Descrição do serviço
                     a.Status.ToUpper().Contains(buscaUpper));               // Status da atividade
@@ -69,8 +96,6 @@ namespace GestaoAutomotiva.Controllers
                     a.DataInicio == dataBuscaConvertida.Date ||  // Comparar apenas as datas (ignorando a hora)
                     a.DataPrevista == dataBuscaConvertida.Date); // Comparar apenas as datas (ignorando a hora)
             }
-
-
 
             // Total de atividades encontrados
             var totalRegistros = atividades.Count();
@@ -99,7 +124,8 @@ namespace GestaoAutomotiva.Controllers
         public IActionResult Create(Atividade atividade) {
             var funcionarios = _context.Funcionarios.ToList();
             var servicos = _context.Servicos.ToList();
-            
+            atividade.Cor = DefinirCorStatus(atividade.Status);
+
             bool temErro = false;
 
             if (atividade.FuncionarioId == 0)
@@ -114,15 +140,19 @@ namespace GestaoAutomotiva.Controllers
                 temErro = true;
             }
 
-            var carro = _context.Carros.Find(atividade.CarroId);
+
+            var carro = _context.Carros
+            .Include(c => c.Modelo)
+            .FirstOrDefault(c => c.Id == atividade.CarroId);
+
 
             if (carro != null)
             {
                 atividade.Carro = carro;
-                atividade.Carro.Modelo = atividade.Carro.Modelo.ToUpper();               
+                atividade.Carro.Modelo.Nome = atividade.Carro.Modelo.Nome.ToUpper();
             }
 
-            if (string.IsNullOrEmpty(atividade.Carro.Modelo))
+            if (string.IsNullOrEmpty(atividade.Carro?.Modelo?.Nome))
             {
                 ModelState.AddModelError("Carro", "O campo Carro é obrigatório.");
                 temErro = true;
@@ -135,7 +165,7 @@ namespace GestaoAutomotiva.Controllers
             }
             else
             {
-                atividade.Carro.Cor = atividade.Carro.Cor.ToUpper();              
+                atividade.Carro.Cor = atividade.Carro.Cor.ToUpper();
             }
 
 
@@ -164,7 +194,8 @@ namespace GestaoAutomotiva.Controllers
             atividade.EstimativaDias = (int)servico.EstimativaDias;
             atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
             atividade.Status = "Em Andamento";
-            atividade.Cor = "#2ecc71";
+            atividade.Cor = DefinirCorStatus(atividade.Status);
+
 
             // Verifica se a atividade é a primeira a ser criada
             if (atividade.EtapaId == 0 || atividade.EtapaId == null) // caso não tenha etapa associada
@@ -187,9 +218,10 @@ namespace GestaoAutomotiva.Controllers
             // Incluindo o nome do cliente junto com o modelo do carro
             var carros = _context.Carros
                 .Include(c => c.Cliente)
-                .Select(c => new {
+                .Select(c => new
+                {
                     c.Id,
-                    ModeloCliente = c.Modelo + " - " + c.Cliente.Nome // Concatenando o modelo e o nome do cliente
+                    ModeloCliente = c.Modelo.Nome + " - " + c.Cliente.Nome // Concatenando o modelo e o nome do cliente
                 }).ToList();
 
             ViewBag.Funcionarios = new SelectList(funcionarios, "Id", "Nome");
@@ -219,11 +251,11 @@ namespace GestaoAutomotiva.Controllers
             return data;
         }
 
-
         [HttpGet]
         public IActionResult Edit(int id) {
-                        
-            var atividade = _context.Atividades.Find(id);           
+
+            var atividade = _context.Atividades.Find(id);
+            atividade.Cor = DefinirCorStatus(atividade.Status);
 
             if (atividade == null) return NotFound();
 
@@ -232,7 +264,7 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Atividade atividade) {                    
+        public IActionResult Edit(Atividade atividade) {
 
             if (!atividade.DataInicio.HasValue)
                 ModelState.AddModelError("DataInicio", "A data de início é obrigatória.");
@@ -249,8 +281,8 @@ namespace GestaoAutomotiva.Controllers
             {
                 ModelState.AddModelError("ServicoId", "Selecione um serviço.");
                 temErro = true;
-            }          
-                      
+            }
+
 
             if (!atividade.DataInicio.HasValue)
             {
@@ -274,7 +306,8 @@ namespace GestaoAutomotiva.Controllers
 
             atividade.EstimativaDias = (int)servico.EstimativaDias;
             atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
-            atividade.Cor = "#2ecc71";
+            atividade.Cor = DefinirCorStatus(atividade.Status);
+
 
             _context.Atividades.Update(atividade);
             _context.SaveChanges();
@@ -304,7 +337,7 @@ namespace GestaoAutomotiva.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Historico(string busca, string dataBusca = null, int page = 1 ) {
+        public IActionResult Historico(string busca, string dataBusca = null, int page = 1) {
             ViewData["Busca"] = busca;
             ViewData["DataBusca"] = dataBusca;
 
@@ -315,6 +348,8 @@ namespace GestaoAutomotiva.Controllers
             .Include(a => a.Servico)
             .Include(a => a.Carro)
             .ThenInclude(c => c.Cliente)
+            .Include(a => a.Carro)
+            .ThenInclude(c => c.Modelo)
             .OrderByDescending(c => c.Id)
             .AsQueryable();
 
@@ -323,7 +358,7 @@ namespace GestaoAutomotiva.Controllers
                 var buscaUpper = busca.ToUpper(); // Converte a busca para maiúsculas
 
                 atividades = atividades.Where(a =>
-                    a.Carro.Modelo.ToUpper().Contains(buscaUpper) ||
+                    a.Carro.Modelo.Nome.ToUpper().Contains(buscaUpper) ||
                     a.Carro.IdCarro.Contains(buscaUpper) ||
                     a.Funcionario.Nome.ToUpper().Contains(buscaUpper) ||
                     a.Servico.Descricao.ToUpper().Contains(buscaUpper) ||
@@ -360,7 +395,7 @@ namespace GestaoAutomotiva.Controllers
             return View(atividadesPaginados);
         }
         public IActionResult ExportarPdf() {
-            var atividades = _context.Atividades              
+            var atividades = _context.Atividades
                 .Include(a => a.Carro)
                 .Include(a => a.Funcionario)
                 .Include(a => a.Servico)
@@ -375,7 +410,7 @@ namespace GestaoAutomotiva.Controllers
         }
         public IActionResult ExportarExcel() {
             var atividades = _context.Atividades
-                .Include(a=>a.Carro)
+                .Include(a => a.Carro)
                 .Include(a => a.Funcionario)
                 .Include(a => a.Servico)
                 .Where(a => a.Status != "Em Andamento")
@@ -398,7 +433,7 @@ namespace GestaoAutomotiva.Controllers
                 worksheet.Cell(i + 2, 1).Value = a.Funcionario?.Nome;
                 worksheet.Cell(i + 2, 2).Value = a.Servico?.Descricao;
                 worksheet.Cell(i + 2, 3).Value = a.Carro.IdCarro;
-                worksheet.Cell(i + 2, 4).Value = a.Carro.Modelo;
+                worksheet.Cell(i + 2, 4).Value = a.Carro.Modelo.Nome;
                 worksheet.Cell(i + 2, 5).Value = a.DataInicio?.ToString("dd/MM/yyyy");
                 worksheet.Cell(i + 2, 6).Value = a.DataPrevista?.ToString("dd/MM/yyyy");
                 worksheet.Cell(i + 2, 7).Value = a.Status;

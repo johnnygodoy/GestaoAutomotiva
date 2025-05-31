@@ -1,38 +1,33 @@
 ﻿@model List<GestaoAutomotiva.Models.CarroResumoViewModel>
-
 @using GestaoAutomotiva.Utils
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Gráfico de Etapas";
     Layout = "_Layout";
 }
 
-<h2 class="text-light">📊 Gráfico de Etapas dos Carros</h2>
+<div class="container-fluid bg-dark bg-opacity-75 text-light rounded p-4 mt-4" style="max-width: 1400px; margin: auto;">
 
-<div class="bg-white rounded shadow p-3 mb-4 border border-dark">
-    <!-- Formulário de Filtros -->
+    <h2 class="text-white">📊 Gráfico de Etapas dos Carros</h2>
     <form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
-        <!-- Campo Único de Pesquisa -->
         <div class="d-flex flex-column" style="width: 220px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Buscar por Nome</label>
+            <label class="form-label text-white mb-1" style="font-size: 13px;">Buscar por Nome</label>
             <input type="text" name="busca" value="@Context.Request.Query["busca"]" class="form-control form-control-sm" placeholder="Cliente, Carro ou Funcionário" />
         </div>
 
-        <!-- Data Início -->
         <div class="d-flex flex-column" style="width: 140px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Início</label>
+            <label class="form-label text-whitemb-1" style="font-size: 13px;">Data Início</label>
             <input type="date" name="dataInicio" class="form-control form-control-sm">
         </div>
 
-        <!-- Data Fim -->
         <div class="d-flex flex-column" style="width: 140px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Fim</label>
+            <label class="form-label text-white mb-1" style="font-size: 13px;">Data Fim</label>
             <input type="date" name="dataFim" class="form-control form-control-sm">
         </div>
 
-        <!-- Etapa -->
         <div class="d-flex flex-column" style="width: 180px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Etapa</label>
+            <label class="form-label text-white mb-1" style="font-size: 13px;">Etapa</label>
             <select name="etapaId" class="form-select form-select-sm">
                 <option value="">Todas Etapas</option>
                 @foreach (var e in ViewBag.Etapas as List<SelectListItem>)
@@ -42,18 +37,18 @@
             </select>
         </div>
 
-        <!-- Status -->
         <div class="d-flex flex-column" style="width: 160px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Status</label>
+            <label class="form-label text-white mb-1" style="font-size: 13px;">Status</label>
             <select name="status" class="form-select form-select-sm">
                 <option value="">Todos Status</option>
                 <option value="Em Andamento">Em Andamento</option>
                 <option value="Finalizado">Finalizado</option>
                 <option value="Pendente">Pendente</option>
+                <option value="Cancelado">Cancelado</option>
+                <option value="Reprovado">Reprovado</option>
             </select>
         </div>
 
-        <!-- Botões -->
         <div class="d-flex gap-2 align-items-end">
             <button type="submit" class="btn btn-outline-dark">Filtrar</button>
             <a asp-action="Index" class="btn btn-secondary">Limpar</a>
@@ -67,11 +62,77 @@
     }
     else
     {
-        <div id="grafico_etapas" class="rounded border p-2" style="height:@(Model.Count * 60 + 120)px;"></div>
+        <div id="grafico_etapas" class="rounded border p-2 mb-4" style="height:@(Model.Count * 60 + 120)px;"></div>
     }
-</div>
 
+
+    <!-- Cartões de Resumo por Status -->
+    <div class="bg-white p-4 rounded shadow mb-4">
+
+        <!-- Filtros Aplicados -->
+        <p class="text-muted mb-2" style="font-size: 14px;">
+            <strong>Modelo:</strong> @(string.IsNullOrEmpty(ViewBag.ModeloFiltrado) ? "Todos" : ViewBag.ModeloFiltrado) |
+            <strong>Cliente:</strong> @(string.IsNullOrEmpty(ViewBag.ClienteFiltrado) ? "Todos" : ViewBag.ClienteFiltrado)
+        </p>
+
+        <!-- Título -->
+        <h4 class="mb-3 text-dark">📊 Visão Status</h4>
+
+        <!-- Cartões -->
+        <div class="d-flex flex-wrap gap-4">
+            @foreach (var item in ViewBag.ResumoPorStatus as List<GestaoAutomotiva.Models.DashboardResumoStatusViewModel>)
+            {
+                var cor = item.Status switch
+                {
+                    "Finalizado" => "bg-success text-white",
+                    "Em Andamento" => "bg-primary text-white",
+                    "Pendente" => "bg-warning text-dark",
+                    "Cancelado" => "bg-secondary text-white",
+                    "Reprovado" => "bg-danger text-white",
+                    _ => "bg-light text-dark"
+                };
+
+                <div class="p-3 rounded shadow @cor" style="min-width:180px;">
+                    <h5 class="mb-1">@item.Status</h5>
+                    <p class="mb-0">@item.Total registros</p>
+                    <small>@item.Percentual.ToString("0.##")%</small>
+                </div>
+            }
+        </div>
+    </div>
+
+
+    <!-- Gráfico Pizza Consolidado -->
+    <div class="bg-white p-4 rounded shadow mb-4" style="min-height: 550px;">
+        <!-- Texto com Filtros Atuais -->
+        <p class="text-muted mb-1" style="font-size: 14px;">
+            <strong>Modelo:</strong> @(string.IsNullOrEmpty(ViewBag.ModeloFiltrado) ? "Todos" : ViewBag.ModeloFiltrado) |
+            <strong>Cliente:</strong> @(string.IsNullOrEmpty(ViewBag.ClienteFiltrado) ? "Todos" : ViewBag.ClienteFiltrado)
+        </p>
+
+        <h4 class="mb-3 text-dark">📊 Visão Consolidada</h4>
+        <canvas id="pizzaStatus" style="max-height: 400px; width: 100%;"></canvas>
+
+    </div>
+
+    <!-- Gráfico Diário -->
+    <div class="bg-white p-4 rounded shadow mt-4">
+        <!-- Texto com Filtros Atuais -->
+        <p class="text-muted mb-1" style="font-size: 14px;">
+            <strong>Modelo:</strong> @(string.IsNullOrEmpty(ViewBag.ModeloFiltrado) ? "Todos" : ViewBag.ModeloFiltrado) |
+            <strong>Cliente:</strong> @(string.IsNullOrEmpty(ViewBag.ClienteFiltrado) ? "Todos" : ViewBag.ClienteFiltrado)
+        </p>
+
+        <h4 class="mb-3 text-dark">📈 Visão Diária</h4>
+        <canvas id="graficoDiario" style="width:100%; max-height: 300px;"></canvas>
+    </div>
+</div>
+<!-- Scripts -->
 <script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+
 <script>
     google.charts.load('current', { packages: ['gantt'] });
     google.charts.setOnLoadCallback(drawChart);
@@ -89,7 +150,6 @@
         data.addColumn({ type: 'string', role: 'style' });
         data.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
 
-        // Aqui vamos garantir que o Percentual e o Tooltip sejam adicionados corretamente
         data.addRows([
     @foreach (var c in Model)
     {
@@ -98,18 +158,18 @@
         var tooltip = c.Tooltip.Replace("\"", "\\\"");
 
         <text>
-                        [
-                            "@c.Id",
-                            "@c.Nome",
-                            "Carro",
-                            new Date(@inicio.Year, @inicio.Month - 1, @inicio.Day),
-                            new Date(@fim.Year, @fim.Month - 1, @fim.Day),
-                            null,
+                                [
+                                    "@c.Id",
+                                    "@c.Nome",
+                                    "Carro",
+                                    new Date(@inicio.Year, @inicio.Month - 1, @inicio.Day),
+                                    new Date(@fim.Year, @fim.Month - 1, @fim.Day),
+                                    null,
             @c.Percentual,
-                            null,
-                            "fill: @c.Cor",
-                            "@tooltip"
-                        ],
+                                    null,
+                                    "fill: @c.Cor",
+                                    "@tooltip"
+                                ],
         </text>
     }
         ]);
@@ -118,23 +178,10 @@
             height: @Model.Count * 50 + 120,
             tooltip: { isHtml: true },
             backgroundColor: '#fff',
-            chartArea: {
-                left: 180,
-                bottom: 150,
-                top: 50,
-                height: '65%',
-                width: '85%'
-            },
             gantt: {
                 trackHeight: 40,
-                labelStyle: {
-                    fontSize: 14,
-                    color: '#000'
-                },
-                innerGridHorizLine: {
-                    stroke: '#999',
-                    strokeWidth: 1
-                },
+                labelStyle: { fontSize: 14, color: '#000' },
+                innerGridHorizLine: { stroke: '#999', strokeWidth: 1 },
                 innerGridTrack: { fill: '#f7f7f7' },
                 innerGridDarkTrack: { fill: '#e0e0e0' }
             }
@@ -184,4 +231,86 @@
 
         img.src = url;
     }
+
+    // Pizza consolidada
+    const pizzaCtx = document.getElementById("pizzaStatus").getContext("2d");
+    const statusData = @Html.Raw(JsonSerializer.Serialize(ViewBag.ResumoPorStatus));
+
+         new Chart(pizzaCtx, {
+        type: "doughnut",
+        data: {
+            labels: statusData.map(x => x.Status),
+            datasets: [{
+                data: statusData.map(x => x.Total),
+                backgroundColor: ["#27ae60", "#2980b9", "#f1c40f", "#e67e22", "#c0392b"]
+            }]
+        },
+        options: {
+            layout: {
+                padding: 40 // 👉 mais espaço ao redor
+            },
+            plugins: {
+                datalabels: {
+                    color: "#000",
+                    font: {
+                        weight: "bold",
+                        size: 13
+                    },
+                    formatter: function (value, context) {
+                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        const label = context.chart.data.labels[context.dataIndex];
+                        const percent = ((value / total) * 100).toFixed(2);
+                        return `${label} (${percent}%)\n${value}`;
+                    },
+                    anchor: 'end',
+                    align: 'end',
+                    offset: 10,
+                    clamp: true,
+                    clip: false
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: false
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        },
+        plugins: [ChartDataLabels]
+    });
+
+
+
+    // Gráfico diário
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById("graficoDiario").getContext("2d");
+        const dados = @Html.Raw(JsonSerializer.Serialize(ViewBag.DadosDiarios));
+
+        const labels = dados.map(d => new Date(d.Data).toLocaleDateString());
+        const datasets = [
+            { label: "Concluídas", data: dados.map(d => d.Concluidas), fill: true, borderColor: "#27ae60", backgroundColor: "rgba(39,174,96,0.2)" },
+            { label: "Em Andamento", data: dados.map(d => d.Andamento), fill: true, borderColor: "#2980b9", backgroundColor: "rgba(41,128,185,0.2)" },
+            { label: "Canceladas", data: dados.map(d => d.Canceladas), fill: true, borderColor: "#e67e22", backgroundColor: "rgba(230,126,34,0.2)" },
+            { label: "Reprovadas", data: dados.map(d => d.Reprovadas), fill: true, borderColor: "#c0392b", backgroundColor: "rgba(192,57,43,0.2)" },
+            { label: "Pendentes", data: dados.map(d => d.Pendentes), fill: true, borderColor: "#f1c40f", backgroundColor: "rgba(241,196,15,0.2)" }
+        ];
+
+        new Chart(ctx, {
+            type: "line",
+            data: { labels: labels, datasets: datasets },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: "bottom" },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: { display: true, title: { display: true, text: "Data" } },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    });
 </script>

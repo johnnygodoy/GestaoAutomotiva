@@ -62,7 +62,7 @@ namespace GestaoAutomotiva.Utils
                             table.Cell().Element(CellStyle).Text(a.Funcionario?.Nome ?? "-");
                             table.Cell().Element(CellStyle).Text(a.Servico?.Descricao ?? "-");
                             table.Cell().Element(CellStyle).Text(a.Carro?.IdCarro ?? "-");
-                            table.Cell().Element(CellStyle).Text(a.Carro?.Modelo ?? "-");
+                            table.Cell().Element(CellStyle).Text(a.Carro?.Modelo.Nome ?? "-");
                             table.Cell().Element(CellStyle).Text(a.DataInicio?.ToString("dd/MM/yyyy") ?? "-");
                             table.Cell().Element(CellStyle).Text(a.DataPrevista?.ToString("dd/MM/yyyy") ?? "-");
                             table.Cell().Element(CellStyle).Text(a.Status ?? "-");

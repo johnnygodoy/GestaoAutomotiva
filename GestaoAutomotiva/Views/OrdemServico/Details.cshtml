@@ -6,15 +6,19 @@
     <tr><th>OS Nº:</th><td>@Model.Id</td></tr>
     <tr><th>Data:</th><td>@Model.DataAbertura.ToString("dd/MM/yyyy")</td></tr>
     <tr><th>Cliente:</th><td>@Model.Atividade?.Carro?.Cliente?.Nome</td></tr>
-    <tr><th>Carro:</th><td>@Model.Atividade?.Carro?.Modelo</td></tr>
+    <tr>
+        <th>Carro:</th>
+        <td>
+            @(Model.Atividade?.Carro?.Modelo?.Nome?.ToUpper() ?? "Modelo não informado") - @(Model.Atividade?.Carro?.IdCarro ?? "Sem código")
+        </td>
+
+    </tr>
     <tr><th>Funcionário:</th><td>@Model.Atividade?.Funcionario?.Nome</td></tr>
     <tr><th>Serviço:</th><td>@Model.Atividade?.Servico?.Descricao</td></tr>
     <tr><th>Etapa Atual:</th><td>@Model.EtapaAtual</td></tr>
     <tr><th>Prioridade:</th><td>@Model.Prioridade</td></tr>
-    <tr><th>Tartefas:</th><td>@Model.Tarefas</td></tr>
+    <tr><th>Tarefas:</th><td>@Model.Tarefas</td></tr>
     <tr><th>Observações:</th><td>@Model.Observacoes</td></tr>
 </table>
 
 <a asp-action="Index" class="btn btn-secondary">Voltar</a>
-
-

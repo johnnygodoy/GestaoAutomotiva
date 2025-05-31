@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestaoAutomotiva.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250424182338_OrdemServico_AtividadeOpcional")]
-    partial class OrdemServico_AtividadeOpcional
+    [Migration("20250529170620_AjusteModeloAtual")]
+    partial class AjusteModeloAtual
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,7 +124,12 @@ namespace GestaoAutomotiva.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ModeloId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ModeloId");
 
                     b.ToTable("Cambios");
                 });
@@ -139,7 +144,12 @@ namespace GestaoAutomotiva.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ModeloId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ModeloId");
 
                     b.ToTable("Capotas");
                 });
@@ -164,15 +174,16 @@ namespace GestaoAutomotiva.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Modelo")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("ModeloId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AcessoriosCarroId");
 
                     b.HasIndex("ClienteId");
+
+                    b.HasIndex("ModeloId");
 
                     b.ToTable("Carros");
                 });
@@ -187,7 +198,12 @@ namespace GestaoAutomotiva.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ModeloId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ModeloId");
 
                     b.ToTable("Carrocerias");
                 });
@@ -262,17 +278,74 @@ namespace GestaoAutomotiva.Migrations
                     b.ToTable("Funcionarios");
                 });
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.Modelo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Modelos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nome = "FURLAN GT40"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nome = "FURLAN COBRA"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Nome = "FURLAN SSK1929"
+                        });
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.Motor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Descricao")
+                    b.Property<int?>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ModeloId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("NumeroMotor")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Observacoes")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PlacaVeiculoDoador")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("ModeloId");
 
                     b.ToTable("Motors");
                 });
@@ -335,7 +408,12 @@ namespace GestaoAutomotiva.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ModeloId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ModeloId");
 
                     b.ToTable("RodasPneus");
                 });
@@ -372,7 +450,12 @@ namespace GestaoAutomotiva.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ModeloId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ModeloId");
 
                     b.ToTable("Suspensaos");
                 });
@@ -503,6 +586,28 @@ namespace GestaoAutomotiva.Migrations
                     b.Navigation("Servico");
                 });
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.Cambio", b =>
+                {
+                    b.HasOne("GestaoAutomotiva.Models.Modelo", "Modelo")
+                        .WithMany("Cambios")
+                        .HasForeignKey("ModeloId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Modelo");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.Capota", b =>
+                {
+                    b.HasOne("GestaoAutomotiva.Models.Modelo", "Modelo")
+                        .WithMany("Capotas")
+                        .HasForeignKey("ModeloId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Modelo");
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.Carro", b =>
                 {
                     b.HasOne("GestaoAutomotiva.Models.AcessoriosCarro", "Acessorios")
@@ -515,9 +620,45 @@ namespace GestaoAutomotiva.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GestaoAutomotiva.Models.Modelo", "Modelo")
+                        .WithMany()
+                        .HasForeignKey("ModeloId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Acessorios");
 
                     b.Navigation("Cliente");
+
+                    b.Navigation("Modelo");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.Carroceria", b =>
+                {
+                    b.HasOne("GestaoAutomotiva.Models.Modelo", "Modelo")
+                        .WithMany("Carrocerias")
+                        .HasForeignKey("ModeloId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Modelo");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.Motor", b =>
+                {
+                    b.HasOne("GestaoAutomotiva.Models.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId");
+
+                    b.HasOne("GestaoAutomotiva.Models.Modelo", "Modelo")
+                        .WithMany("Motores")
+                        .HasForeignKey("ModeloId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Modelo");
                 });
 
             modelBuilder.Entity("GestaoAutomotiva.Models.OrdemServico", b =>
@@ -530,6 +671,28 @@ namespace GestaoAutomotiva.Migrations
                     b.Navigation("Atividade");
                 });
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.RodaPneu", b =>
+                {
+                    b.HasOne("GestaoAutomotiva.Models.Modelo", "Modelo")
+                        .WithMany()
+                        .HasForeignKey("ModeloId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Modelo");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.Suspensao", b =>
+                {
+                    b.HasOne("GestaoAutomotiva.Models.Modelo", "Modelo")
+                        .WithMany("Suspensoes")
+                        .HasForeignKey("ModeloId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Modelo");
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.Cliente", b =>
                 {
                     b.Navigation("Carros");
@@ -538,6 +701,19 @@ namespace GestaoAutomotiva.Migrations
             modelBuilder.Entity("GestaoAutomotiva.Models.Etapa", b =>
                 {
                     b.Navigation("Atividades");
+                });
+
+            modelBuilder.Entity("GestaoAutomotiva.Models.Modelo", b =>
+                {
+                    b.Navigation("Cambios");
+
+                    b.Navigation("Capotas");
+
+                    b.Navigation("Carrocerias");
+
+                    b.Navigation("Motores");
+
+                    b.Navigation("Suspensoes");
                 });
 #pragma warning restore 612, 618
         }

@@ -195,7 +195,7 @@
 
         var nomeFuncionario = TextoHelper.RemoverCaracteresEspeciais(atividade.Funcionario.Nome);
         var nomeCliente = TextoHelper.RemoverCaracteresEspeciais(atividade.Carro.Cliente?.Nome);
-        var modeloCarro = TextoHelper.RemoverCaracteresEspeciais(atividade.Carro.Modelo);
+        var modeloCarro = TextoHelper.RemoverCaracteresEspeciais(atividade.Carro.Modelo.Nome);
         var tipoServico = TextoHelper.RemoverCaracteresEspeciais(atividade.Servico.Tipo);
 
         var inicio = atividade.DataInicio.Value;

@@ -45,9 +45,13 @@
                 <td>@os.DataAbertura.ToString("dd/MM/yyyy")</td>
                 <td>@(nomeFuncionario ?? "N/A")</td>
                 <td>
-                    @if (os.Atividade?.Carro != null)
+                    @if (os.Atividade?.Carro?.Modelo != null)
                     {
-                        @($"{os.Atividade.Carro.Modelo} ({os.Atividade.Carro.IdCarro})")
+                        @($"{os.Atividade.Carro.Modelo.Nome.ToUpper()}")
+                    }
+                    else if (os.Atividade?.Carro != null)
+                    {
+                        @($"ID {os.Atividade.Carro.IdCarro}")
                     }
                     else if (os.CarroId.HasValue)
                     {
@@ -58,6 +62,7 @@
                         @("N/A")
                     }
                 </td>
+
                 <td>@(nomeCliente ?? "N/A")</td>
                 <td>@(os.Atividade?.Etapa?.Nome ?? os.EtapaAtual ?? "N/A")</td>
                 <td>

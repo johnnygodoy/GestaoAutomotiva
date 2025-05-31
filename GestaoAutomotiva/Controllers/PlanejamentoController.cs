@@ -24,6 +24,7 @@ public class PlanejamentoController : Controller
         var atividades = _context.Atividades
        .Include(a => a.Funcionario)
        .Include(a => a.Carro).ThenInclude(c => c.Cliente)
+       .Include(a => a.Carro).ThenInclude(c => c.Modelo)
        .Include(a => a.Servico)
        .Where(a => a.DataInicio.HasValue && a.DataPrevista.HasValue && a.Status != "Finalizado")
        .ToList();
