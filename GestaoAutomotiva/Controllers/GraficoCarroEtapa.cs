@@ -1,6 +1,4 @@
-﻿using DinkToPdf.Contracts;
-using DinkToPdf;
-using GestaoAutomotiva.Data;
+﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
 using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Mvc;
