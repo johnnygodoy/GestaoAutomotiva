@@ -11,7 +11,9 @@
 }
 
 
-
+div.google-visualization-tooltip {
+    display: none !important;
+}
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -44,6 +46,29 @@ body {
         color: #ffffff !important;
         text-decoration: underline;
     }
+
+.navbar-nav {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem; /* Espaço entre os ícones */
+}
+
+    .navbar-nav .nav-item {
+        text-align: center;
+    }
+
+
+    .navbar-nav .nav-link img {
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .navbar-nav .nav-link:hover img {
+        background-color: rgba(255, 255, 255, 0.15); /* fundo branco com transparência */
+        border: 1px solid #ccc;
+        transform: scale(1.05); /* leve zoom */
+    }
+
 
 footer {
     background-color: #1c1c1c;
@@ -82,24 +107,16 @@ a.btn-outline-light {
     text-align: center; /* Garante que o texto fique centralizado */
 }
 
-.overlay {
-    text-align: center;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.4);
-    padding: 40px;
-    border-radius: 12px;
-}
-
-input[type="date"] {
-    background-color: #1e1e1e;
-    color: #fff;
-    border: 1px solid #555;
-}
-
-    /* Ícone do calendário (Chrome/WebKit) */
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(1); /* inverte o ícone - útil para modo escuro */
+    .hero .overlay {
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 2.5rem 3rem;
+        border-radius: 1rem;
+        color: white;
+        backdrop-filter: blur(6px);
+        transition: all 0.5s ease-in-out;
     }
+
+
 
 .kanban-card {
     animation: fadeInUp 0.4s ease-in-out;
@@ -337,16 +354,16 @@ input[type="text"] {
 
     /* Ajuste para os botões de navegação */
     .card-body .btn {
-        font-size: 20px; /* Ajusta o tamanho do texto */
-        padding: 10px 15px; /* Ajuste de padding para os botões */
-        margin-top: 5px; /* Ajuste de margem para garantir que os botões não fiquem cortados */
-        width: 40%; /* Ajusta a largura dos botões para garantir que eles não quebrem */
+        font-size: 1 0px; /* Ajusta o tamanho do texto */
+        padding: 10px 10px; /* Ajuste de padding para os botões */
+        margin-top: 8px; /* Ajuste de margem para garantir que os botões não fiquem cortados */
+        width: 60%; /* Ajusta a largura dos botões para garantir que eles não quebrem */
     }
 
     /* Ajuste do layout do formulário de navegação, colocando os botões mais próximos */
     .card-body .d-flex {
         justify-content: flex-start; /* Alinha os botões na esquerda */
-        gap: 5px; /* Adiciona um espaçamento entre os botões */
+        gap: 10 px; /* Adiciona um espaçamento entre os botões */
     }
 
 /* Ajuste na posição do botão de navegação */
@@ -582,6 +599,71 @@ input[type="text"] {
     margin-left: auto;
     margin-right: auto;
 }
+
+
+.btn-outline-purple {
+    color: #6f42c1;
+    border-color: #6f42c1;
+}
+
+    .btn-outline-purple:hover {
+        background-color: #6f42c1;
+        color: white;
+    }
+
+.select-dark {
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
+    .select-dark option {
+        background-color: #000 !important;
+        color: #fff !important;
+    }
+
+.form-control, .select-light {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
+
+.navbar-nav .nav-link img {
+    margin-bottom: 4px;
+    transition: transform 0.2s;
+}
+
+.navbar-nav .nav-link:hover img {
+    transform: scale(1.1);
+}
+
+.page-container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 1.5rem;
+    background-color: rgba(33, 37, 41, 0.75); /* bg-dark bg-opacity-75 */
+    color: #f8f9fa; /* text-light */
+    border-radius: 0.5rem;
+    margin-left: 200px;
+}
+
+
+.validation-message {
+    display: block;
+    min-height: 20px;
+    font-size: 0.875rem;
+    color: #dc3545;
+    margin-top: 4px;
+}
+
+.field-validation-error {
+    font-size: 0.875rem;
+    color: #dc3545;
+    display: block;
+    min-height: 1.25rem; /* Garante altura mínima */
+    margin-top: 0.25rem;
+}
+
+
 
 
 /* Fim das modificações */

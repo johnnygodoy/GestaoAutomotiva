@@ -22,6 +22,7 @@ namespace GestaoAutomotiva.Data
         public DbSet<RodaPneu> RodasPneus { get; set; }
         public DbSet<Carroceria> Carrocerias { get; set; }
         public DbSet<Capota> Capotas { get; set; }
+        public DbSet<AtividadeHistorico>AtividadeHistoricos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "gestaoAutomotiva.db");

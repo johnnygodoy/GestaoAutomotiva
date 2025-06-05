@@ -3,45 +3,44 @@
     ViewData["Title"] = "Adicionar Carro/Cliente";
 }
 
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
-    <h2 class="mb-4">Adicionar Carro/Cliente</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="mb-4 text-light">
+        <img src="~/images/Icones/carro_cliente.png" width="48" height="48" /> @ViewData["Title"]
+    </h2>
 
     <form method="post">
         @Html.AntiForgeryToken()
 
-        <!-- Linha 1: Código, Modelo, Cor -->
+        <!-- 🚗 Linha 1: Dados do Carro -->
         <div class="row mb-3">
             <div class="col-md-3">
                 <label asp-for="IdCarro" class="form-label">Código Carro</label>
                 <input asp-for="IdCarro" class="form-control" />
                 <span asp-validation-for="IdCarro" class="text-danger"></span>
             </div>
-
             <div class="col-md-4">
                 <label asp-for="ModeloId" class="form-label">Modelo</label>
-                <select asp-for="ModeloId" class="form-control" asp-items="ViewBag.Modelos">
-                    <option value="">Selecione</option>
+                <select asp-for="ModeloId" class="form-control select-dark text-uppercase" asp-items="ViewBag.Modelos">
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="ModeloId" class="text-danger"></span>
             </div>
-
             <div class="col-md-3">
                 <label asp-for="Cor" class="form-label">Cor</label>
                 <input asp-for="Cor" class="form-control" />
                 <span asp-validation-for="Cor" class="text-danger"></span>
             </div>
-
             <div class="col-md-2">
-                <label asp-for="TipoManutencao" class="form-label">Tipo Manutenção</label>
+                <label asp-for="TipoManutencao" class="form-label">Natureza</label>
                 <select asp-for="TipoManutencao" class="form-control" asp-items="ViewBag.TiposManutencao">
-                    <option value="">Selecione</option>
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="TipoManutencao" class="text-danger"></span>
             </div>
         </div>
 
-        <!-- Linha 2: Cliente -->
-        <h4 class="mt-3">Informações do Cliente</h4>
+        <!-- 👤 Linha 2: Cliente -->
+        <h4 class="text-light mt-4"><i class="bi bi-person-badge"></i> Informações do Cliente</h4>
         <div class="row mb-3">
             <div class="col-md-4">
                 <label asp-for="Cliente.Nome" class="form-label">Nome</label>
@@ -50,45 +49,42 @@
             </div>
             <div class="col-md-4">
                 <label asp-for="Cliente.Telefone" class="form-label">Telefone</label>
-                <input asp-for="Cliente.Telefone" class="form-control" />
+                <input asp-for="Cliente.Telefone" class="form-control" id="Cliente_Telefone" />
                 <span asp-validation-for="Cliente.Telefone" class="text-danger"></span>
             </div>
             <div class="col-md-4">
                 <label asp-for="Cliente.CPF" class="form-label">CPF</label>
-                <input asp-for="Cliente.CPF" class="form-control" />
+                <input asp-for="Cliente.CPF" class="form-control" id="Cliente_CPF" />
                 <span asp-validation-for="Cliente.CPF" class="text-danger"></span>
             </div>
         </div>
-
         <div class="mb-3">
             <label asp-for="Cliente.Endereco" class="form-label">Endereço</label>
             <input asp-for="Cliente.Endereco" class="form-control" />
             <span asp-validation-for="Cliente.Endereco" class="text-danger"></span>
         </div>
 
-        <!-- Linha 3: Acessórios -->
-        <h4 class="mt-3">Acessórios do Carro</h4>
+        <!-- 🧩 Linha 3: Acessórios -->
+        <h4 class="text-light mt-4"><i class="bi bi-tools"></i> Acessórios do Carro</h4>
         <div class="row mb-3">
             <div class="col-md-4">
                 <label asp-for="Acessorios.MotorId" class="form-label">Motor</label>
                 <select asp-for="Acessorios.MotorId" class="form-control" asp-items="ViewBag.Motores">
-                    <option value="">Selecione</option>
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.MotorId" class="text-danger"></span>
             </div>
-
             <div class="col-md-4">
                 <label asp-for="Acessorios.CambioId" class="form-label">Câmbio</label>
                 <select asp-for="Acessorios.CambioId" class="form-control" asp-items="ViewBag.Cambios">
-                    <option value="">Selecione</option>
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.CambioId" class="text-danger"></span>
             </div>
-
             <div class="col-md-4">
                 <label asp-for="Acessorios.SuspensaoId" class="form-label">Suspensão</label>
                 <select asp-for="Acessorios.SuspensaoId" class="form-control" asp-items="ViewBag.Suspensoes">
-                    <option value="">Selecione</option>
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.SuspensaoId" class="text-danger"></span>
             </div>
@@ -98,37 +94,38 @@
             <div class="col-md-4">
                 <label asp-for="Acessorios.RodasPneusId" class="form-label">Rodas/Pneus</label>
                 <select asp-for="Acessorios.RodasPneusId" class="form-control" asp-items="ViewBag.RodasPneus">
-                    <option value="">Selecione</option>
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.RodasPneusId" class="text-danger"></span>
             </div>
-
             <div class="col-md-4">
                 <label asp-for="Acessorios.CarroceriaId" class="form-label">Carroceria</label>
                 <select asp-for="Acessorios.CarroceriaId" class="form-control" asp-items="ViewBag.Carrocerias">
-                    <option value="">Selecione</option>
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.CarroceriaId" class="text-danger"></span>
             </div>
-
             <div class="col-md-4">
                 <label asp-for="Acessorios.CapotaId" class="form-label">Capota</label>
                 <select asp-for="Acessorios.CapotaId" class="form-control" asp-items="ViewBag.Capotas">
-                    <option value="">Selecione</option>
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.CapotaId" class="text-danger"></span>
             </div>
         </div>
-
+        
         <!-- Botões -->
-        <div class="mt-4 d-flex justify-content-between">
-            <button type="submit" class="btn btn-success px-4">Salvar</button>
-            <a asp-action="Index" class="btn btn-secondary px-4">Cancelar</a>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+
+            <a class="btn btn-outline-secondary px-4" asp-action="Index">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>
-
-
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -138,11 +135,9 @@
             if (telefoneInput) {
                 telefoneInput.addEventListener('input', function () {
                     let value = telefoneInput.value.replace(/\D/g, '');
-                    if (value.length <= 10) {
-                        telefoneInput.value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
-                    } else {
-                        telefoneInput.value = value.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
-                    }
+                    telefoneInput.value = value.length <= 10
+                        ? value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
+                        : value.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
                 });
             }
 

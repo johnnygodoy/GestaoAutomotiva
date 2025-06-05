@@ -1,54 +1,68 @@
 ﻿@model GestaoAutomotiva.Models.Motor
+
 @{
     ViewData["Title"] = "Editar Motor";
 }
 
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
-    <h2 class="mb-4">Editar Motor</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/motor.png" width="48" height="48" /> @ViewData["Title"]
+    </h2>
 
     <form method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Id" />
 
         <div class="row mb-3">
+            <!-- Nome do Motor -->
             <div class="col-md-4">
                 <label asp-for="Nome" class="form-label">Nome do Motor</label>
-                <input asp-for="Nome" class="form-control" />
-                <span asp-validation-for="Nome" class="text-danger"></span>
+                <input asp-for="Nome" class="form-control text-uppercase" />
+                <span asp-validation-for="Nome" class="text-danger small"></span>
             </div>
 
+            <!-- Placa do Veículo Doador -->
             <div class="col-md-4">
                 <label asp-for="PlacaVeiculoDoador" class="form-label">Placa do Veículo Doador</label>
-                <input asp-for="PlacaVeiculoDoador" class="form-control" />
-                <span asp-validation-for="PlacaVeiculoDoador" class="text-danger"></span>
+                <input asp-for="PlacaVeiculoDoador" class="form-control text-uppercase" />
+                <span asp-validation-for="PlacaVeiculoDoador" class="text-danger small"></span>
             </div>
 
+            <!-- Número do Motor -->
             <div class="col-md-4">
                 <label asp-for="NumeroMotor" class="form-label">Número do Motor</label>
-                <input asp-for="NumeroMotor" class="form-control" />
-                <span asp-validation-for="NumeroMotor" class="text-danger"></span>
+                <input asp-for="NumeroMotor" class="form-control text-uppercase" />
+                <span asp-validation-for="NumeroMotor" class="text-danger small"></span>
             </div>
         </div>
 
-        <div class="row mb-3">
+        <div class="row mb-4">
+            <!-- Status -->
             <div class="col-md-4">
                 <label asp-for="Status" class="form-label">Status do Motor</label>
-                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<GestaoAutomotiva.Models.StatusMotor>()">
+                <select asp-for="Status" class="form-select text-uppercase" asp-items="Html.GetEnumSelectList<GestaoAutomotiva.Models.StatusMotor>()">
                     <option value="">Selecione</option>
                 </select>
-                <span asp-validation-for="Status" class="text-danger"></span>
+                <span asp-validation-for="Status" class="text-danger small"></span>
             </div>
 
+            <!-- Observações -->
             <div class="col-md-8">
                 <label asp-for="Observacoes" class="form-label">Observações</label>
-                <textarea asp-for="Observacoes" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Observacoes" class="text-danger"></span>
+                <textarea asp-for="Observacoes" class="form-control text-uppercase" rows="3"></textarea>
+                <span asp-validation-for="Observacoes" class="text-danger small"></span>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-outline-light px-4">Salvar Alterações</button>
-            <a asp-action="Index" class="btn btn-secondary px-4">Cancelar</a>
+        <!-- Botões -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>

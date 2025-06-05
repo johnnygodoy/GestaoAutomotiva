@@ -2,73 +2,92 @@
 @{
     ViewData["Title"] = "Editar Atividade";
 }
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
-    <h2 class="text-light">Editar Atividade</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/atividades.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
 
-    <form asp-action="Edit" method="post" class="mt-4">
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Id" />
 
-        <!-- Primeira linha de campos -->
-        <div class="row">
-            <div class="col-md-6">
-                <label class="form-label text-light">Funcionário</label>
-                <select asp-for="FuncionarioId" class="form-control"
-                        asp-items="@(ViewBag.Funcionarios as SelectList)">
+        <!-- Linha 1 -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label asp-for="FuncionarioId" class="form-label">Funcionário</label>
+                <select asp-for="FuncionarioId" class="form-select text-uppercase" asp-items="@(ViewBag.Funcionarios as SelectList)">
                     <option value="">-- Selecione --</option>
                 </select>
+                <span asp-validation-for="FuncionarioId" class="text-danger small"></span>
             </div>
 
-            <div class="col-md-6">
-                <label class="form-label text-light">Serviço</label>
-                <select asp-for="ServicoId" class="form-control"
-                        asp-items="@(ViewBag.Servicos as SelectList)">
+            <div class="col-md-3">
+                <label asp-for="ServicoId" class="form-label">Serviço</label>
+                <select asp-for="ServicoId" class="form-select text-uppercase" asp-items="@(ViewBag.Servicos as SelectList)">
                     <option value="">-- Selecione --</option>
                 </select>
+                <span asp-validation-for="ServicoId" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Status" class="form-label">Status</label>
+                <select asp-for="Status" class="form-select text-uppercase">
+                    <option value="">Selecione</option>
+                    <option>Em Andamento</option>
+                    <option>Parado</option>
+                    <option>Nao Iniciado</option>
+                    <option>Finalizado</option>
+                    <option>Cancelado</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="EtapaId" class="form-label">Etapa</label>
+                <select asp-for="EtapaId" class="form-select text-uppercase" asp-items="@(ViewBag.Etapas as SelectList)">
+                    <option value="">Selecione</option>
+                </select>
+                <span asp-validation-for="EtapaId" class="text-danger small"></span>
             </div>
         </div>
+        <!-- Linha 2: Código, Modelo, Data Início -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label class="form-label">Código do Carro</label>
+                <input asp-for="CarroId" class="form-control text-uppercase" />
+                <span asp-validation-for="CarroId" class="text-danger small"></span>
+            </div>
 
-        <!-- Segunda linha de campos -->
-        <div class="row mt-3">
             <div class="col-md-6">
-                <label asp-for="CarroId" class="text-light">Modelo do Carro</label>
-                <select asp-for="CarroId" class="form-control" asp-items="ViewBag.Carros">
+                <label class="form-label">Modelo do Carro</label>
+                <select asp-for="CarroId" class="form-select text-uppercase" asp-items="ViewBag.Carros">
                     <option value="">Selecione um modelo</option>
                 </select>
-                <span asp-validation-for="CarroId" class="text-danger"></span>
+                <span asp-validation-for="CarroId" class="text-danger small"></span>
             </div>
 
-            <div class="col-md-6">
-                <label asp-for="CarroId" class="text-light">Código do Carro</label>
-                <input asp-for="CarroId" class="form-control" />
-                <span asp-validation-for="CarroId" class="text-danger"></span>
-            </div>
-        </div>
-
-        <!-- Terceira linha de campos -->
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <label asp-for="DataInicio" class="text-light">Data de Início</label>
+            <div class="col-md-3">
+                <label asp-for="DataInicio" class="form-label">Data de Início</label>
                 <input asp-for="DataInicio" type="date" class="form-control" />
-                <span asp-validation-for="DataInicio" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="Status" class="text-light">Status</label>
-                <select asp-for="Status" class="form-control">
-                    <option value="Em Andamento">Em Andamento</option>
-                    <option value="Parado">Parado</option>
-                    <option value="Nao Iniciado">Não Iniciado</option>
-                    <option value="Finalizado">Finalizado</option>
-                    <option value="Cancelado">Cancelado</option>
-                </select>
-                <span asp-validation-for="Status" class="text-danger"></span>
+                <span asp-validation-for="DataInicio" class="text-danger small"></span>
             </div>
         </div>
+       
+     
 
-        <!-- Botões Salvar e Cancelar -->
+
+        <!-- Botões -->
         <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-success">Salvar</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

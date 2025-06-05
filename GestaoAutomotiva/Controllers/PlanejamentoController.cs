@@ -129,17 +129,18 @@ public class PlanejamentoController : Controller
     [HttpPost]
     public IActionResult GerarPdf(IFormFile grafico) {
         if (grafico == null || grafico.Length == 0)
-            return BadRequest("Nenhum gráfico foi enviado.");
+            return BadRequest("Nenhuma imagem foi recebida.");
 
         using var stream = new MemoryStream();
         grafico.CopyTo(stream);
         var imagemBytes = stream.ToArray();
 
-        var pdf = new RelatorioPlanejamentoPdf(imagemBytes);
-        var arquivo = pdf.GeneratePdf();     
+        var relatorio = new RelatorioPlanejamentoPdf(imagemBytes);
+        var pdf = relatorio.GeneratePdf();
 
-        return File(arquivo, "application/pdf", "planejamento.pdf");
+        return File(pdf, "application/pdf", "planejamento_atividades.pdf");
     }
+
 
 
 

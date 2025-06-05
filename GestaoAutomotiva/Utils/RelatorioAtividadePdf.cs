@@ -8,10 +8,10 @@ namespace GestaoAutomotiva.Utils
 {
     public class RelatorioAtividadePdf : IDocument
     {
-        private readonly List<Atividade> _atividades;
+        private readonly List<AtividadeHistorico> _historico;
 
-        public RelatorioAtividadePdf(List<Atividade> atividades) {
-            _atividades = atividades;
+        public RelatorioAtividadePdf(List<AtividadeHistorico> historico) {
+            _historico = historico;
         }
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
@@ -43,9 +43,11 @@ namespace GestaoAutomotiva.Utils
                             columns.ConstantColumn(80);  // Início
                             columns.ConstantColumn(80);  // Previsão
                             columns.ConstantColumn(80);  // Status
+                            columns.ConstantColumn(80);  // Ação
+                            columns.ConstantColumn(100); // Data Registro
                         });
 
-                        // Cabeçalho com fundo e bold
+                        // Cabeçalho
                         table.Header(header =>
                         {
                             header.Cell().Element(CellStyle).Text("Funcionário").Bold();
@@ -55,17 +57,21 @@ namespace GestaoAutomotiva.Utils
                             header.Cell().Element(CellStyle).Text("Início").Bold();
                             header.Cell().Element(CellStyle).Text("Previsão").Bold();
                             header.Cell().Element(CellStyle).Text("Status").Bold();
+                            header.Cell().Element(CellStyle).Text("Ação").Bold();
+                            header.Cell().Element(CellStyle).Text("Registro").Bold();
                         });
 
-                        foreach (var a in _atividades)
+                        foreach (var h in _historico)
                         {
-                            table.Cell().Element(CellStyle).Text(a.Funcionario?.Nome ?? "-");
-                            table.Cell().Element(CellStyle).Text(a.Servico?.Descricao ?? "-");
-                            table.Cell().Element(CellStyle).Text(a.Carro?.IdCarro ?? "-");
-                            table.Cell().Element(CellStyle).Text(a.Carro?.Modelo.Nome ?? "-");
-                            table.Cell().Element(CellStyle).Text(a.DataInicio?.ToString("dd/MM/yyyy") ?? "-");
-                            table.Cell().Element(CellStyle).Text(a.DataPrevista?.ToString("dd/MM/yyyy") ?? "-");
-                            table.Cell().Element(CellStyle).Text(a.Status ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.FuncionarioNome ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.ServicoDescricao ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.CarroId ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.ModeloNome ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.DataInicio?.ToString("dd/MM/yyyy") ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.DataPrevista?.ToString("dd/MM/yyyy") ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.Status ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.Acao ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.DataRegistro.ToString("dd/MM/yyyy HH:mm"));
                         }
                     });
                 });
@@ -78,10 +84,8 @@ namespace GestaoAutomotiva.Utils
             });
         }
 
-        // Função para aplicar padding em todas as células
         static IContainer CellStyle(IContainer container) {
             return container.PaddingVertical(5).PaddingHorizontal(5);
         }
-
     }
 }

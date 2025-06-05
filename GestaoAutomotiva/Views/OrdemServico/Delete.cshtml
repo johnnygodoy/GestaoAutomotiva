@@ -1,13 +1,26 @@
 ﻿@model GestaoAutomotiva.Models.OrdemServico
 
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
+<div class="page-container mt-4">
+    <h2 class="text-danger mb-3">
+        <i class="bi bi-trash"></i> Excluir Ordem de Serviço
+    </h2>
 
-    <h2 class="text-danger">Confirmar Exclusão</h2>
-    <p>Tem certeza que deseja excluir a Ordem de Serviço nº @Model.Id?</p>
+    <p class="mb-4">
+        Tem certeza que deseja excluir a Ordem de Serviço nº
+        <strong class="text-warning">@Model.Id</strong>?
+    </p>
 
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Excluir</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-danger px-4">
+                <i class="bi bi-trash-fill"></i> Excluir
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
+        </div>
     </form>
 </div>

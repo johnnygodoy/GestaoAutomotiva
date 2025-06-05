@@ -1,37 +1,82 @@
-﻿@model List<GestaoAutomotiva.Models.Etapa>
+﻿@model GestaoAutomotiva.Models.ViewModels.EtapaViewModel
+
 @{
     ViewData["Title"] = "Gerenciar Etapas";
 }
 
-<h2 class="text-light text-center mb-4">📝 Gerenciar Etapas de Produção</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/etapas.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
 
-<div class="mb-3">
-    <a href="@Url.Action("Create", "Etapa")" class="btn btn-outline-light mb-3">Adicionar Nova Etapa</a>
-</div>
+    <div class="d-flex gap-2 flex-wrap mb-4">
+        <a asp-action="Create" class="btn btn-outline-success">
+            <i class="bi bi-plus-circle"></i> Adicionar Nova Etapa
+        </a>
+    </div>
 
-<div class="table-container">
-    <table class="table table-dark table-hover mt-3">
-        <thead>
-            <tr class="text-white">
-                <th>Nome</th>
-                <th>Ordem</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var etapa in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle text-white">
+            <thead class="table-light text-dark">
                 <tr>
-                    <td>@etapa.Nome</td>
-                    <td>@etapa.Ordem</td>
-                    <td>
-                        <a href="@Url.Action("Edit", "Etapa", new { id = etapa.Id })" class="btn btn-warning btn-sm">Editar</a>
-                        <form action="@Url.Action("Delete", "Etapa", new { id = etapa.Id })" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
-                        </form>
-                    </td>
+                    <th>Nome</th>
+                    <th>Ordem</th>
+                    <th class="text-center">Ações</th>
                 </tr>
+            </thead>
+            <tbody>
+                @if (Model.ListaEtapas != null && Model.ListaEtapas.Any())
+                {
+                    foreach (var etapa in Model.ListaEtapas)
+                    {
+                        <tr>
+                            <td class="text-uppercase">@etapa.Nome</td>
+                            <td>@etapa.Ordem</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a asp-action="Edit" asp-route-id="@etapa.Id" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@etapa.Id" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash"></i> Excluir
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">Nenhuma etapa cadastrada.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botão Voltar -->
+    <div class="mt-4 d-flex justify-content-end">
+        <a asp-controller="Esteira" asp-action="Esteira" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-arrow-left-circle"></i> Voltar
+        </a>
+    </div>
+
+    <!-- Paginação -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            @for (int i = 1; i <= Model.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == Model.PaginaAtual ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                </li>
             }
-        </tbody>
-    </table>
+        </ul>
+    </nav>
 </div>
+
+<footer style="margin-top: 100px;"></footer>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

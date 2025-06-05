@@ -1,0 +1,88 @@
+﻿@model IEnumerable<GestaoAutomotiva.Models.AtividadeHistorico>
+@{
+    ViewData["Title"] = "Histórico de Atividades";
+}
+
+<div class="page-container mt-4">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/historico.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
+
+    <form method="get" class="mb-4 d-flex gap-2 flex-wrap">
+        <div class="flex-grow-1">
+            <input type="text" name="busca" class="form-control text-uppercase" placeholder="Buscar por funcionário, cliente ou serviço..." value="@Context.Request.Query["busca"]" />
+        </div>
+        <div>
+            <input type="date" name="dataBusca" class="form-control" value="@Context.Request.Query["dataBusca"]" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-outline-light">Pesquisar</button>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary">Limpar</a>
+        </div>
+    </form>
+
+    <div class="mb-4 d-flex gap-2">
+        <a asp-action="ExportarExcel" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        </a>
+        <a asp-action="ExportarPdf" class="btn btn-outline-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle text-white">
+            <thead class="table-light text-dark">
+                <tr>
+                    <th>Código</th>
+                    <th>Carro</th>
+                    <th>Cliente</th>
+                    <th>Funcionário</th>
+                    <th>Serviço</th>
+                    <th>Início</th>
+                    <th>Previsão</th>
+                    <th>Status</th>
+                    <th>Ação</th>
+                    <th>Registro</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var atividade in Model)
+                {
+                    <tr>
+                        <td>@atividade.CarroId</td>
+                        <td class="text-uppercase">@atividade.ModeloNome</td>
+                        <td class="text-capitalize">@atividade.Cliente</td>
+                        <td>@atividade.FuncionarioNome</td>
+                        <td class="text-uppercase">@atividade.ServicoDescricao</td>
+                        <td>@atividade.DataInicio?.ToString("dd/MM/yyyy")</td>
+                        <td>@atividade.DataPrevista?.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <span class="badge text-uppercase px-2 py-1 small" style="background-color:@(atividade.Status?.ToLower() == "finalizado" ? "#9EF8A5" : "#FFC107"); color: black;">
+                                @atividade.Status
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">@atividade.Acao</span>
+                        </td>
+                        <td>@atividade.DataRegistro.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i, busca = ViewBag.BuscaNome })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+<footer style="margin-top: 100px;"></footer>

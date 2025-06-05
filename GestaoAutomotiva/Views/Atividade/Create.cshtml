@@ -1,50 +1,66 @@
 ﻿@model GestaoAutomotiva.Models.Atividade
-@Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 @{
     ViewData["Title"] = "Registrar Atividade";
 }
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/atividades.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
 
-    <h2 class="text-light">Registrar Nova Atividade</h2>
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-    <form asp-action="Create" method="post" class="mt-4">
-        <div class="row">
-            <div class="col-md-6">
-                <label class="form-label text-light">Funcionário</label>
-                <select asp-for="FuncionarioId" class="form-control" asp-items="@(ViewBag.Funcionarios as SelectList)">
+        <div class="row mb-3">
+            <!-- Funcionário -->
+            <div class="col-md-3">
+                <label asp-for="FuncionarioId" class="form-label">Funcionário</label>
+                <select asp-for="FuncionarioId" class="form-select text-uppercase" asp-items="@(ViewBag.Funcionarios as SelectList)">
                     <option value="">-- Selecione --</option>
                 </select>
+                <span asp-validation-for="FuncionarioId" class="text-danger small"></span>
             </div>
 
-            <div class="col-md-6">
-                <label class="form-label text-light">Serviço</label>
-                <select asp-for="ServicoId" class="form-control" asp-items="@(ViewBag.Servicos as SelectList)">
+            <!-- Serviço -->
+            <div class="col-md-3">
+                <label asp-for="ServicoId" class="form-label">Serviço</label>
+                <select asp-for="ServicoId" class="form-select text-uppercase" asp-items="@(ViewBag.Servicos as SelectList)">
                     <option value="">-- Selecione --</option>
                 </select>
+                <span asp-validation-for="ServicoId" class="text-danger small"></span>
             </div>
-        </div>
 
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <label class="form-label text-light">Carro</label>
-                <select asp-for="CarroId" class="form-control" asp-items="@(ViewBag.Carros as SelectList)">
+            <!-- Carro -->
+            <div class="col-md-3">
+                <label asp-for="CarroId" class="form-label">Carro</label>
+                <select asp-for="CarroId" class="form-select text-uppercase" asp-items="@(ViewBag.Carros as SelectList)">
                     <option value="">-- Selecione --</option>
                 </select>
-                <span asp-validation-for="CarroId" class="text-danger"></span>
+                <span asp-validation-for="CarroId" class="text-danger small"></span>
             </div>
-            <div class="col-md-6">
-                <label asp-for="DataInicio" class="form-label text-light">Data de Início</label>
+
+            <!-- Data de Início -->
+            <div class="col-md-3">
+                <label asp-for="DataInicio" class="form-label">Data de Início</label>
                 <input asp-for="DataInicio" type="date" class="form-control" />
-                <span asp-validation-for="DataInicio" class="text-danger"></span>
+                <span asp-validation-for="DataInicio" class="text-danger small"></span>
             </div>
-
         </div>
 
-        <!-- Botões de Salvar e Cancelar -->
-        <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-outline-light">Salvar Atividade</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        <!-- Botões -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

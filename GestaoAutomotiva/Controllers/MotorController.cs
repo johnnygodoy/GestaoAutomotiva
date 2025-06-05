@@ -20,10 +20,41 @@ namespace GestaoAutomotiva.Controllers
             ViewBag.Clientes = new SelectList(_context.Clientes.OrderBy(c => c.Nome), "Id", "Nome");
         }
 
-        public async Task<IActionResult> Index() {
-            var lista = await _context.Motors.ToListAsync();
-            return View(lista);
+        [HttpGet]
+        public IActionResult Index(string busca = null, int page = 1) {
+            ViewData["Busca"] = busca;
+
+            int pageSize = 10; // Quantidade de itens por página
+
+            var motores = _context.Motors.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busca))
+            {
+                var buscaUpper = busca.ToUpper();
+
+                motores = motores.Where(m =>
+                    m.Nome.ToUpper().Contains(buscaUpper) ||
+                    m.PlacaVeiculoDoador.ToUpper().Contains(buscaUpper) ||
+                    m.NumeroMotor.ToUpper().Contains(buscaUpper) ||
+                    m.Status.ToString().ToUpper().Contains(buscaUpper));
+            }
+
+            int totalRegistros = motores.Count();
+            int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            var motoresPaginados = motores
+                .OrderBy(m => m.Nome)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
+
+            return View(motoresPaginados);
         }
+
 
         public IActionResult Create() {
             CarregarClientes();
@@ -33,17 +64,19 @@ namespace GestaoAutomotiva.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Motor motor) {
+
             bool temErro = false;
 
-            if (string.IsNullOrWhiteSpace(motor.Nome))
+            if (motor.Nome ==null)
             {
-                ModelState.AddModelError("Nome", "O campo Nome do motor é obrigatório.");
+                ModelState.AddModelError("Modelo", "Nome do motor obrigatório.");
                 temErro = true;
             }
 
-            if (!Enum.IsDefined(typeof(StatusMotor), motor.Status))
+
+            if (motor.Status == null)
             {
-                ModelState.AddModelError("Status", "Selecione um status válido.");
+                ModelState.AddModelError("status", "Status motor obrigatório.");
                 temErro = true;
             }
 

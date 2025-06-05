@@ -4,36 +4,62 @@
     ViewData["Title"] = "Cadastrar Novo Usuário";
 }
 
-<h2 class="text-light">Novo Usuário</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4 d-flex align-items-center gap-2">
+        <img src="~/images/Icones/usuarios.png" width="48" height="48" />
+        @ViewData["Title"]
+    </h2>
 
-<form asp-action="Cadastrar" method="post" class="col-md-6">
-    <div class="form-group">
-        <label asp-for="Nome" class="text-light">Nome</label>
-        <input asp-for="Nome" class="form-control" />
-        <span asp-validation-for="Nome" class="text-danger"></span>
-    </div>
+    <form asp-action="Cadastrar" method="post">
+        <div class="row mb-4">
+            <!-- Nome -->
+            <div class="col-md-6">
+                <label asp-for="Nome" class="form-label">Nome</label>
+                <input asp-for="Nome" class="form-control text-uppercase" />
+                <span asp-validation-for="Nome" class="text-danger small"></span>
+            </div>
 
-    <div class="form-group mt-2">
-        <label asp-for="Email" class="text-light">Email</label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
+            <!-- Email -->
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+        </div>
 
-    <div class="form-group mt-2">
-        <label asp-for="Senha" class="text-light">Senha</label>
-        <input asp-for="Senha" class="form-control" type="password" />
-        <span asp-validation-for="Senha" class="text-danger"></span>
-    </div>
+        <div class="row mb-4">
+            <!-- Senha -->
+            <div class="col-md-6">
+                <label asp-for="Senha" class="form-label">Senha</label>
+                <input asp-for="Senha" type="password" class="form-control" />
+                <span asp-validation-for="Senha" class="text-danger small"></span>
+            </div>
 
-    <div class="form-group mt-2">
-        <label asp-for="Tipo" class="text-light">Tipo de Acesso</label>
-        <select asp-for="Tipo" class="form-control">
-            <option value="Usuario">Usuário</option>
-            <option value="Admin">Administrador</option>
-        </select>
-        <span asp-validation-for="Tipo" class="text-danger"></span>
-    </div>
+            <!-- Tipo -->
+            <div class="col-md-6">
+                <label asp-for="Tipo" class="form-label">Tipo de Acesso</label>
+                <select asp-for="Tipo" class="form-control">
+                    <option value="Usuario">Usuário</option>
+                    <option value="Admin">Administrador</option>
+                </select>
+                <span asp-validation-for="Tipo" class="text-danger small"></span>
+            </div>
+        </div>
 
-    <button class="btn btn-success mt-3">Cadastrar</button>
-    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary mt-3">Voltar</a>
-</form>
+        <!-- Botões -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary px-4">
+
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

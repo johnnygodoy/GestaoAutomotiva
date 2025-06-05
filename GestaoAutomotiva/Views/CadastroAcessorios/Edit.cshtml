@@ -4,50 +4,52 @@
     ViewData["Title"] = "Editar Acessórios";
 }
 
-<h2 class="text-light">@ViewData["Title"]</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-light">@ViewData["Title"]</h2>
 
-<form asp-action="Edit" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
 
-    <div class="row">
-        <div class="col-md-4">
-            <label>Motor</label>
-            <input asp-for="Motor.Nome" class="form-control" asp-items="ViewBag.Motores" />
+        <div class="row">
+            <div class="col-md-4">
+                <label>Motor</label>
+                <input asp-for="Motor.Nome" class="form-control" asp-items="ViewBag.Motores" />
 
-        </div>
-        <div class="col-md-4">
-            <label>Câmbio</label>
-            <input asp-for="Cambio.Descricao" class="form-control" asp-items="ViewBag.Cambios" />
-                
-          
-        </div>
-        <div class="col-md-4">
-            <label>Suspensão</label>
-            <input asp-for="Suspensao.Descricao" class="form-control" asp-items="ViewBag.Suspensoes"/>             
-        </div>
-    </div>
+            </div>
+            <div class="col-md-4">
+                <label>Câmbio</label>
+                <input asp-for="Cambio.Descricao" class="form-control" asp-items="ViewBag.Cambios" />
 
-    <div class="row mt-3">
-        <div class="col-md-4">
-            <label>Rodas e Pneus</label>
-            <input asp-for="RodasPneus.Descricao" class="form-control" asp-items="ViewBag.RodasPneus" />
-            
-        </div>
-        <div class="col-md-4">
-            <label>Carroceria</label>
-            <input asp-for="Carroceria.Descricao" class="form-control" asp-items="ViewBag.Carrocerias" />
-             
-        </div>
-        <div class="col-md-4">
-            <label>Capota</label>
-            <input asp-for="Capota.Descricao" class="form-control" asp-items="ViewBag.Capotas" />
-            
-        </div>
-    </div>
 
-    <div class="mt-4 d-flex justify-content-between">
-        <button type="submit" class="btn btn-outline-light">Salvar Alterações</button>
-        <a asp-action="Create" class="btn btn-secondary">Cancelar</a>
-    </div>
-</form>
+            </div>
+            <div class="col-md-4">
+                <label>Suspensão</label>
+                <input asp-for="Suspensao.Descricao" class="form-control" asp-items="ViewBag.Suspensoes" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <label>Rodas e Pneus</label>
+                <input asp-for="RodasPneus.Descricao" class="form-control" asp-items="ViewBag.RodasPneus" />
+
+            </div>
+            <div class="col-md-4">
+                <label>Carroceria</label>
+                <input asp-for="Carroceria.Descricao" class="form-control" asp-items="ViewBag.Carrocerias" />
+
+            </div>
+            <div class="col-md-4">
+                <label>Capota</label>
+                <input asp-for="Capota.Descricao" class="form-control" asp-items="ViewBag.Capotas" />
+
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-light">Salvar Alterações</button>
+            <a asp-action="Create" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>

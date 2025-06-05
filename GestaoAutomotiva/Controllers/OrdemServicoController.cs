@@ -52,10 +52,32 @@ namespace GestaoAutomotiva.Controllers
         }
 
 
+
         public IActionResult Index() {
             var ordens = ObterOrdensCompletas().ToList();
 
+            foreach (var ordem in ordens)
+            {
+                if (ordem.Atividade == null)
+                {
+                    ordem.FuncionarioId ??= 0;
+                    ordem.CarroId ??= 0;
+                    ordem.ClienteId ??= 0;
+
+                    ordem.Atividade = new Atividade
+                    {
+                        Funcionario = _context.Funcionarios.Find(ordem.FuncionarioId),
+                        Carro = _context.Carros
+                            .Include(c => c.Cliente)
+                            .Include(c => c.Modelo)
+                            .FirstOrDefault(c => c.Id == ordem.CarroId),
+                        Etapa = _context.Etapas.FirstOrDefault(e => e.Nome == ordem.EtapaAtual)
+                    };
+                }
+            }
+
             return View(ordens);
+
         }
 
 
@@ -68,8 +90,6 @@ namespace GestaoAutomotiva.Controllers
         }
 
         public IActionResult Create(int? atividadeId) {
-
-
             OrdemServico ordem = new OrdemServico
             {
                 DataAbertura = DateTime.Today,
@@ -81,25 +101,34 @@ namespace GestaoAutomotiva.Controllers
             {
                 var atividade = _context.Atividades
                     .Include(a => a.Funcionario)
-                    .Include(a => a.Servico)
-                    .Include(a => a.Carro).ThenInclude(c => c.Cliente)
                     .Include(a => a.Etapa)
                     .FirstOrDefault(a => a.Id == atividadeId.Value);
 
                 if (atividade != null)
                 {
+                    // Carrega os dados completos do carro, incluindo Cliente e Modelo
+                    atividade.Carro = _context.Carros
+                        .Include(c => c.Cliente)
+                        .Include(c => c.Modelo)
+                        .FirstOrDefault(c => c.Id == atividade.CarroId);
+
+                    // Carrega o serviço vinculado à atividade (caso ainda não esteja incluído)
+                    atividade.Servico = _context.Servicos.FirstOrDefault(s => s.Id == atividade.ServicoId);
+
+                    // Preenche os dados na nova ordem de serviço
                     ordem.AtividadeId = atividade.Id;
                     ordem.Atividade = atividade;
-                    ordem.EtapaAtual = atividade.Etapa?.Nome ?? "N/A";
                     ordem.FuncionarioId = atividade.Funcionario?.Id;
                     ordem.CarroId = atividade.Carro?.Id;
                     ordem.ClienteId = atividade.Carro?.Cliente?.Id;
+                    ordem.EtapaAtual = atividade.Etapa?.Nome ?? "N/A";
                 }
             }
 
             CarregarViewBags(ordem);
             return View(ordem);
         }
+
 
         [HttpPost]
         public IActionResult Create(OrdemServico ordem) {
@@ -160,15 +189,36 @@ namespace GestaoAutomotiva.Controllers
             var ordem = _context.OrdemServicos
                 .Include(o => o.Atividade).ThenInclude(a => a.Funcionario)
                 .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Cliente)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Modelo)
                 .Include(o => o.Atividade).ThenInclude(a => a.Servico)
                 .Include(o => o.Atividade).ThenInclude(a => a.Etapa)
                 .FirstOrDefault(o => o.Id == id);
 
             if (ordem == null) return NotFound();
 
+            // Fallback se Atividade não estiver carregada
+            if (ordem.Atividade == null)
+            {
+                ordem.FuncionarioId ??= 0;
+                ordem.CarroId ??= 0;
+                ordem.ClienteId ??= 0;
+
+                ordem.Atividade = new Atividade
+                {
+                    Funcionario = _context.Funcionarios.Find(ordem.FuncionarioId),
+                    Carro = _context.Carros
+                        .Include(c => c.Cliente)
+                        .Include(c => c.Modelo)
+                        .FirstOrDefault(c => c.Id == ordem.CarroId),
+                    Servico = _context.Servicos.FirstOrDefault(s => s.Id == ordem.Id),
+                    Etapa = _context.Etapas.FirstOrDefault(e => e.Nome == ordem.EtapaAtual)
+                };
+            }
+
             CarregarViewBags(ordem);
             return View(ordem);
         }
+
 
         [HttpPost]
         public IActionResult Edit(OrdemServico ordem) {
@@ -184,6 +234,8 @@ namespace GestaoAutomotiva.Controllers
             original.FuncionarioId = ordem.FuncionarioId;
             original.CarroId = ordem.CarroId;
             original.ClienteId = ordem.ClienteId;
+            original.Tarefas = ordem.Tarefas;
+            original.Observacoes = ordem.Observacoes;
 
             _context.SaveChanges();
             return RedirectToAction("Index");
@@ -210,15 +262,16 @@ namespace GestaoAutomotiva.Controllers
 
         public IActionResult Details(int id) {
             var ordem = _context.OrdemServicos
-       .Include(o => o.Atividade).ThenInclude(a => a.Funcionario)
-       .Include(o => o.Atividade).ThenInclude(a => a.Carro)
-           .ThenInclude(c => c.Cliente)
-       .Include(o => o.Atividade).ThenInclude(a => a.Carro)
-           .ThenInclude(c => c.Modelo) 
-       .Include(o => o.Atividade).ThenInclude(a => a.Servico)
-       .FirstOrDefault(o => o.Id == id);
+                .Include(o => o.Atividade).ThenInclude(a => a.Funcionario)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Cliente)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Modelo)
+                .Include(o => o.Atividade).ThenInclude(a => a.Servico)
+                .Include(o => o.Atividade).ThenInclude(a => a.Etapa)
+                .FirstOrDefault(o => o.Id == id);
 
-            // Se não tiver Atividade, carrega dados manualmente
+            if (ordem == null) return NotFound();
+
+            // Fallback caso a Atividade não esteja populada corretamente
             if (ordem.Atividade == null)
             {
                 ordem.FuncionarioId ??= 0;
@@ -230,16 +283,17 @@ namespace GestaoAutomotiva.Controllers
                     Funcionario = _context.Funcionarios.Find(ordem.FuncionarioId),
                     Carro = _context.Carros
                         .Include(c => c.Cliente)
-                        .Include(c => c.Modelo) // 🔧 Aqui também!
+                        .Include(c => c.Modelo)
                         .FirstOrDefault(c => c.Id == ordem.CarroId),
-                    Servico = null,
-                    Etapa = null
+                    Servico = _context.Servicos.FirstOrDefault(s => s.Id == ordem.Id),
+                    Etapa = _context.Etapas.FirstOrDefault(e => e.Nome == ordem.EtapaAtual)
                 };
             }
 
-            if (ordem == null) return NotFound();
             return View(ordem);
         }
+
+
 
         public IActionResult Visualizar(int id) {
             return Details(id);
@@ -249,11 +303,20 @@ namespace GestaoAutomotiva.Controllers
             var ordem = _context.OrdemServicos
                 .Include(o => o.Atividade).ThenInclude(a => a.Funcionario)
                 .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Cliente)
-                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Modelo) // ✅ Necessário!
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Modelo)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Cambio)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Carroceria)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Capota)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Motor)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Suspensao)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.RodasPneus)
                 .Include(o => o.Atividade).ThenInclude(a => a.Servico)
                 .FirstOrDefault(o => o.Id == id);
 
-            // Se não houver atividade, cria manualmente
+            // Verificação e fallback
+            if (ordem == null)
+                return NotFound();
+
             if (ordem.Atividade == null)
             {
                 ordem.FuncionarioId ??= 0;
@@ -265,10 +328,23 @@ namespace GestaoAutomotiva.Controllers
                     Funcionario = _context.Funcionarios.Find(ordem.FuncionarioId),
                     Carro = _context.Carros
                         .Include(c => c.Cliente)
-                        .Include(c => c.Modelo) // ✅ Incluído também aqui
+                        .Include(c => c.Modelo)
+                        .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.Motor)
+                        .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.Cambio)
+                        .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.Suspensao)
+                        .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.RodasPneus)
+                        .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.Carroceria)
+                        .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.Capota)
                         .FirstOrDefault(c => c.Id == ordem.CarroId),
-                    Servico = null,
-                    Etapa = null
+                    Servico = _context.Servicos.FirstOrDefault(s => s.Id == ordem.Id),
+                    Etapa = _context.Etapas.FirstOrDefault(e => e.Nome == ordem.EtapaAtual)
+
                 };
             }
 
@@ -277,6 +353,7 @@ namespace GestaoAutomotiva.Controllers
 
             return File(pdf, "application/pdf", $"ordem_servico_{id}.pdf");
         }
+
 
     }
 }

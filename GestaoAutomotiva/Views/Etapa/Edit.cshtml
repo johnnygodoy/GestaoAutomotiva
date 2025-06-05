@@ -4,22 +4,45 @@
     ViewData["Title"] = "Editar Etapa";
 }
 
-<h2 class="text-light text-center mb-4">✏️ Editar Etapa de Produção</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4 d-flex align-items-center gap-2">
+        <img src="~/images/Icones/etapas.png" width="48" height="48" />
+        @ViewData["Title"]
+    </h2>
 
-<form method="post">
-    @Html.AntiForgeryToken()
-    <div class="form-group">
-        <label for="Nome" class="text-light">Nome da Etapa:</label>
-        <input type="text" class="form-control" id="Nome" name="Nome" value="@Model.Nome" required />
-    </div>
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
 
-    <div class="form-group mt-3">
-        <label for="Ordem" class="text-light">Ordem da Etapa:</label>
-        <input type="number" class="form-control" id="Ordem" name="Ordem" value="@Model.Ordem" required />
-    </div>
+        <div class="row g-3 align-items-end mb-4">
+            <!-- Nome da Etapa -->
+            <div class="col-md-6">
+                <label asp-for="Nome" class="form-label">Nome da Etapa</label>
+                <input asp-for="Nome" class="form-control text-uppercase" />
+                <span asp-validation-for="Nome" class="text-danger small"></span>
+            </div>
 
-    <div class="text-center mt-4">
-        <button type="submit" class="btn btn-success">Salvar</button>
-        <a href="@Url.Action("Index", "Etapa")" class="btn btn-secondary">Cancelar</a>
-    </div>
-</form>
+            <!-- Ordem -->
+            <div class="col-md-6">
+                <label asp-for="Ordem" class="form-label">Ordem</label>
+                <input asp-for="Ordem" class="form-control" />
+                <span asp-validation-for="Ordem" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

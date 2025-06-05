@@ -7,130 +7,168 @@
     Layout = "_Layout";
 }
 
-<div class="container-fluid bg-dark bg-opacity-75 text-light rounded p-4 mt-4" style="max-width: 1400px; margin: auto;">
+<div class="page-container mt-4">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/etapas.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
 
-    <h2 class="text-white">📊 Gráfico de Etapas dos Carros</h2>
-    <form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
-        <div class="d-flex flex-column" style="width: 220px;">
-            <label class="form-label text-white mb-1" style="font-size: 13px;">Buscar por Nome</label>
-            <input type="text" name="busca" value="@Context.Request.Query["busca"]" class="form-control form-control-sm" placeholder="Cliente, Carro ou Funcionário" />
-        </div>
+    <!-- 🔲 Caixa branca dos filtros -->
+    <div class="bg-white rounded shadow p-3 mb-4 border border-dark">
+        <form method="get" class="mb-0 d-flex flex-wrap align-items-end justify-content-between gap-2">
+            <div class="d-flex flex-wrap gap-2">
+                <div class="d-flex flex-column" style="width: 220px;">
+                    <label class="form-label text-dark mb-1" style="font-size: 13px;">Buscar por Nome</label>
+                    <input type="text" name="busca" value="@Context.Request.Query["busca"]" class="form-control form-control-sm" placeholder="Cliente, Carro ou Funcionário" />
+                </div>
+                <div class="d-flex flex-column" style="width: 140px;">
+                    <label class="form-label text-dark mb-1" style="font-size: 13px;">Data Início</label>
+                    <input type="date" name="dataInicio" class="form-control form-control-sm">
+                </div>
+                <div class="d-flex flex-column" style="width: 140px;">
+                    <label class="form-label text-dark mb-1" style="font-size: 13px;">Data Fim</label>
+                    <input type="date" name="dataFim" class="form-control form-control-sm">
+                </div>
+                <div class="d-flex flex-column" style="width: 180px;">
+                    <label class="form-label text-dark mb-1" style="font-size: 13px;">Etapa</label>
+                    <select name="etapaId" class="form-select form-select-sm">
+                        <option value="">Todas Etapas</option>
+                        @foreach (var e in ViewBag.Etapas as List<SelectListItem>)
+                        {
+                            <option value="@e.Value">@e.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="d-flex flex-column" style="width: 160px;">
+                    <label class="form-label text-dark mb-1" style="font-size: 13px;">Status</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">Todos Status</option>
+                        <option value="Em Andamento">Em Andamento</option>
+                        <option value="Finalizado">Finalizado</option>
+                        <option value="Parado">Parado</option>
+                        <option value="Cancelado">Cancelado</option>
+                        <option value="Reprovado">Reprovado</option>
+                    </select>
+                </div>
 
-        <div class="d-flex flex-column" style="width: 140px;">
-            <label class="form-label text-whitemb-1" style="font-size: 13px;">Data Início</label>
-            <input type="date" name="dataInicio" class="form-control form-control-sm">
-        </div>
+                <div class="d-flex gap-2 align-items-end ms-auto">
+                    <button type="submit" class="btn btn-outline-dark">Filtrar</button>
+                    <a asp-action="Index" class="btn btn-secondary">Limpar</a>
+                    <button type="button" class="btn btn-outline-danger rounded px-3" onclick="exportarTodosGraficos()">
+                        <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+                    </button>
+                </div>
+            </div>
 
-        <div class="d-flex flex-column" style="width: 140px;">
-            <label class="form-label text-white mb-1" style="font-size: 13px;">Data Fim</label>
-            <input type="date" name="dataFim" class="form-control form-control-sm">
-        </div>
-
-        <div class="d-flex flex-column" style="width: 180px;">
-            <label class="form-label text-white mb-1" style="font-size: 13px;">Etapa</label>
-            <select name="etapaId" class="form-select form-select-sm">
-                <option value="">Todas Etapas</option>
-                @foreach (var e in ViewBag.Etapas as List<SelectListItem>)
-                {
-                    <option value="@e.Value">@e.Text</option>
-                }
-            </select>
-        </div>
-
-        <div class="d-flex flex-column" style="width: 160px;">
-            <label class="form-label text-white mb-1" style="font-size: 13px;">Status</label>
-            <select name="status" class="form-select form-select-sm">
-                <option value="">Todos Status</option>
-                <option value="Em Andamento">Em Andamento</option>
-                <option value="Finalizado">Finalizado</option>
-                <option value="Pendente">Pendente</option>
-                <option value="Cancelado">Cancelado</option>
-                <option value="Reprovado">Reprovado</option>
-            </select>
-        </div>
-
-        <div class="d-flex gap-2 align-items-end">
-            <button type="submit" class="btn btn-outline-dark">Filtrar</button>
-            <a asp-action="Index" class="btn btn-secondary">Limpar</a>
-            <button type="button" onclick="exportGantt()" class="btn btn-success">📤 Exportar PDF</button>
-        </div>
-    </form>
-
-    @if (!Model.Any())
-    {
-        <div class="alert alert-warning">Nenhuma atividade encontrada para os filtros selecionados.</div>
-    }
-    else
-    {
-        <div id="grafico_etapas" class="rounded border p-2 mb-4" style="height:@(Model.Count * 60 + 120)px;"></div>
-    }
+        </form>
+    </div>
 
 
-    <!-- Cartões de Resumo por Status -->
+    <!-- Gráfico de Etapas -->
     <div class="bg-white p-4 rounded shadow mb-4">
+        <p class="text-muted mb-1" style="font-size: 14px;">
+            <strong>Modelo:</strong> @(string.IsNullOrEmpty(ViewBag.ModeloFiltrado) ? "Todos" : ViewBag.ModeloFiltrado) |
+            <strong>Cliente:</strong> @(string.IsNullOrEmpty(ViewBag.ClienteFiltrado) ? "Todos" : ViewBag.ClienteFiltrado)
+        </p>
 
-        <!-- Filtros Aplicados -->
+        <h4 class="mb-3 text-dark">📅 Gráfico de Etapas</h4>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-warning">Nenhuma atividade encontrada para os filtros selecionados.</div>
+        }
+        else
+        {
+            <div id="grafico_etapas" class="rounded border p-2 mb-4" style="height:@(Model.Count * 80 + 120)px;">
+                <!-- Gantt será injetado via JS -->
+            </div>
+        }
+
+    </div>
+
+    <!-- Visão Status -->
+    <div id="visaoStatus" class="bg-white p-4 rounded shadow mb-4">
         <p class="text-muted mb-2" style="font-size: 14px;">
             <strong>Modelo:</strong> @(string.IsNullOrEmpty(ViewBag.ModeloFiltrado) ? "Todos" : ViewBag.ModeloFiltrado) |
             <strong>Cliente:</strong> @(string.IsNullOrEmpty(ViewBag.ClienteFiltrado) ? "Todos" : ViewBag.ClienteFiltrado)
         </p>
-
-        <!-- Título -->
         <h4 class="mb-3 text-dark">📊 Visão Status</h4>
 
-        <!-- Cartões -->
-        <div class="d-flex flex-wrap gap-4">
+        <div class="d-flex text-white flex-wrap gap-3">
             @foreach (var item in ViewBag.ResumoPorStatus as List<GestaoAutomotiva.Models.DashboardResumoStatusViewModel>)
             {
-                var cor = item.Status switch
-                {
-                    "Finalizado" => "bg-success text-white",
-                    "Em Andamento" => "bg-primary text-white",
-                    "Pendente" => "bg-warning text-dark",
-                    "Cancelado" => "bg-secondary text-white",
-                    "Reprovado" => "bg-danger text-white",
-                    _ => "bg-light text-dark"
-                };
+                var statusLower = item.Status.ToLower();
+                var cor = statusLower.Contains("finalizado") ? "#27ae60" :
+                statusLower.Contains("andamento") ? "#2980b9" :
+                statusLower.Contains("parado") ? "#f1c40f" :
+                statusLower.Contains("cancelado") ? "#7f8c8d" :
+                statusLower.Contains("reprovado") ? "#c0392b" :
+                statusLower.Contains("parado") ? "#8e44ad" :
+                statusLower.Contains("iniciado") ? "#16a085" :
+                "#95a5a6";
 
-                <div class="p-3 rounded shadow @cor" style="min-width:180px;">
-                    <h5 class="mb-1">@item.Status</h5>
-                    <p class="mb-0">@item.Total registros</p>
-                    <small>@item.Percentual.ToString("0.##")%</small>
+                var detalhes = ViewBag.DetalhesPorStatus[item.Status] as List<GestaoAutomotiva.Models.AtividadeResumo>;
+
+
+                <div class="rounded shadow text-white px-4 py-3" style="background-color:@cor; min-width: 220px; max-width: 300px;">
+                    <h5 class="mb-1 text-center">@item.Status</h5>
+                    <p class="mb-0 text-center">@item.Total</p>
+                    <small class="d-block text-center">@item.Percentual.ToString("0.##")%</small>
+
+                    @if (detalhes != null && detalhes.Any())
+                    {
+                        <hr class="bg-white opacity-50" />
+                        <div class="text-start small">
+                            @foreach (var d in detalhes.Take(3))
+                            {
+                                <div class="mb-2">
+                                    <i class="bi bi-person"></i> <strong>@d.Funcionario</strong><br />
+                                    <i class="bi bi-tools"></i> Serviço: @d.Servico<br />
+                                    <i class="bi bi-diagram-3"></i> Etapa: @d.Etapa<br />
+                                </div>
+                            }
+
+                            @if (detalhes.Count > 3)
+                            {
+                                <div class="text-center"><em>e mais...</em></div>
+                            }
+                        </div>
+                    }
                 </div>
             }
         </div>
+
+
+
     </div>
 
-
-    <!-- Gráfico Pizza Consolidado -->
+    <!-- Gráfico Pizza -->
     <div class="bg-white p-4 rounded shadow mb-4" style="min-height: 550px;">
-        <!-- Texto com Filtros Atuais -->
         <p class="text-muted mb-1" style="font-size: 14px;">
             <strong>Modelo:</strong> @(string.IsNullOrEmpty(ViewBag.ModeloFiltrado) ? "Todos" : ViewBag.ModeloFiltrado) |
             <strong>Cliente:</strong> @(string.IsNullOrEmpty(ViewBag.ClienteFiltrado) ? "Todos" : ViewBag.ClienteFiltrado)
         </p>
-
         <h4 class="mb-3 text-dark">📊 Visão Consolidada</h4>
         <canvas id="pizzaStatus" style="max-height: 400px; width: 100%;"></canvas>
-
     </div>
 
     <!-- Gráfico Diário -->
     <div class="bg-white p-4 rounded shadow mt-4">
-        <!-- Texto com Filtros Atuais -->
         <p class="text-muted mb-1" style="font-size: 14px;">
             <strong>Modelo:</strong> @(string.IsNullOrEmpty(ViewBag.ModeloFiltrado) ? "Todos" : ViewBag.ModeloFiltrado) |
             <strong>Cliente:</strong> @(string.IsNullOrEmpty(ViewBag.ClienteFiltrado) ? "Todos" : ViewBag.ClienteFiltrado)
         </p>
-
         <h4 class="mb-3 text-dark">📈 Visão Diária</h4>
         <canvas id="graficoDiario" style="width:100%; max-height: 300px;"></canvas>
     </div>
 </div>
+
+<footer style="margin-top: 100px;"></footer>
+
 <!-- Scripts -->
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
 <script>
@@ -148,30 +186,41 @@
         data.addColumn('number', 'Percentual');
         data.addColumn('string', 'Dependência');
         data.addColumn({ type: 'string', role: 'style' });
-        data.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
+        data.addColumn({ type: 'string', role: 'tooltip', p: { html: true,  trigger: 'focus'} });
 
         data.addRows([
+
     @foreach (var c in Model)
     {
         var inicio = c.DataInicio;
         var fim = c.DataFim;
-        var tooltip = c.Tooltip.Replace("\"", "\\\"");
+
+        var tooltip = "<div style='padding:6px 10px; font-size:13px;'>" +
+                 "<strong>" + @c.Nome + "</strong><br/>" +
+                 "📅 Início: " + @c.DataInicio.ToString("dd/MM/yyyy") + "<br/>" +
+                 "📅 Término: " + @c.DataFim.ToString("dd/MM/yyyy") + "<br/>" +
+                 "✅ Progresso: " + @c.Percentual + "%<br/>" +
+                 "🛠 Etapa: " + "@c.Etapa" + "</div>";
+
 
         <text>
-                                [
-                                    "@c.Id",
-                                    "@c.Nome",
-                                    "Carro",
-                                    new Date(@inicio.Year, @inicio.Month - 1, @inicio.Day),
-                                    new Date(@fim.Year, @fim.Month - 1, @fim.Day),
-                                    null,
+                [
+                    "@c.Id",
+                    "@c.Nome",
+                    "Carro",
+                    new Date(@inicio.Year, @inicio.Month - 1, @inicio.Day),
+                    new Date(@fim.Year, @fim.Month - 1, @fim.Day),
+                    null,
             @c.Percentual,
-                                    null,
-                                    "fill: @c.Cor",
-                                    "@tooltip"
-                                ],
+                    null,
+                    "fill: @c.Cor",
+                    "@Html.Raw(tooltip.Replace("\"", "\\\""))"
+                ],
         </text>
+
     }
+
+
         ]);
 
         var options = {
@@ -188,6 +237,20 @@
         };
 
         new google.visualization.Gantt(document.getElementById('grafico_etapas')).draw(data, options);
+
+            // Corrigir os meses do eixo para português
+    setTimeout(() => {
+        const mesesEN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const mesesPT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+        document.querySelectorAll('#grafico_etapas text').forEach(el => {
+            mesesEN.forEach((mes, i) => {
+                if (el.textContent.includes(mes)) {
+                    el.textContent = el.textContent.replace(mes, mesesPT[i]);
+                }
+            });
+        });
+    }, 500);
     }
 
     function exportGantt() {
@@ -236,26 +299,34 @@
     const pizzaCtx = document.getElementById("pizzaStatus").getContext("2d");
     const statusData = @Html.Raw(JsonSerializer.Serialize(ViewBag.ResumoPorStatus));
 
-         new Chart(pizzaCtx, {
+    // Cores padronizadas conforme os cards
+    const coresStatus = statusData.map(x => {
+        const status = x.Status.toLowerCase();
+        if (status.includes("finalizado") && !status.includes("atraso")) return "#27ae60";     // Finalizado
+        if (status.includes("finalizado") && status.includes("atraso"))  return "#e67e22";     // Finalizado com atraso
+        if (status.includes("andamento"))  return "#2980b9";     // Em Andamento
+        if (status.includes("parado"))     return "#f1c40f";     // Parado
+        if (status.includes("cancelado"))  return "#7f8c8d";     // Cancelado
+        if (status.includes("reprovado"))  return "#c0392b";     // Reprovado
+        if (status.includes("iniciado"))   return "#16a085";     // Não Iniciado
+        return "#95a5a6"; // Padrão
+    });
+
+    new Chart(pizzaCtx, {
         type: "doughnut",
         data: {
             labels: statusData.map(x => x.Status),
             datasets: [{
                 data: statusData.map(x => x.Total),
-                backgroundColor: ["#27ae60", "#2980b9", "#f1c40f", "#e67e22", "#c0392b"]
+                backgroundColor: coresStatus
             }]
         },
         options: {
-            layout: {
-                padding: 40 // 👉 mais espaço ao redor
-            },
+            layout: { padding: 40 },
             plugins: {
                 datalabels: {
                     color: "#000",
-                    font: {
-                        weight: "bold",
-                        size: 13
-                    },
+                    font: { weight: "bold", size: 13 },
                     formatter: function (value, context) {
                         const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                         const label = context.chart.data.labels[context.dataIndex];
@@ -268,19 +339,14 @@
                     clamp: true,
                     clip: false
                 },
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    enabled: false
-                }
+                legend: { display: false },
+                tooltip: { enabled: false }
             },
             responsive: true,
             maintainAspectRatio: false
         },
         plugins: [ChartDataLabels]
     });
-
 
 
     // Gráfico diário
@@ -294,7 +360,7 @@
             { label: "Em Andamento", data: dados.map(d => d.Andamento), fill: true, borderColor: "#2980b9", backgroundColor: "rgba(41,128,185,0.2)" },
             { label: "Canceladas", data: dados.map(d => d.Canceladas), fill: true, borderColor: "#e67e22", backgroundColor: "rgba(230,126,34,0.2)" },
             { label: "Reprovadas", data: dados.map(d => d.Reprovadas), fill: true, borderColor: "#c0392b", backgroundColor: "rgba(192,57,43,0.2)" },
-            { label: "Pendentes", data: dados.map(d => d.Pendentes), fill: true, borderColor: "#f1c40f", backgroundColor: "rgba(241,196,15,0.2)" }
+            { label: "Parados", data: dados.map(d => d.Parados), fill: true, borderColor: "#f1c40f", backgroundColor: "rgba(241,196,15,0.2)" }
         ];
 
         new Chart(ctx, {
@@ -313,4 +379,53 @@
             }
         });
     });
+
+    function exportarTodosGraficos() {
+           const elementos = [
+        { id: "grafico_etapas", nome: "gantt.png" },
+        { id: "visaoStatus", nome: "status.png" },  // ✅ novo
+        { id: "pizzaStatus", nome: "pizza.png" },
+        { id: "graficoDiario", nome: "linha.png" }
+    ];
+
+        const formData = new FormData();
+
+        let parados = elementos.length;
+
+        elementos.forEach(({ id, nome }) => {
+            const el = document.getElementById(id);
+
+            if (!el) {
+                alert(`Elemento ${id} não encontrado.`);
+                return;
+            }
+
+            html2canvas(el).then(canvas => {
+                canvas.toBlob(blob => {
+                    formData.append("imagens", blob, nome);
+
+                    parados--;
+
+                    if (parados === 0) {
+                        fetch("/GraficoCarroEtapa/GerarPdf", {
+                            method: "POST",
+                            body: formData
+                        })
+                            .then(response => response.blob())
+                            .then(blob => {
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = "graficos_etapas.pdf";
+                                a.click();
+                                URL.revokeObjectURL(url);
+                            });
+                    }
+                });
+            });
+        });
+    }
+
 </script>
+
+

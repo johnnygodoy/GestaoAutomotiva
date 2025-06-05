@@ -31,18 +31,20 @@ namespace GestaoAutomotiva.Controllers
             {
                 var diasAtraso = (DateTime.Today - atividade.DataPrevista.Value).Days;
                 atividade.Status = $"Finalizado com atraso de {diasAtraso} dia{(diasAtraso > 1 ? "s" : "")}";
-                atividade.Cor = DefinirCorStatus(atividade.Status);
-                // vermelho
             }
             else
             {
                 atividade.Status = "Finalizado";
-                atividade.Cor = DefinirCorStatus(atividade.Status);
             }
 
-            _context.SaveChanges();
+            atividade.Cor = DefinirCorStatus(atividade.Status);
+
+            _context.SaveChanges(); // 🔁 Primeiro salva no banco
+            RegistrarHistorico(atividade, "Finalizado"); // 🔁 Depois registra o histórico
+
             return RedirectToAction("Index");
         }
+
 
         private string DefinirCorStatus(string status) {
             return status switch
@@ -73,6 +75,7 @@ namespace GestaoAutomotiva.Controllers
                 .ThenInclude(c => c.Cliente)
                 .Include(a => a.Carro)
                 .ThenInclude(c => c.Modelo)
+                 .Include(a => a.Etapa)
                 .OrderByDescending(c => c.Id)
                 .AsQueryable();
 
@@ -124,10 +127,10 @@ namespace GestaoAutomotiva.Controllers
         public IActionResult Create(Atividade atividade) {
             var funcionarios = _context.Funcionarios.ToList();
             var servicos = _context.Servicos.ToList();
-            atividade.Cor = DefinirCorStatus(atividade.Status);
 
             bool temErro = false;
 
+            // Validação básica
             if (atividade.FuncionarioId == 0)
             {
                 ModelState.AddModelError("FuncionarioId", "Selecione um funcionário.");
@@ -140,35 +143,16 @@ namespace GestaoAutomotiva.Controllers
                 temErro = true;
             }
 
-
             var carro = _context.Carros
-            .Include(c => c.Modelo)
-            .FirstOrDefault(c => c.Id == atividade.CarroId);
+                .Include(c => c.Modelo)
+                .Include(c => c.Cliente)
+                .FirstOrDefault(c => c.Id == atividade.CarroId);
 
-
-            if (carro != null)
+            if (carro == null)
             {
-                atividade.Carro = carro;
-                atividade.Carro.Modelo.Nome = atividade.Carro.Modelo.Nome.ToUpper();
-            }
-
-            if (string.IsNullOrEmpty(atividade.Carro?.Modelo?.Nome))
-            {
-                ModelState.AddModelError("Carro", "O campo Carro é obrigatório.");
+                ModelState.AddModelError("CarroId", "Carro não encontrado.");
                 temErro = true;
             }
-
-            if (string.IsNullOrWhiteSpace(atividade.Carro.Cor))
-            {
-                ModelState.AddModelError("Cor", "O campo Cor é obrigatório.");
-                temErro = true;
-            }
-            else
-            {
-                atividade.Carro.Cor = atividade.Carro.Cor.ToUpper();
-            }
-
-
 
             if (!atividade.DataInicio.HasValue)
             {
@@ -178,38 +162,42 @@ namespace GestaoAutomotiva.Controllers
 
             if (temErro)
             {
-                PreencherDropdowns(); // apenas chama
+                PreencherDropdowns();
                 return View(atividade);
             }
 
-            var servico = servicos.FirstOrDefault(s => s.Id == atividade.ServicoId);
-            if (servico == null)
-            {
-                ModelState.AddModelError("ServicoId", "Serviço não encontrado no banco.");
-                ViewBag.Funcionarios = new SelectList(funcionarios, "Id", "Nome");
-                ViewBag.Servicos = new SelectList(servicos, "Id", "Descricao");
-                return View(atividade);
-            }
-
-            atividade.EstimativaDias = (int)servico.EstimativaDias;
-            atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
+            atividade.Carro = carro;
             atividade.Status = "Em Andamento";
             atividade.Cor = DefinirCorStatus(atividade.Status);
 
+            var servico = servicos.FirstOrDefault(s => s.Id == atividade.ServicoId);
+            atividade.EstimativaDias = servico?.EstimativaDias ?? 3;
+            atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, atividade.EstimativaDias);
 
-            // Verifica se a atividade é a primeira a ser criada
-            if (atividade.EtapaId == 0 || atividade.EtapaId == null) // caso não tenha etapa associada
+            // ✅ Garante a Etapa "Recebimento"
+            if (atividade.EtapaId == 0 || !_context.Etapas.Any(e => e.Id == atividade.EtapaId))
             {
-                // Define a etapa "Recebimento" como a etapa inicial da atividade
-                var etapaInicial = _context.Etapas.FirstOrDefault(e => e.Nome == "Recebimento");
-                atividade.EtapaId = etapaInicial?.Id ?? 1; // Defina como etapa 1 se não encontrar a etapa de recebimento
+                var etapaRecebimento = _context.Etapas.FirstOrDefault(e => e.Nome.ToUpper() == "RECEBIMENTO");
+
+                if (etapaRecebimento != null)
+                {
+                    atividade.EtapaId = etapaRecebimento.Id;
+                }
+                else
+                {
+                    ModelState.AddModelError("EtapaId", "A etapa 'Recebimento' não foi encontrada.");
+                    PreencherDropdowns();
+                    return View(atividade);
+                }
             }
 
             _context.Atividades.Add(atividade);
             _context.SaveChanges();
+            RegistrarHistorico(atividade, "Criado");
 
             return RedirectToAction("Index");
         }
+
 
         private void PreencherDropdowns() {
             var funcionarios = _context.Funcionarios.ToList();
@@ -256,6 +244,7 @@ namespace GestaoAutomotiva.Controllers
 
             var atividade = _context.Atividades.Find(id);
             atividade.Cor = DefinirCorStatus(atividade.Status);
+            ViewBag.Etapas = new SelectList(_context.Etapas.OrderBy(e => e.Ordem).ToList(), "Id", "Nome");
 
             if (atividade == null) return NotFound();
 
@@ -308,9 +297,10 @@ namespace GestaoAutomotiva.Controllers
             atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
             atividade.Cor = DefinirCorStatus(atividade.Status);
 
-
+            atividade.Etapa = _context.Etapas.FirstOrDefault(e => e.Id == atividade.EtapaId);
             _context.Atividades.Update(atividade);
             _context.SaveChanges();
+            RegistrarHistorico(atividade, "Criado");
 
             return RedirectToAction("Index");
         }
@@ -333,6 +323,7 @@ namespace GestaoAutomotiva.Controllers
 
             _context.Atividades.Remove(atividade);
             _context.SaveChanges();
+            RegistrarHistorico(atividade, "Excluído");
 
             return RedirectToAction("Index");
         }
@@ -394,59 +385,61 @@ namespace GestaoAutomotiva.Controllers
 
             return View(atividadesPaginados);
         }
-        public IActionResult ExportarPdf() {
-            var atividades = _context.Atividades
-                .Include(a => a.Carro)
-                .Include(a => a.Funcionario)
-                .Include(a => a.Servico)
-                .Where(a => a.Status != "Em Andamento")
-                .ToList();
 
-            var documento = new RelatorioAtividadePdf(atividades);
-            var pdfBytes = documento.GeneratePdf(); // Isso retorna byte[]
-
-            return File(pdfBytes, "application/pdf", "historico_atividades.pdf");
-
-        }
-        public IActionResult ExportarExcel() {
-            var atividades = _context.Atividades
-                .Include(a => a.Carro)
-                .Include(a => a.Funcionario)
-                .Include(a => a.Servico)
-                .Where(a => a.Status != "Em Andamento")
-                .ToList();
-
-            using var workbook = new ClosedXML.Excel.XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Histórico");
-
-            worksheet.Cell(1, 1).Value = "Funcionário";
-            worksheet.Cell(1, 2).Value = "Serviço";
-            worksheet.Cell(1, 3).Value = "Código Carro";
-            worksheet.Cell(1, 4).Value = "Carro";
-            worksheet.Cell(1, 5).Value = "Início";
-            worksheet.Cell(1, 6).Value = "Previsão";
-            worksheet.Cell(1, 7).Value = "Status";
-
-            for (int i = 0; i < atividades.Count; i++)
+        private void RegistrarHistorico(Atividade atividade, string acao) {
+            // 🔒 Protege contra EtapaId inexistente ou nulo
+            string etapaNome = "-";
+            if (atividade.Etapa != null)
             {
-                var a = atividades[i];
-                worksheet.Cell(i + 2, 1).Value = a.Funcionario?.Nome;
-                worksheet.Cell(i + 2, 2).Value = a.Servico?.Descricao;
-                worksheet.Cell(i + 2, 3).Value = a.Carro.IdCarro;
-                worksheet.Cell(i + 2, 4).Value = a.Carro.Modelo.Nome;
-                worksheet.Cell(i + 2, 5).Value = a.DataInicio?.ToString("dd/MM/yyyy");
-                worksheet.Cell(i + 2, 6).Value = a.DataPrevista?.ToString("dd/MM/yyyy");
-                worksheet.Cell(i + 2, 7).Value = a.Status;
+                etapaNome = atividade.Etapa.Nome;
+            }
+            else if (atividade.EtapaId > 0)
+            {
+                etapaNome = _context.Etapas
+                    .Where(e => e.Id == atividade.EtapaId)
+                    .Select(e => e.Nome)
+                    .FirstOrDefault() ?? "-";
             }
 
-            using var stream = new MemoryStream();
-            workbook.SaveAs(stream);
-            stream.Seek(0, SeekOrigin.Begin);
+            var historico = new AtividadeHistorico
+            {
+                AtividadeId = atividade.Id,
+                FuncionarioNome = atividade.Funcionario?.Nome
+                    ?? _context.Funcionarios.Find(atividade.FuncionarioId)?.Nome
+                    ?? "Desconhecido",
 
-            return File(stream.ToArray(),
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "historico_atividades.xlsx");
+                ServicoDescricao = atividade.Servico?.Descricao
+                    ?? _context.Servicos.Find(atividade.ServicoId)?.Descricao
+                    ?? "Desconhecido",
+
+                CarroId = atividade.Carro?.IdCarro
+                    ?? _context.Carros.Find(atividade.CarroId)?.IdCarro
+                    ?? "-",
+
+                ModeloNome = atividade.Carro?.Modelo?.Nome
+                    ?? _context.Carros.Include(c => c.Modelo)
+                        .FirstOrDefault(c => c.Id == atividade.CarroId)?.Modelo?.Nome
+                    ?? "-",
+
+                Cliente = atividade.Carro?.Cliente?.Nome
+                    ?? _context.Carros.Include(c => c.Cliente)
+                        .FirstOrDefault(c => c.Id == atividade.CarroId)?.Cliente?.Nome
+                    ?? "-",
+
+                DataInicio = atividade.DataInicio,
+                DataPrevista = atividade.DataPrevista,
+                Status = atividade.Status ?? "-",
+                EtapaAtual = etapaNome,
+                DataRegistro = DateTime.Now,
+                Acao = acao
+            };
+
+            _context.AtividadeHistoricos.Add(historico);
+            _context.SaveChanges();
         }
+
+
+
 
     }
 }

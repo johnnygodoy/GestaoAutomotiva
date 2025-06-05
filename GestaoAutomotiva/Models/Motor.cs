@@ -10,14 +10,14 @@ namespace GestaoAutomotiva.Models
         public string Nome { get; set; }
 
     
-        public string PlacaVeiculoDoador { get; set; }
+        public string? PlacaVeiculoDoador { get; set; }
 
-        public string NumeroMotor { get; set; }
+        public string? NumeroMotor { get; set; }
 
         [Required(ErrorMessage = "Selecione o status do motor.")]
         public StatusMotor Status { get; set; }
 
-        public string Observacoes { get; set; }
+        public string? Observacoes { get; set; }
 
         public int? ClienteId { get; set; }
         public Cliente Cliente { get; set; }

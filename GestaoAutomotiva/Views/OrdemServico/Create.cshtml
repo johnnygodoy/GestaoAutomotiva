@@ -1,7 +1,12 @@
 ﻿@model GestaoAutomotiva.Models.OrdemServico
+@{
+    ViewData["Title"] = "Nova Ordem de Serviço";
+}
 
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
-    <h2 class="text-light">Nova Ordem de Serviço</h2>
+<div class="page-container mt-4">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/ordemServico.png" width="48" height="48" /> @ViewData["Title"]
+    </h2>
 
     <form asp-action="Create" method="post">
         @Html.AntiForgeryToken()
@@ -10,30 +15,33 @@
         @if (Model?.Id > 0)
         {
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label text-white">ID Serviço (OS)</label>
-                    <input class="form-control bg-dark text-white" readonly value="@Model.Id" />
+                <div class="col-md-3">
+                    <label class="form-label">OS Nº</label>
+                    <input class="form-control text-uppercase" readonly value="@Model.Id" />
                 </div>
             </div>
         }
 
-        <div class="mb-3 col-md-2">
-            <label class="text-white">ID Serviço</label>
-            <input class="form-control bg-dark text-white" readonly value="@Model.Atividade?.Servico?.Id" />
-        </div>
-
         <div class="row mb-3">
-            <div class="col-md-4">
-                <label asp-for="DataAbertura" class="form-label text-white">Data de Abertura</label>
-                <input asp-for="DataAbertura" class="form-control bg-dark text-white" readonly />
+            <div class="col-md-3">
+                <label class="form-label">ID Serviço</label>
+                <input class="form-control text-uppercase bg-dark text-white" readonly
+                       value="@Model.Atividade?.Servico?.Id.ToString() ?? " N /A"" />
             </div>
-            <div class="col-md-4">
-                <label asp-for="EtapaAtual" class="form-label text-white">Etapa Atual</label>
-                <input asp-for="EtapaAtual" class="form-control bg-dark text-white" readonly />
+
+            <div class="col-md-3">
+                <label asp-for="DataAbertura" class="form-label">Data de Abertura</label>
+                <input asp-for="DataAbertura" class="form-control text-uppercase" readonly />
             </div>
-            <div class="col-md-4">
-                <label asp-for="Prioridade" class="form-label text-white">Prioridade</label>
-                <select asp-for="Prioridade" class="form-control bg-dark text-white">
+
+            <div class="col-md-3">
+                <label asp-for="EtapaAtual" class="form-label">Etapa Atual</label>
+                <input asp-for="EtapaAtual" class="form-control text-uppercase" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Prioridade" class="form-label">Prioridade</label>
+                <select asp-for="Prioridade" class="form-control text-uppercase">
                     <option value="">Selecione</option>
                     <option>Normal</option>
                     <option>Alta</option>
@@ -44,67 +52,74 @@
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-6">
-                <label asp-for="FuncionarioId" class="text-white">Funcionário</label>
-                <select asp-for="FuncionarioId" class="form-control bg-dark text-white"
+            <div class="col-md-3">
+                <label asp-for="FuncionarioId" class="form-label">Funcionário</label>
+                <select asp-for="FuncionarioId" class="form-control text-uppercase"
                         asp-items="ViewBag.Funcionarios ?? new List<SelectListItem>()">
                     <option value="">Selecione o funcionário</option>
                 </select>
             </div>
-            <div class="col-md-6">
-                <label asp-for="CarroId" class="text-white">Modelo do Carro</label>
-                <select asp-for="CarroId" class="form-control bg-dark text-white"
+
+            <div class="col-md-3">
+                <label asp-for="CarroId" class="form-label">Modelo do Carro</label>
+                <select asp-for="CarroId" class="form-control text-uppercase"
                         asp-items="ViewBag.Carros ?? new List<SelectListItem>()">
                     <option value="">Selecione o modelo</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Código do Carro</label>
+                <input class="form-control text-uppercase bg-dark text-white" readonly
+                       value="@Model.Atividade?.Carro?.IdCarro ?? " N /A"" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="ClienteId" class="form-label">Cliente</label>
+                <select asp-for="ClienteId" class="form-control text-uppercase"
+                        asp-items="ViewBag.Clientes ?? new List<SelectListItem>()">
+                    <option value="">Selecione o cliente</option>
                 </select>
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-6">
-                <label class="text-white">Código do Carro</label>
-                <input class="form-control bg-dark text-white" readonly value="@Model.Atividade?.Carro?.IdCarro" />
+                <label asp-for="Tarefas" class="form-label">Tarefas</label>
+                <textarea asp-for="Tarefas" class="form-control text-uppercase" rows="3"></textarea>
             </div>
             <div class="col-md-6">
-                <label asp-for="ClienteId" class="text-white">Cliente</label>
-                <select asp-for="ClienteId" class="form-control bg-dark text-white"
-                        asp-items="ViewBag.Clientes ?? new List<SelectListItem>()">
-                    <option value="">Selecione o Cliente</option>
-                </select>
+                <label asp-for="Observacoes" class="form-label">Observações</label>
+                <textarea asp-for="Observacoes" class="form-control text-uppercase" rows="3"></textarea>
             </div>
-        </div>
-
-        <div class="form-group mt-3">
-            <label asp-for="Tarefas" class="form-label text-white">Tarefas</label>
-            <textarea asp-for="Tarefas" class="form-control bg-dark text-white" rows="3"></textarea>
-        </div>
-
-        <div class="form-group mt-3">
-            <label asp-for="Observacoes" class="form-label text-white">Observações</label>
-            <textarea asp-for="Observacoes" class="form-control bg-dark text-white" rows="5"></textarea>
         </div>
 
         <div class="mt-4">
-            <h5 class="text-light">Conferência</h5>
+            <h5 class="text-light mb-3">Conferência</h5>
             <div class="row">
                 <div class="col-md-4">
-                    <label class="text-white">Almoxarifado</label>
-                    <input asp-for="Almoxarifado" class="form-control bg-dark text-white" />
+                    <label asp-for="Almoxarifado" class="form-label">Almoxarifado</label>
+                    <input asp-for="Almoxarifado" class="form-control text-uppercase" />
                 </div>
                 <div class="col-md-4">
-                    <label class="text-white">Funcionário</label>
-                    <input class="form-control bg-dark text-white" placeholder="Assinatura / Data" />
+                    <label class="form-label">Funcionário</label>
+                    <input class="form-control text-uppercase" placeholder="Assinatura / Data" />
                 </div>
                 <div class="col-md-4">
-                    <label class="text-white">Inspetor</label>
-                    <input asp-for="Inspetor" class="form-control bg-dark text-white" />
+                    <label asp-for="Inspetor" class="form-label">Inspetor</label>
+                    <input asp-for="Inspetor" class="form-control text-uppercase" />
                 </div>
             </div>
         </div>
 
         <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-success">Salvar Ordem de Serviço</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>

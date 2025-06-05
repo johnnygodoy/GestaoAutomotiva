@@ -4,115 +4,120 @@
 @{
     ViewData["Title"] = "Esteira de Produção";
 }
+<div class="page-container mt-4">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/esteira.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
 
-<h2 class="text-light">Atividades Registradas</h2>
+    <!-- Botão para Gerenciar Etapas -->
+    <div class="text-left mb-4">
+        <a href="@Url.Action("Index", "Etapa")" class="btn btn-outline-light mb-3">Gerenciar Etapas</a>
+    </div>
 
-<!-- Botão para Gerenciar Etapas -->
-<div class="text-left mb-4">
-    <a href="@Url.Action("Index", "Etapa")" class="btn btn-outline-light mb-3">Gerenciar Etapas</a>
-</div>
+    @functions {
+        string GetCardColor(int etapaIndex, int totalEtapas) {
+            // Definir uma lista de cores cíclicas, excluindo as cores de fundo cinza, branco e preto
+            var cores = new[] {
 
-@functions {
-    string GetCardColor(int etapaIndex, int totalEtapas) {
-        // Definir uma lista de cores cíclicas, excluindo as cores de fundo cinza, branco e preto
-        var cores = new[] {
-
-            "bg-orange",
-            "bg-darkviolet",
-            "bg-plum",
-            "bg-forestgreen",
-            "bg-crimson",
-            "bg-darkgreen",
-            "bg-lightgreen",
-            "bg-powderblue",
-            "bg-aqua",
-            "bg-charcoal",
-            "bg-azure",
-            "bg-salmon",
-            "bg-coral",
-            "bg-olive",
-            "bg-primary",
-            "bg-secondary",
-            "bg-success",
-            "bg-info",
-            "bg-warning",
-            "bg-danger",
-            "bg-light",
-            "bg-dark",
-            "bg-secondary",
-            "bg-primary",
-            "bg-info",
-            "bg-warning",
-            "bg-success",
-            "bg-danger",
-            "bg-light",
-            "bg-dark",
-            "bg-primary",
-            "bg-secondary",
-            "bg-success",
-            "bg-info"
+    "bg-orange",
+    "bg-darkviolet",
+    "bg-plum",
+    "bg-forestgreen",
+    "bg-crimson",
+    "bg-darkgreen",
+    "bg-lightgreen",
+    "bg-powderblue",
+    "bg-aqua",
+    "bg-charcoal",
+    "bg-azure",
+    "bg-salmon",
+    "bg-coral",
+    "bg-olive",
+    "bg-primary",
+    "bg-secondary",
+    "bg-success",
+    "bg-info",
+    "bg-warning",
+    "bg-danger",
+    "bg-light",
+    "bg-dark",
+    "bg-secondary",
+    "bg-primary",
+    "bg-info",
+    "bg-warning",
+    "bg-success",
+    "bg-danger",
+    "bg-light",
+    "bg-dark",
+    "bg-primary",
+    "bg-secondary",
+    "bg-success",
+    "bg-info"
 
 
-        };
+    };
 
-        // Ajusta o índice de cores baseado no número total de etapas
-        // e aplica um ciclo de cores usando o operador módulo.
-        return cores[etapaIndex % cores.Length]; // Garante que o índice cíclico
+            // Ajusta o índice de cores baseado no número total de etapas
+            // e aplica um ciclo de cores usando o operador módulo.
+            return cores[etapaIndex % cores.Length]; // Garante que o índice cíclico
+        }
     }
-}
 
-<div class="table-container">
-    <div class="row">
-        @foreach (var etapa in Model.Etapas.OrderBy(e => e.Ordem).Select((e, index) => new { e, index }))
-        {
-            <div class="col-md bg-dark text-white mx-1 mb-4 border rounded shadow-sm p-2">
-                <h5 class="text-center border-bottom pb-2">@etapa.e.Nome</h5>
+    <div class="table-container">
+        <div class="row">
+            @foreach (var etapa in Model.Etapas.OrderBy(e => e.Ordem).Select((e, index) => new { e, index }))
+            {
+                <div class="col-md bg-dark text-white mx-1 mb-4 border rounded shadow-sm p-2">
+                    <h5 class="text-center border-bottom pb-2">@etapa.e.Nome</h5>
 
-                @{
-                    var atividadesEtapa = Model.Atividades.Where(a => a.EtapaId == etapa.e.Id).ToList();
-
-                }
-
-                @if (atividadesEtapa.Any())
-                {
-                    foreach (var atividade in atividadesEtapa)
-                    {
-                        <div class="card kanban-card @GetCardColor(etapa.index, Model.Etapas.Count) mb-2">
-                            <div class="card-body p-2">
-                                <div class="d-flex justify-content-between">
-                                    <strong>
-                                        @atividade.Carro.IdCarro — @atividade.Carro.Modelo
-                                        <br />
-                                        👤 @atividade.Carro.Cliente?.Nome
-                                    </strong>
-
-                                    <span class="badge bg-light text-dark">@atividade.Etapa?.Nome</span>
-                                </div>
-                                <small>👨‍🔧 @atividade.Funcionario?.Nome</small><br />
-                                <small>🔧 @atividade.Servico?.Descricao</small>
-
-                                <!-- Botões -->
-                                <!-- Botões de Navegação -->
-                                <div class="mt-2">
-                                    <form method="post" asp-action="VoltarEtapa" asp-route-id="@atividade.Id" class="d-inline">
-                                        <button type="submit" class="btn btn-outline-light">⬅️</button>
-                                    </form>
-                                    <form method="post" asp-action="AvancarEtapa" asp-route-id="@atividade.Id" class="d-inline">
-                                        <button type="submit" class="btn btn-outline-light">➡️</button>
-                                    </form>
-                                </div>
-
-                            </div>
-                        </div>
+                    @{
+                        var atividadesEtapa = Model.Atividades.Where(a => a.EtapaId == etapa.e.Id).ToList();
 
                     }
-                }
-                else
-                {
-                    <p class="text-muted text-center">Nenhum veículo</p>
-                }
-            </div>
-        }
+
+                    @if (atividadesEtapa.Any())
+                    {
+                        foreach (var atividade in atividadesEtapa)
+                        {
+                            <div class="card kanban-card @GetCardColor(etapa.index, Model.Etapas.Count) mb-2">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>
+                                            @atividade.Carro.IdCarro — @atividade.Carro.Modelo.Nome
+                                            <br />
+                                            👤 @atividade.Carro.Cliente?.Nome
+                                        </strong>
+
+                                        <span class="badge bg-light text-dark">@atividade.Etapa?.Nome</span>
+                                    </div>
+                                    <small>👨‍🔧 @atividade.Funcionario?.Nome</small><br />
+                                    <small>🔧 @atividade.Servico?.Descricao</small>
+
+                                    <!-- Botões -->
+                                    <!-- Botões de Navegação -->
+                                    <!-- Botões de Navegação -->
+                                    <div class="d-flex justify-content-start mt-2">
+                                        <form method="post" asp-action="VoltarEtapa" asp-route-id="@atividade.Id" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-light">⬅️</button>
+                                        </form>
+                                        <form method="post" asp-action="AvancarEtapa" asp-route-id="@atividade.Id" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-light">➡️</button>
+                                        </form>
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Nenhum veículo</p>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </div>
-
+<footer style="margin-top: 100px;"></footer>

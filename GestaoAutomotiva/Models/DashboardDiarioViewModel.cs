@@ -7,6 +7,6 @@
         public int Andamento { get; set; }
         public int Canceladas { get; set; }
         public int Reprovadas { get; set; }
-        public int Pendentes { get; set; }
+        public int Parados { get; set; }
     }
 }

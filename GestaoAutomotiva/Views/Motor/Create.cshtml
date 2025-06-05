@@ -2,9 +2,10 @@
 @{
     ViewData["Title"] = "Cadastrar Motor";
 }
-
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
-    <h2 class="mb-4">Cadastrar Motor</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4">
+    <img src="~/images/Icones/motor.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
 
     <form method="post">
         @Html.AntiForgeryToken()
@@ -12,8 +13,8 @@
         <div class="row mb-3">
             <div class="col-md-4">
                 <label asp-for="Nome" class="form-label">Nome do Motor</label>
-                <input asp-for="Nome" class="form-control" />
-                <span asp-validation-for="Nome" class="text-danger"></span>
+                <input asp-for="Nome" class="form-control  select-dark" />
+                <span asp-validation-for="Nome" class="select-dark"></span>
             </div>
 
             <div class="col-md-4">
@@ -32,8 +33,8 @@
         <div class="row mb-3">
             <div class="col-md-4">
                 <label asp-for="Status" class="form-label">Status do Motor</label>
-                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<GestaoAutomotiva.Models.StatusMotor>()">
-                    <option value="">Selecione</option>
+                <select asp-for="Status" class="form-control select-light" asp-items="Html.GetEnumSelectList<GestaoAutomotiva.Models.StatusMotor>()">
+                    <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>

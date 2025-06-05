@@ -1,0 +1,40 @@
+﻿@model GestaoAutomotiva.Models.Etapa
+
+@{
+    ViewData["Title"] = "Excluir Etapa";
+}
+
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-danger mb-3">
+        <i class="bi bi-trash"></i> @ViewData["Title"]
+    </h2>
+
+    <p class="mb-4">
+        Tem certeza que deseja excluir a etapa
+        <strong class="text-warning text-uppercase">@Model.Nome</strong>?
+    </p>
+
+    <dl class="row">
+        <dt class="col-sm-3">Nome da Etapa</dt>
+        <dd class="col-sm-9 text-uppercase">@Model.Nome</dd>
+
+        <dt class="col-sm-3">Ordem</dt>
+        <dd class="col-sm-9">@Model.Ordem</dd>
+    </dl>
+
+    <form asp-action="Delete" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-outline-danger px-4">
+                <i class="bi bi-trash-fill"></i> Excluir
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
+        </div>
+    </form>
+
+</div>

@@ -1,132 +1,129 @@
 ﻿@model List<GestaoAutomotiva.Models.Atividade>
 @using GestaoAutomotiva.Utils
 
-@{
-    ViewData["Title"] = "Planejamento de Atividades";
-    Layout = "_Layout";
-    var selectedId = Context.Request.Query["funcionarioId"].ToString();
-    var tipoConflitoSelecionado = Context.Request.Query["tipoConflito"].ToString();
-    var funcionarios = ViewBag.Funcionarios as List<SelectListItem>;
+<div class="page-container mt-4">
+    @{
+        <h2 class="text-white mb-4">
+            <img src="~/images/Icones/planejamento.png" width="48" height="48" /> Planejamento de Atividades
+        </h2>
 
-    string htmlOptions = "<option value=''>Todos os Funcionários</option>";
-    foreach (var f in funcionarios)
-    {
-        var selectedAttr = (f.Value == selectedId) ? "selected" : "";
-        htmlOptions += $"<option value='{f.Value}' {selectedAttr}>{f.Text}</option>";
-    }
+        Layout = "_Layout";
+        var selectedId = Context.Request.Query["funcionarioId"].ToString();
+        var tipoConflitoSelecionado = Context.Request.Query["tipoConflito"].ToString();
+        var funcionarios = ViewBag.Funcionarios as List<SelectListItem>;
 
-    string htmlTipoConflito = "";
-    string[] tipos = { "Funcionario", "Carro", "Servico", "Status", "Qualquer" };
-    foreach (var tipo in tipos)
-    {
-        var texto = tipo switch
+        string htmlOptions = "<option value=''>Todos os Funcionários</option>";
+        foreach (var f in funcionarios)
         {
-            "Funcionario" => "Conflito por Funcionário",
-            "Carro" => "Conflito por Carro",
-            "Servico" => "Conflito por Serviço",
-            "Status" => "Conflito por Status",
-            "Qualquer" => "Qualquer Sobreposição",
-            _ => tipo
-        };
-        var selected = tipo == tipoConflitoSelecionado ? "selected" : "";
-        htmlTipoConflito += $"<option value='{tipo}' {selected}>{texto}</option>";
+            var selectedAttr = (f.Value == selectedId) ? "selected" : "";
+            htmlOptions += $"<option value='{f.Value}' {selectedAttr}>{f.Text}</option>";
+        }
+
+        string htmlTipoConflito = "";
+        string[] tipos = { "Funcionario", "Carro", "Servico", "Status", "Qualquer" };
+        foreach (var tipo in tipos)
+        {
+            var texto = tipo switch
+            {
+                "Funcionario" => "Conflito por Funcionário",
+                "Carro" => "Conflito por Carro",
+                "Servico" => "Conflito por Serviço",
+                "Status" => "Conflito por Status",
+                "Qualquer" => "Qualquer Sobreposição",
+                _ => tipo
+            };
+            var selected = tipo == tipoConflitoSelecionado ? "selected" : "";
+            htmlTipoConflito += $"<option value='{tipo}' {selected}>{texto}</option>";
+        }
     }
-} 
 
-
-<h2 class="text-light">Planejamento de Atividades</h2>
-
-@if (ViewBag.TemConflitos == true)
-{
-    var nomes = string.Join(", ", (List<string>)ViewBag.FuncionariosConflito);
-    int total = ViewBag.TotalConflitos;
-    <div class="alert alert-danger" role="alert">
-        <h5 class="mb-1">⚠️ Atenção!</h5>
-        <p class="mb-0">Existem <strong>@total</strong> atividade(s) em conflito de acordo com o critério selecionado.</p>
-        <p class="mb-0"><strong>Funcionários em conflito:</strong> @nomes</p>
-    </div>
-}
-
-<div class="bg-white rounded shadow p-3 mb-4 border border-dark">
-
-    <div class="d-flex gap-3 align-items-center mb-3">
-        <span><strong>Legenda:</strong></span>
-        <span style="color: #e74c3c;">⬛ Funcionário</span>
-        <span style="color: #f39c12;">⬛ Carro</span>
-        <span style="color: #2980b9;">⬛ Serviço</span>
-        <span style="color: #8e44ad;">⬛ Status</span>
-        <span style="color: #2ecc71;">⬛ Qualquer</span>
-        <span style="color: #3498db;">⬛ Sem Conflito</span>
-    </div>
-
-    <!-- GRÁFICO DE BARRAS -->
-    <div class="grafico-box">
-        <div class="grafico-titulo">Conflitos por Funcionário</div>
-        <div id="grafico_conflitos_funcionario" style="height: 180px;"></div>
-    </div>
-
-
-    <form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
-
-        <!-- Funcionário -->
-        <div class="d-flex flex-column" style="width: 220px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Funcionário</label>
-            <select name="funcionarioId" class="form-control form-control-sm">
-                @Html.Raw(htmlOptions)
-            </select>
+    @if (ViewBag.TemConflitos == true)
+    {
+        var nomes = string.Join(", ", (List<string>)ViewBag.FuncionariosConflito);
+        int total = ViewBag.TotalConflitos;
+        <div class="alert alert-danger" role="alert">
+            <h5 class="mb-1">⚠️ Atenção!</h5>
+            <p class="mb-0">Existem <strong>@total</strong> atividade(s) em conflito de acordo com o critério selecionado.</p>
+            <p class="mb-0"><strong>Funcionários em conflito:</strong> @nomes</p>
         </div>
+    }
 
-        <!-- Tipo de Conflito -->
-        <div class="d-flex flex-column" style="width: 220px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Tipo de Conflito</label>
-            <select name="tipoConflito" class="form-control form-control-sm">
-                @Html.Raw(htmlTipoConflito)
-            </select>
-        </div>
+    <div class="bg-white rounded shadow p-3 mb-4 border border-dark">
 
-        <!-- Data Início -->
-        <div class="d-flex flex-column" style="width: 140px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Início</label>
-            <input type="date" name="dataInicio" class="form-control form-control-sm">
-        </div>
-
-        <!-- Data Fim -->
-        <div class="d-flex flex-column" style="width: 140px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Fim</label>
-            <input type="date" name="dataFim" class="form-control form-control-sm">
-        </div>
-
-        <!-- Status -->
-        <div class="d-flex flex-column" style="width: 120px;">
-            <label class="form-label text-muted mb-1" style="font-size: 13px;">Status</label>
-            <select name="status" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                @{
-                    var statusSelecionado = Context.Request.Query["status"].ToString();
-                    string[] statusList = { "Pendente", "Em Andamento", "Finalizado" };
-                    foreach (var status in statusList)
-                    {
-                        var selected = status == statusSelecionado ? "selected" : "";
-                        @Html.Raw($"<option value='{status}' {selected}>{status}</option>")
+        <!-- FILTRO NO TOPO -->
+        <form method="get" class="mb-4 d-flex gap-2 align-items-end flex-wrap">
+            <div class="d-flex flex-column" style="width: 220px;">
+                <label class="form-label text-muted mb-1" style="font-size: 13px;">Funcionário</label>
+                <select name="funcionarioId" class="form-control form-control-sm">
+                    @Html.Raw(htmlOptions)
+                </select>
+            </div>
+            <div class="d-flex flex-column" style="width: 220px;">
+                <label class="form-label text-muted mb-1" style="font-size: 13px;">Tipo de Conflito</label>
+                <select name="tipoConflito" class="form-control form-control-sm">
+                    @Html.Raw(htmlTipoConflito)
+                </select>
+            </div>
+            <div class="d-flex flex-column" style="width: 140px;">
+                <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Início</label>
+                <input type="date" name="dataInicio" class="form-control form-control-sm">
+            </div>
+            <div class="d-flex flex-column" style="width: 140px;">
+                <label class="form-label text-muted mb-1" style="font-size: 13px;">Data Fim</label>
+                <input type="date" name="dataFim" class="form-control form-control-sm">
+            </div>
+            <div class="d-flex flex-column" style="width: 120px;">
+                <label class="form-label text-muted mb-1" style="font-size: 13px;">Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    @{
+                        var statusSelecionado = Context.Request.Query["status"].ToString();
+                        string[] statusList = { "Parado", "Em Andamento", "Finalizado" };
+                        foreach (var status in statusList)
+                        {
+                            var selected = status == statusSelecionado ? "selected" : "";
+                            @Html.Raw($"<option value='{status}' {selected}>{status}</option>")
+                        }
                     }
-                }
-            </select>
+                </select>
+            </div>
+
+
+
+            <div class="d-flex gap-2 align-items-end ms-auto">
+                <button type="submit" class="btn btn-outline-dark">Filtrar</button>
+                <a asp-action="Index" class="btn btn-secondary">Limpar</a>
+                <button type="button" class="btn btn-outline-danger rounded px-3" onclick="exportGantt()">
+                    <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+                </button>
+            </div>
+         
+        </form>
+    </div>
+    <div class="bg-white rounded shadow p-3 mb-4 border border-dark">
+        <!-- LEGENDA -->
+        <div class="d-flex gap-3 align-items-center mb-3">
+            <span class="text-dark"><strong>Legenda:</strong></span>
+            <span style="color: #e74c3c;">⬛ Funcionário</span>
+            <span style="color: #f39c12;">⬛ Carro</span>
+            <span style="color: #2980b9;">⬛ Serviço</span>
+            <span style="color: #8e44ad;">⬛ Status</span>
+            <span style="color: #2ecc71;">⬛ Qualquer</span>
+            <span style="color: #3498db;">⬛ Sem Conflito</span>
         </div>
 
-        <!-- Botões -->
-        <div class="d-flex gap-2 align-items-end">
-            <button type="submit" class="btn btn-outline-dark">Filtrar</button>
-            <a asp-action="Index" class="btn btn-secondary">Limpar</a>
-            <button type="button" onclick="exportGantt()" class="btn btn-success">📤 Exportar PDF</button>
+        <!-- GRÁFICO DE BARRAS -->
+        <div class="grafico-box">
+            <div class="grafico-titulo">Conflitos por Funcionário</div>
+            <div id="grafico_conflitos_funcionario" style="height: 180px;"></div>
         </div>
-    </form>
-
-    <!-- GANTT + Exportação -->
+    </div>
+    <!-- GANTT -->
     <div class="grafico-box">
         <div class="grafico-titulo">Distribuição de Atividades</div>
         <div id="gantt_chart" style="height: 400px;"></div>
-
     </div>
+
 </div>
 
 <div class="mb-5"></div>
@@ -250,18 +247,18 @@
             .Replace("\"", "\\\"");
 
         <text>
-                [
-                    "@atividade.Id",
-                    "@nomeFuncionario - @nomeCliente",
-                    "@nomeFuncionario",
-                    new Date(@inicio.Year, @inicio.Month - 1, @inicio.Day),
-                    new Date(@fim.Year, @fim.Month - 1, @fim.Day),
-                    null,
+                            [
+                                "@atividade.Id",
+                                "@nomeFuncionario - @nomeCliente",
+                                "@nomeFuncionario",
+                                new Date(@inicio.Year, @inicio.Month - 1, @inicio.Day),
+                                new Date(@fim.Year, @fim.Month - 1, @fim.Day),
+                                null,
             @percentual,
-                    null,
-                    "fill: @cor",
-                    "@tooltipHtml"
-                ],
+                                null,
+                                "fill: @cor",
+                                "@tooltipHtml"
+                            ],
         </text>
     }
 

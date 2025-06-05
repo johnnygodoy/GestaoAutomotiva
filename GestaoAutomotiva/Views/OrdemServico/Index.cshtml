@@ -4,74 +4,88 @@
 @{
     ViewData["Title"] = "Ordens de Serviço";
 
-    // Essas variáveis são necessárias para evitar erro ao usar ViewBag com casting
     var listaFuncionarios = ViewBag.Funcionarios as List<SelectListItem> ?? new List<SelectListItem>();
     var listaClientes = ViewBag.Clientes as List<SelectListItem> ?? new List<SelectListItem>();
 }
 
-<h2 class="text-light">📋 Ordens de Serviço</h2>
+<div class="page-container mt-4">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/ordemServico.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
 
-<a asp-controller="OrdemServico" asp-action="Create" class="btn btn-outline-light mb-3">Nova Ordem de Serviço</a>
+    <div class="d-flex gap-2 flex-wrap mb-3">
+        <a asp-action="Create" class="btn btn-outline-success">
+            <i class="bi bi-plus-circle"></i> Adicionar Nova Ordem Serviço
+        </a>
+    </div>
 
-<table class="table table-dark table-hover">
-    <thead>
-        <tr>
-            <th>OS nº</th>
-            <th>Data de Abertura</th>
-            <th>Colaborador</th>
-            <th>Carro</th>
-            <th>Cliente</th>
-            <th>Etapa</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var os in Model)
-        {
-            var nomeFuncionario = os.Atividade?.Funcionario?.Nome;
-            if (string.IsNullOrEmpty(nomeFuncionario) && os.FuncionarioId.HasValue)
-            {
-                nomeFuncionario = listaFuncionarios.FirstOrDefault(f => f.Value == os.FuncionarioId.Value.ToString())?.Text;
-            }
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle text-white">
+            <thead class="table-light text-dark">
+                <tr>
+                    <th>OS nº</th>
+                    <th>Data de Abertura</th>
+                    <th>Colaborador</th>
+                    <th>Carro</th>
+                    <th>Cliente</th>
+                    <th>Etapa</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var os in Model)
+                {
+                    var nomeFuncionario = os.Atividade?.Funcionario?.Nome;
+                    if (string.IsNullOrEmpty(nomeFuncionario) && os.FuncionarioId.HasValue)
+                        nomeFuncionario = listaFuncionarios.FirstOrDefault(f => f.Value == os.FuncionarioId.Value.ToString())?.Text;
 
-            var nomeCliente = os.Atividade?.Carro?.Cliente?.Nome;
-            if (string.IsNullOrEmpty(nomeCliente) && os.ClienteId.HasValue)
-            {
-                nomeCliente = listaClientes.FirstOrDefault(c => c.Value == os.ClienteId.Value.ToString())?.Text;
-            }
+                    var nomeCliente = os.Atividade?.Carro?.Cliente?.Nome;
+                    if (string.IsNullOrEmpty(nomeCliente) && os.ClienteId.HasValue)
+                        nomeCliente = listaClientes.FirstOrDefault(c => c.Value == os.ClienteId.Value.ToString())?.Text;
 
-            <tr>
-                <td>@os.Id</td>
-                <td>@os.DataAbertura.ToString("dd/MM/yyyy")</td>
-                <td>@(nomeFuncionario ?? "N/A")</td>
-                <td>
-                    @if (os.Atividade?.Carro?.Modelo != null)
-                    {
-                        @($"{os.Atividade.Carro.Modelo.Nome.ToUpper()}")
-                    }
-                    else if (os.Atividade?.Carro != null)
-                    {
-                        @($"ID {os.Atividade.Carro.IdCarro}")
-                    }
-                    else if (os.CarroId.HasValue)
-                    {
-                        @($"ID {os.CarroId}")
-                    }
-                    else
-                    {
-                        @("N/A")
-                    }
-                </td>
-
-                <td>@(nomeCliente ?? "N/A")</td>
-                <td>@(os.Atividade?.Etapa?.Nome ?? os.EtapaAtual ?? "N/A")</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@os.Id" class="btn btn-sm btn-primary">Visualizar</a>
-                    <a asp-action="Edit" asp-route-id="@os.Id" class="btn btn-sm btn-warning">Editar</a>
-                    <a asp-action="Delete" asp-route-id="@os.Id" class="btn btn-sm btn-danger">Excluir</a>
-                    <a asp-action="ExportarPdf" asp-route-id="@os.Id" class="btn btn-sm btn-success">PDF</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                    <tr>
+                        <td>@os.Id</td>
+                        <td>@os.DataAbertura.ToString("dd/MM/yyyy")</td>
+                        <td>@(nomeFuncionario ?? "N/A")</td>
+                        <td class="text-uppercase">
+                            @if (os.Atividade?.Carro?.Modelo != null)
+                            {
+                                @os.Atividade.Carro.Modelo.Nome
+                            }
+                            else if (os.Atividade?.Carro != null)
+                            {
+                                @($"ID {os.Atividade.Carro.IdCarro}")
+                            }
+                            else if (os.CarroId.HasValue)
+                            {
+                                @($"ID {os.CarroId}")
+                            }
+                            else
+                            {
+                                @("N/A")
+                            }
+                        </td>
+                        <td class="text-capitalize">@(nomeCliente ?? "N/A")</td>
+                        <td class="text-uppercase">@(os.Atividade?.Etapa?.Nome ?? os.EtapaAtual ?? "N/A")</td>
+                        <td class="text-center">
+                            <div class="d-flex flex-wrap justify-content-center gap-1">
+                                <a asp-action="Details" asp-route-id="@os.Id" class="btn btn-outline-purple btn-sm">
+                                    <i class="bi bi-eye"></i> Visualizar
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@os.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@os.Id" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash-fill"></i> Excluir
+                                </a>
+                                <a asp-action="ExportarPdf" asp-route-id="@os.Id" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

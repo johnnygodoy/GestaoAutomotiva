@@ -14,7 +14,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=gestaoAutomotiva.db"));
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddViewOptions(options =>
+    {
+        options.HtmlHelperOptions.ClientValidationEnabled = true;
+    });
+
+
 builder.Services.AddSingleton<LicencaService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -4,42 +4,50 @@
     ViewData["Title"] = "Cadastrar Serviço";
 }
 
-<h2>@ViewData["Title"]</h2>
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/servico.png" width="48" height="48" /> @ViewData["Title"]
+    </h2>
+
     <form asp-action="Create" method="post">
-        <div class="row">
+        <div class="row mb-12">
             <!-- Descrição do Serviço -->
             <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Descricao">Descrição do Serviço</label>
-                    <input asp-for="Descricao" class="form-control" />
-                    <span class="text-danger" asp-validation-for="Descricao"></span>
-                </div>
+                <label asp-for="Descricao" class="form-label">Descrição do Serviço</label>
+                <input asp-for="Descricao" class="form-control text-uppercase" />
+                <span asp-validation-for="Descricao" class="text-danger small"></span>
             </div>
 
             <!-- Tipo do Serviço -->
             <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Tipo">Tipo do Serviço</label>
-                    <input asp-for="Tipo" class="form-control" />
-                    <span class="text-danger" asp-validation-for="Tipo"></span>
-                </div>
+                <label asp-for="Tipo" class="form-label">Tipo do Serviço</label>
+                <input asp-for="Tipo" class="form-control text-uppercase" />
+                <span asp-validation-for="Tipo" class="text-danger small"></span>
             </div>
 
-            <!-- Estimativa de Dias -->
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="EstimativaDias">Estimativa de Dias</label>
+            <div class="col mb-4">
+                <!-- Estimativa de Dias -->
+                <div class="col-md-4">
+                    <label asp-for="EstimativaDias" class="form-label">Estimativa</label>
                     <input asp-for="EstimativaDias" class="form-control" />
-                    <span class="text-danger" asp-validation-for="EstimativaDias"></span>
+                    <span asp-validation-for="EstimativaDias" class="text-danger small"></span>
                 </div>
             </div>
         </div>
 
-        <!-- Botões de Salvar e Voltar -->
-        <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-outline-light">Salvar</button>
-            <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+        <!-- Botões -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

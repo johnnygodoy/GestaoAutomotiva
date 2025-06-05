@@ -111,6 +111,61 @@ namespace GestaoAutomotiva.Migrations
                     b.ToTable("Atividades");
                 });
 
+            modelBuilder.Entity("GestaoAutomotiva.Models.AtividadeHistorico", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Acao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("AtividadeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CarroId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Cliente")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataInicio")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataPrevista")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataRegistro")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EtapaAtual")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FuncionarioNome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ModeloNome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ServicoDescricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AtividadeHistoricos");
+                });
+
             modelBuilder.Entity("GestaoAutomotiva.Models.Cambio", b =>
                 {
                     b.Property<int>("Id")
@@ -328,15 +383,12 @@ namespace GestaoAutomotiva.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NumeroMotor")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Observacoes")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PlacaVeiculoDoador")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
@@ -373,7 +425,6 @@ namespace GestaoAutomotiva.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EtapaAtual")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("FuncionarioId")
@@ -386,7 +437,6 @@ namespace GestaoAutomotiva.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Prioridade")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Tarefas")

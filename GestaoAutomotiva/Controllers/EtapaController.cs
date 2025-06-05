@@ -1,5 +1,6 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
+using GestaoAutomotiva.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -14,34 +15,80 @@ namespace GestaoAutomotiva.Controllers
             _context = context;
         }
 
-        public IActionResult Index() {
+        public IActionResult Index(int page = 1) {
+            int pageSize = 10;
+
             var etapas = _context.Etapas
                 .OrderBy(e => e.Ordem)
                 .ToList();
 
-            return View(etapas);
+            var totalRegistros = etapas.Count();
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            var etapasPaginadas = etapas
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var viewModel = new EtapaViewModel
+            {
+                ListaEtapas = etapasPaginadas,
+                PaginaAtual = page,
+                TotalPaginas = totalPaginas,
+                Etapa = new Etapa()
+            };
+
+            return View(viewModel);
         }
 
+
+
         public IActionResult Create() {
-            ViewData["Etapas"] = _context.Etapas
+            var etapas = _context.Etapas
                 .OrderBy(e => e.Ordem)
                 .ToList();
 
-            return View(new Etapa());
+            var viewModel = new EtapaViewModel
+            {
+                Etapa = new Etapa(),
+                ListaEtapas = etapas,
+                PaginaAtual = 1,
+                TotalPaginas = (int)Math.Ceiling(etapas.Count / 10.0)
+            };
+
+            return View(viewModel);
         }
 
+
         [HttpPost]
-        public IActionResult Create(Etapa etapa) {
-            if (!ModelState.IsValid || !ValidarEtapa(etapa))
-                return View(etapa);
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(EtapaViewModel viewModel) {
+            if (!ValidarEtapa(viewModel.Etapa))
+            {
+                var etapas = _context.Etapas.OrderBy(e => e.Ordem).ToList();
 
-            AjustarOrdemEtapasParaInsercao(etapa.Ordem);
+                viewModel.ListaEtapas = etapas;
+                viewModel.PaginaAtual = 1;
+                viewModel.TotalPaginas = (int)Math.Ceiling(etapas.Count / 10.0);
 
-            _context.Etapas.Add(etapa);
+                return View("Index", viewModel);
+            }
+
+            // 🔧 Reorganiza as etapas ANTES de adicionar a nova
+            AjustarOrdemEtapasParaInsercao(viewModel.Etapa.Ordem);
+
+            // 🔐 Força a ordem final a ser exatamente a desejada
+            var novaOrdem = viewModel.Etapa.Ordem;
+            viewModel.Etapa.Nome = viewModel.Etapa.Nome.ToUpper(); // boa prática
+
+            _context.Etapas.Add(viewModel.Etapa);
             _context.SaveChanges();
+
+            ReorganizarTodasAsOrdens();
 
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Edit(int id) {
             var etapa = _context.Etapas.Find(id);
@@ -52,7 +99,7 @@ namespace GestaoAutomotiva.Controllers
 
         [HttpPost]
         public IActionResult Edit(Etapa etapa) {
-            if (!ModelState.IsValid || !ValidarEtapa(etapa))
+            if (!ValidarEtapa(etapa))
                 return View(etapa);
 
             var etapaExistente = _context.Etapas.Find(etapa.Id);
@@ -65,6 +112,7 @@ namespace GestaoAutomotiva.Controllers
             etapaExistente.Ordem = etapa.Ordem;
 
             _context.SaveChanges();
+            ReorganizarTodasAsOrdens();
             return RedirectToAction("Index");
         }
 
@@ -115,38 +163,62 @@ namespace GestaoAutomotiva.Controllers
             return !temErro;
         }
 
+
         private void AjustarOrdemEtapasParaInsercao(int novaOrdem) {
-            var etapasAfetadas = _context.Etapas
+            var etapas = _context.Etapas
                 .Where(e => e.Ordem >= novaOrdem)
+                .OrderByDescending(e => e.Ordem)
                 .ToList();
 
-            foreach (var item in etapasAfetadas)
-                item.Ordem += 1;
+            foreach (var etapa in etapas)
+                etapa.Ordem += 1;
+
+            _context.SaveChanges();
+        }
+
+
+        private void ReorganizarTodasAsOrdens() {
+            var etapasOrdenadas = _context.Etapas
+                .OrderBy(e => e.Ordem)
+                .ToList();
+
+            for (int i = 0; i < etapasOrdenadas.Count; i++)
+            {
+                etapasOrdenadas[i].Ordem = i + 1;
+            }
 
             _context.SaveChanges();
         }
 
         private void ReorganizarOrdemEmEdicao(int ordemOriginal, int novaOrdem) {
+            if (novaOrdem == ordemOriginal)
+                return;
+
             if (novaOrdem < ordemOriginal)
             {
+                // Ex: mover da ordem 4 para 2 → itens de 2 a 3 devem ir para 3 a 4
                 var etapas = _context.Etapas
                     .Where(e => e.Ordem >= novaOrdem && e.Ordem < ordemOriginal)
+                    .OrderBy(e => e.Ordem)
                     .ToList();
 
-                foreach (var item in etapas)
-                    item.Ordem += 1;
+                foreach (var etapa in etapas)
+                    etapa.Ordem += 1;
             }
-            else if (novaOrdem > ordemOriginal)
+            else
             {
+                // Ex: mover da ordem 2 para 4 → itens de 3 a 4 devem ir para 2 a 3
                 var etapas = _context.Etapas
                     .Where(e => e.Ordem <= novaOrdem && e.Ordem > ordemOriginal)
+                    .OrderBy(e => e.Ordem)
                     .ToList();
 
-                foreach (var item in etapas)
-                    item.Ordem -= 1;
+                foreach (var etapa in etapas)
+                    etapa.Ordem -= 1;
             }
 
             _context.SaveChanges();
         }
+
     }
 }

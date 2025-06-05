@@ -16,12 +16,13 @@ namespace GestaoAutomotiva.Controllers
         public IActionResult Esteira() {
             var etapas = _context.Etapas.OrderBy(e => e.Ordem).ToList();
             var atividades = _context.Atividades
-                .Include(a => a.Funcionario)
-                .Include(a => a.Servico)
-                .Include(a => a.Etapa)  // Garantindo que a Etapa seja carregada com as atividades
-                                        //.Where(a => a.Status == "Em Andamento")
-                .Include(a => a.Carro)
-    .ThenInclude(c => c.Cliente)
+    .Include(a => a.Funcionario)
+    .Include(a => a.Servico)
+    .Include(a => a.Etapa)
+    .Include(a => a.Carro)
+        .ThenInclude(c => c.Cliente)
+    .Include(a => a.Carro)
+        .ThenInclude(c => c.Modelo)
 
                 .ToList();
 

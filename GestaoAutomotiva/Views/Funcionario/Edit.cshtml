@@ -1,44 +1,73 @@
 ﻿@model GestaoAutomotiva.Models.Funcionario
 
-<div class="container bg-dark bg-opacity-75 text-light rounded p-4 mt-4">
-    <h2>Editar Funcionário</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/funcionario.png" width="48" height="48" /> Editar Funcionário
+    </h2>
 
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />
 
-        <div class="row">
+        <div class="row mb-4">
             <!-- Nome -->
             <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Nome"></label>
-                    <input asp-for="Nome" class="form-control" />
-                </div>
+                <label asp-for="Nome" class="form-label">Nome</label>
+                <input asp-for="Nome" class="form-control select-light  text-uppercase" />
+                <span asp-validation-for="Nome" class="text-danger small"></span>
             </div>
 
             <!-- Especialidade -->
             <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Especialidade"></label>
-                    <input asp-for="Especialidade" class="form-control" />
-                </div>
+                <label asp-for="Especialidade" class="form-label">Especialidade</label>
+                <input asp-for="Especialidade" class="form-control select-light  text-uppercase" />
+                <span asp-validation-for="Especialidade" class="text-danger small"></span>
             </div>
 
             <!-- Status -->
             <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Status"></label>
-                    <select asp-for="Status" class="form-control">
-                        <option>Disponível</option>
-                        <option>Ocupado</option>
-                    </select>
-                </div>
+                <label asp-for="Status" class="form-label">Status</label>
+                <select asp-for="Status" class="form-control text-uppercase" id="statusSelect">
+                    <option value="">Selecione</option>
+                    <option value="Disponível">Disponível</option>
+                    <option value="Ocupado">Ocupado</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger small"></span>
             </div>
         </div>
 
-        <!-- Botões de Salvar e Cancelar -->
-        <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-outline-light">Salvar</button>
-            <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
+        <!-- Botões -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-success px-4">
+                <i class="bi bi-save"></i> Salvar
+            </button>
+
+            <a class="btn btn-outline-secondary px-4" asp-action="Index">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const selectStatus = document.getElementById("statusSelect");
+
+            if (selectStatus) {
+                function atualizarClasseSelect() {
+                    if (selectStatus.value !== "") {
+                        selectStatus.classList.add("select-light");
+                    } else {
+                        selectStatus.classList.remove("select-light");
+                    }
+                }
+
+                atualizarClasseSelect(); // Chama ao carregar
+
+                selectStatus.addEventListener("change", atualizarClasseSelect);
+            }
+        });
+    </script>
+
+}

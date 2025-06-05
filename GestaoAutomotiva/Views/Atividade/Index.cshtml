@@ -5,91 +5,174 @@
     ViewData["Title"] = "Atividades Registradas";
 }
 
-<h2 class="text-light">Atividades Registradas</h2>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
 
-<a asp-action="Create" class="btn btn-outline-light mb-3">Nova Atividade</a>
+    <h2 class="text-white mb-4">
+        <img src="~/images/Icones/atividades.png" width="48" height="48" />  @ViewData["Title"]
+    </h2>
 
-<form method="get" class="mb-3 d-flex gap-2">
-    <input type="text" name="busca" class="form-control" placeholder="Buscar por funcionário,cliente,serviço ou status..." value="@Context.Request.Query["busca"]" />
-    <input type="date" class="form-control" name="dataBusca" value="@Context.Request.Query["dataBusca"]" />
-    <button type="submit" class="btn btn-outline-light">Pesquisar</button>
-    <a asp-action="Index" class="btn btn-secondary">Limpar</a>
-</form>
+    <div class="d-flex gap-2 flex-wrap mb-3">
+        <a asp-action="Create" class="btn btn-outline-success">
+            <i class="bi bi-plus-circle"></i> Adicionar Nova Atividade
+        </a>
+    </div>
+    @functions {
+        string GetCardColor(int etapaIndex, int totalEtapas) {
+            // Definir uma lista de cores cíclicas, excluindo as cores de fundo cinza, branco e preto
+            var cores = new[] {
 
-<div class="table-responsive">
-    <table class="table table-dark table-hover align-middle">
-        <thead>
-            <tr>
-                <th>Código do Carro</th>
-                <th>Carro</th>
-                <th>Cliente</th>
-                <th>Funcionário</th>
-                <th>Serviço</th>
-                <th>Início</th>
-                <th>Previsão</th>
-                <th>Status</th>
-                <th class="text-center">Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var atividade in Model)
-            {
-                bool emAndamento = atividade.Status == "Em Andamento";
-                bool estaAtrasado = atividade.DataPrevista < DateTime.Now.Date;
-                int diasAtraso = (DateTime.Now.Date - atividade.DataPrevista.GetValueOrDefault().Date).Days;
+    "bg-orange",
+    "bg-darkviolet",
+    "bg-plum",
+    "bg-forestgreen",
+    "bg-crimson",
+    "bg-darkgreen",
+    "bg-lightgreen",
+    "bg-powderblue",
+    "bg-aqua",
+    "bg-charcoal",
+    "bg-azure",
+    "bg-salmon",
+    "bg-coral",
+    "bg-olive",
+    "bg-primary",
+    "bg-secondary",
+    "bg-success",
+    "bg-info",
+    "bg-warning",
+    "bg-danger",
+    "bg-light",
+    "bg-dark",
+    "bg-secondary",
+    "bg-primary",
+    "bg-info",
+    "bg-warning",
+    "bg-success",
+    "bg-danger",
+    "bg-light",
+    "bg-dark",
+    "bg-primary",
+    "bg-secondary",
+    "bg-success",
+    "bg-info"
 
-                string statusTexto = atividade.Status;
-                if (emAndamento && estaAtrasado)
-                {
-                    statusTexto += $" (atraso de {diasAtraso} dia{(diasAtraso > 1 ? "s" : "")})";
-                }              
+
+    };
+
+            // Ajusta o índice de cores baseado no número total de etapas
+            // e aplica um ciclo de cores usando o operador módulo.
+            return cores[etapaIndex % cores.Length]; // Garante que o índice cíclico
+        }
+    }
+    <form method="get" class="mb-4 d-flex gap-2 flex-wrap">
+        <div class="flex-grow-1">
+            <input type="text" name="busca" class="form-control text-uppercase" placeholder="Buscar por funcionário, cliente, serviço ou status..." value="@Context.Request.Query["busca"]" />
+        </div>
+        <div>
+            <input type="date" name="dataBusca" class="form-control" value="@Context.Request.Query["dataBusca"]" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-outline-light">Pesquisar</button>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary">Limpar</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle text-white">
+            <thead class="table-light text-dark">
                 <tr>
-                    <td>@atividade.Carro?.IdCarro</td>
-                    <td>@atividade.Carro?.Modelo.Nome?.ToUpper()</td>
-                    <td>@atividade.Carro?.Cliente?.Nome?.ToLower()</td>
-                    <td>@atividade.Funcionario?.Nome</td>
-                    <td>@atividade.Servico?.Descricao?.ToUpper()</td>
-                    <td>@atividade.DataInicio?.ToString("dd/MM/yyyy")</td>
-                    <td>@atividade.DataPrevista?.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <span class="badge px-3 py-2 fs-6 white-space: normal; word-break: break-word;" style="background-color:@atividade.Cor; color: black;">
-                            @statusTexto
-                        </span>
-                    </td>
-                    <td class="text-center">
-                        <div class="d-grid gap-1">
-                            <a asp-action="Edit" asp-route-id="@atividade.Id" class="btn btn-warning btn-sm w-100">Editar</a>
-                            @if (atividade.Status == "Em Andamento")
-                            {
-                                <a asp-action="Finalizar" asp-route-id="@atividade.Id" class="btn btn-success btn-sm w-100">Finalizar</a>
-                            }
-                            <a class="btn btn-primary btn-sm w-100"
-                               asp-controller="OrdemServico"
-                               asp-action="CriarOuEditar"
-                               asp-route-atividadeId="@atividade.Id">
-                                Gerar OS
-                            </a>
-                        </div>
-                    </td>
+                    <th>Código</th>
+                    <th>Carro</th>
+                    <th>Cliente</th>
+                    <th>Funcionário</th>
+                    <th>Serviço</th>
+                    <th>Início</th>
+                    <th>Previsão</th>
+                    <th>Status</th>
+                    <th>Etapa Atual</th>
+                    <th class="text-center">Ações</th>
                 </tr>
-            }
-        </tbody>
+            </thead>
+            <tbody>
+                @foreach (var atividade in Model)
+                {
+                    bool emAndamento = atividade.Status == "Em Andamento";
+                    bool estaAtrasado = atividade.DataPrevista < DateTime.Now.Date;
+                    int diasAtraso = (DateTime.Now.Date - atividade.DataPrevista.GetValueOrDefault().Date).Days;
 
-        <tfoot>
-            <tr>
-                <td colspan="9" class="text-center bg-dark">
-                    <nav class="mt-3">
-                        <ul class="pagination justify-content-center mb-0">
-                            @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
-                            {
-                                <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
-                                    <a class="page-link" href="@Url.Action("Index", new { page = i, busca = ViewBag.BuscaNome })">@i</a>
-                                </li>
+                    string statusTexto = atividade.Status;
+                    if (emAndamento && estaAtrasado)
+                    {
+                        statusTexto += $" (atraso de {diasAtraso} dia{(diasAtraso > 1 ? "s" : "")})";
+                    }
+
+                    <tr>
+                        <td>@atividade.Carro?.IdCarro</td>
+                        <td class="text-uppercase">@atividade.Carro?.Modelo?.Nome</td>
+                        <td class="text-capitalize">@atividade.Carro?.Cliente?.Nome</td>
+                        <td>@atividade.Funcionario?.Nome</td>
+                        <td class="text-uppercase">@atividade.Servico?.Descricao</td>
+                        <td>@atividade.DataInicio?.ToString("dd/MM/yyyy")</td>
+                        <td>@atividade.DataPrevista?.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <span class="badge text-uppercase px-2 py-1 small" style="background-color:@atividade.Cor; color: black;">
+                                @statusTexto
+                            </span>
+                        </td>
+                        <td class="text-uppercase">
+                            @{
+                                var etapaNome = atividade.Etapa?.Nome ?? "N/A";
+                                var etapaOrdem = atividade.Etapa?.Ordem ?? 1;
+                                var totalEtapas = ViewBag.TotalEtapas != null ? (int)ViewBag.TotalEtapas : 10;
+                                var cor = GetCardColor(etapaOrdem - 1, totalEtapas);
                             }
-                        </ul>
-                    </nav>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+                            <span class="badge text-uppercase px-2 py-1 small @cor" style="color: black;">
+                                @etapaNome
+                            </span>
+                        </td>
+
+
+                        <td class="text-center">
+                            <div class="d-grid gap-1">
+                                <a asp-action="Edit" asp-route-id="@atividade.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+
+                                <a asp-action="Delete" asp-route-id="@atividade.Id" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash-fill"></i> Excluir
+                                </a>
+
+                                @if (atividade.Status == "Em Andamento")
+                                {
+                                    <a asp-action="Finalizar" asp-route-id="@atividade.Id" class="btn btn-outline-success btn-sm">
+                                        <i class="bi bi-check-circle"></i> Finalizar
+                                    </a>
+                                }
+
+                                <a asp-controller="OrdemServico"
+                                   asp-action="CriarOuEditar"
+                                   asp-route-atividadeId="@atividade.Id"
+                                   class="btn btn-outline-purple btn-sm">
+                                    <i class="bi bi-journal-text"></i> Gerar OS
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i, busca = ViewBag.BuscaNome })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
 </div>
+<footer style="margin-top: 100px;"></footer>

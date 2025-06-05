@@ -10,6 +10,18 @@ namespace GestaoAutomotiva.Models
         public DateTime DataFim { get; set; }
         public int Percentual { get; set; }
         public string Tooltip { get; set; }
-        public string Cor { get; set; }
+        public string Cor { get; set; }    
+
+        public List<AtividadeResumo> AtividadesResumo { get; set; } = new();
+    }
+
+    public class AtividadeResumo
+    {
+        public string Funcionario { get; set; }      
+        public string Servico { get; set; }
+        public int? DiasAtraso { get; set; }
+        public string Status { get; set; }
+
+        public string Etapa { get; set; }
     }
 }
