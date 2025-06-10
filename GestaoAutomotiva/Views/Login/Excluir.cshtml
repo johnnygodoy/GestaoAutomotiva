@@ -1,0 +1,26 @@
+﻿@model GestaoAutomotiva.Models.Usuario
+
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-danger mb-3">
+        <i class="bi bi-trash"></i> Excluir Usuário
+    </h2>
+
+    <p class="mb-4">
+        Tem certeza que deseja excluir o usuário
+        <strong class="text-warning">@Model.Nome</strong>?
+    </p>
+
+    <form asp-action="Excluir">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-danger px-4">
+                <i class="bi bi-trash-fill"></i> Excluir
+            </button>
+
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>

@@ -5,6 +5,22 @@
     ViewData["Title"] = "Atividades Registradas";
 }
 
+@if (TempData["Mensagem"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Mensagem"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+}
+
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+}
+
 <div class="page-container mt-4 animate__animated animate__fadeInDown">
 
     <h2 class="text-white mb-4">
@@ -144,12 +160,12 @@
                                     <i class="bi bi-trash-fill"></i> Excluir
                                 </a>
 
-                                @if (atividade.Status == "Em Andamento")
+                              @*   @if (atividade.Status == "Em Andamento")
                                 {
                                     <a asp-action="Finalizar" asp-route-id="@atividade.Id" class="btn btn-outline-success btn-sm">
                                         <i class="bi bi-check-circle"></i> Finalizar
                                     </a>
-                                }
+                                } *@
 
                                 <a asp-controller="OrdemServico"
                                    asp-action="CriarOuEditar"

@@ -23,7 +23,7 @@ namespace GestaoAutomotiva.Controllers
 
             ViewData["Busca"] = busca;
 
-            int pageSize = 10; // Quantidade de itens por página
+            int pageSize = 5; // Quantidade de itens por página
 
             var servicos = _context.Servicos.AsQueryable();
 
@@ -65,6 +65,7 @@ namespace GestaoAutomotiva.Controllers
 
                 _context.Servicos.Add(servico);
                 _context.SaveChanges();
+                TempData["Mensagem"] = $"Serviço {servico.Descricao} foi criado com sucesso.";
                 return RedirectToAction("Index");
             }
 
@@ -75,6 +76,7 @@ namespace GestaoAutomotiva.Controllers
         
         var servico = _context.Servicos.FirstOrDefault(x => x.Id == id);
             if (servico == null) return NotFound();
+            TempData["Mensagem"] = $"Serviço {servico.Descricao} foi editado com sucesso.";
             return View(servico);
         }
 
@@ -86,6 +88,7 @@ namespace GestaoAutomotiva.Controllers
 
             _context.Servicos.Update(servico);
             _context.SaveChanges();
+            TempData["Mensagem"] = $"Serviço {servico.Descricao} foi editado com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -93,7 +96,10 @@ namespace GestaoAutomotiva.Controllers
         
        var servico = _context.Servicos.FirstOrDefault(x => x.Id == id);
 
-            if (servico == null) return NotFound(); return View(servico);
+            if (servico == null) return NotFound();
+
+            TempData["Mensagem"] = $"Serviço {servico.Descricao} foi excluído com sucesso.";
+            return View(servico);
 
         }
 
@@ -104,7 +110,7 @@ namespace GestaoAutomotiva.Controllers
             _context.Servicos.Remove(servico);
 
             _context.SaveChanges();
-
+            TempData["Mensagem"] = $"Serviço {servico.Descricao} foi excluído com sucesso.";
             return RedirectToAction("Index");
         
         }

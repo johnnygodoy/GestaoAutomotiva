@@ -8,10 +8,48 @@
     var listaClientes = ViewBag.Clientes as List<SelectListItem> ?? new List<SelectListItem>();
 }
 
+@if (TempData["Mensagem"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Mensagem"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+}
+
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+}
+
+
 <div class="page-container mt-4">
     <h2 class="text-white mb-4">
         <img src="~/images/Icones/ordemServico.png" width="48" height="48" />  @ViewData["Title"]
     </h2>
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-6">
+            <input type="text" name="busca" class="form-control text-uppercase" placeholder="Buscar por cliente, carro, colaborador..." value="@Context.Request.Query["busca"]" />
+        </div>
+
+        <div class="col-md-4">
+            <input type="date" name="dataBusca" class="form-control" value="@Context.Request.Query["dataBusca"]" />
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-light w-100">Pesquisar</button>
+            <a asp-action="Index" class="btn btn-outline-secondary w-100">Limpar</a>
+        </div>
+    </form>
+
+
+
+
+
+
 
     <div class="d-flex gap-2 flex-wrap mb-3">
         <a asp-action="Create" class="btn btn-outline-success">
@@ -88,4 +126,15 @@
             </tbody>
         </table>
     </div>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i, busca = ViewBag.BuscaNome })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
 </div>
+<footer style="margin-top: 100px;"></footer>

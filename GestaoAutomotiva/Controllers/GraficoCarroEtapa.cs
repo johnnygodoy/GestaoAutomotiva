@@ -150,19 +150,19 @@ namespace GestaoAutomotiva.Controllers
 
             // 📈 Resumo diário
             var dadosDiarios = atividadesFiltradas
-                .Where(a => a.DataInicio.HasValue)
-                .GroupBy(a => a.DataInicio.Value.Date)
-                .Select(g => new DashboardDiarioViewModel
-                {
-                    Data = g.Key,
-                    Concluidas = g.Count(a => a.Status == "FINALIZADO"),
-                    Andamento = g.Count(a => a.Status == "ANDAMENTO"),
-                    Canceladas = g.Count(a => a.Status == "CANCELADO"),
-                    Reprovadas = g.Count(a => a.Status == "REPROVADO"),
-                    Parados = g.Count(a => a.Status == "PARADO")                    
-                })
-                .OrderBy(d => d.Data)
-                .ToList();
+      .Where(a => a.DataInicio.HasValue)
+      .GroupBy(a => a.DataInicio.Value.Date)
+      .Select(g => new DashboardDiarioViewModel
+      {
+          Data = g.Key,
+          Concluidas = g.Count(a => a.Status?.ToUpper() == "FINALIZADO"),
+          Andamento = g.Count(a => a.Status?.ToUpper() == "EM ANDAMENTO"),
+          Canceladas = g.Count(a => a.Status?.ToUpper() == "CANCELADO"),
+          Reprovadas = g.Count(a => a.Status?.ToUpper() == "REPROVADO"),
+          Parados = g.Count(a => a.Status?.ToUpper() == "PARADO")
+      })
+      .OrderBy(d => d.Data)
+      .ToList();
 
             ViewBag.DadosDiarios = dadosDiarios;
 

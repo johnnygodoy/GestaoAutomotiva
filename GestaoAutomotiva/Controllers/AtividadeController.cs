@@ -41,7 +41,7 @@ namespace GestaoAutomotiva.Controllers
 
             _context.SaveChanges(); // 🔁 Primeiro salva no banco
             RegistrarHistorico(atividade, "Finalizado"); // 🔁 Depois registra o histórico
-
+            TempData["Mensagem"] = $"Atividade foi editado com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -65,7 +65,7 @@ namespace GestaoAutomotiva.Controllers
             ViewData["Busca"] = busca;
             ViewData["DataBusca"] = dataBusca;
 
-            int pageSize = 10; // Quantidade de itens por página
+            int pageSize = 5; // Quantidade de itens por página
 
             // Inicializando a query de atividades
             var atividades = _context.Atividades
@@ -89,6 +89,7 @@ namespace GestaoAutomotiva.Controllers
                     a.Carro.Modelo.Nome.ToUpper().Contains(buscaUpper) ||        // Modelo do carro
                     a.Funcionario.Nome.ToUpper().Contains(buscaUpper) ||    // Nome do funcionário
                     a.Servico.Descricao.ToUpper().Contains(buscaUpper) ||   // Descrição do serviço
+                    a.Carro.IdCarro.ToUpper().Contains(buscaUpper) ||
                     a.Status.ToUpper().Contains(buscaUpper));               // Status da atividade
             }
 
@@ -194,7 +195,7 @@ namespace GestaoAutomotiva.Controllers
             _context.Atividades.Add(atividade);
             _context.SaveChanges();
             RegistrarHistorico(atividade, "Criado");
-
+            TempData["Mensagem"] = $"Atividade foi criado com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -302,6 +303,7 @@ namespace GestaoAutomotiva.Controllers
             _context.SaveChanges();
             RegistrarHistorico(atividade, "Criado");
 
+            TempData["Mensagem"] = $"Atividade foi editado com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -313,6 +315,8 @@ namespace GestaoAutomotiva.Controllers
                 .FirstOrDefault(a => a.Id == id);
 
             if (atividade == null) return NotFound();
+
+            TempData["Mensagem"] = $"Atividade foi excluído com sucesso.";
             return View(atividade);
         }
 
@@ -325,6 +329,7 @@ namespace GestaoAutomotiva.Controllers
             _context.SaveChanges();
             RegistrarHistorico(atividade, "Excluído");
 
+            TempData["Mensagem"] = $"Atividade foi excluído com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -332,7 +337,7 @@ namespace GestaoAutomotiva.Controllers
             ViewData["Busca"] = busca;
             ViewData["DataBusca"] = dataBusca;
 
-            int pageSize = 10; // Quantidade de itens por página
+            int pageSize = 5; // Quantidade de itens por página
 
             var atividades = _context.Atividades
             .Include(a => a.Funcionario)

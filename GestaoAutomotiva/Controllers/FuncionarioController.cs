@@ -18,7 +18,7 @@ namespace GestaoAutomotiva.Controllers
         public IActionResult Index(string busca = null, int page = 1) {
             ViewData["Busca"] = busca;
 
-            int pageSize = 10; // Quantidade de itens por página
+            int pageSize = 5; // Quantidade de itens por página
 
             // Obtendo a lista de funcionários
             var funcionarios = _context.Funcionarios.AsQueryable();
@@ -72,6 +72,7 @@ namespace GestaoAutomotiva.Controllers
 
                 _context.Funcionarios.Add(funcionario);
                 _context.SaveChanges();
+                TempData["Mensagem"] = $"Funcionário {funcionario.Nome} foi adicionado com sucesso.";
                 return RedirectToAction("Index");
             }
 
@@ -87,7 +88,7 @@ namespace GestaoAutomotiva.Controllers
 
                 return NotFound();
             }
-
+            TempData["Mensagem"] = $"Funcionário {funcionario.Nome} foi editado com sucesso.";
             return View(funcionario);
 
         }
@@ -106,6 +107,7 @@ namespace GestaoAutomotiva.Controllers
                 return RedirectToAction("Index");
             
             }
+            TempData["Mensagem"] = $"Funcionário {funcionario.Nome} foi editado com sucesso.";
             return View(funcionario);
         }
 
@@ -117,7 +119,7 @@ namespace GestaoAutomotiva.Controllers
             {
                 return NotFound();
             }
-
+            TempData["Mensagem"] = $"Funcionário {funcionario.Nome} foi excluído com sucesso.";
             return View(funcionario);        
         }
 

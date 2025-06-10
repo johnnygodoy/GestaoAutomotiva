@@ -26,7 +26,8 @@
             <div class="col-md-3">
                 <label class="form-label">ID Serviço</label>
                 <input class="form-control text-uppercase bg-dark text-white" readonly
-                       value="@Model.Atividade?.Servico?.Id.ToString() ?? " N /A"" />
+                       value="@(Model.Atividade?.Servico?.Id.ToString() ?? "N/A")" />
+
             </div>
 
             <div class="col-md-3">
@@ -71,7 +72,8 @@
             <div class="col-md-3">
                 <label class="form-label">Código do Carro</label>
                 <input class="form-control text-uppercase bg-dark text-white" readonly
-                       value="@Model.Atividade?.Carro?.IdCarro ?? " N /A"" />
+                       vvalue="@(Model.Atividade?.Carro?.IdCarro ?? "N/A")" />      
+
             </div>
 
             <div class="col-md-3">

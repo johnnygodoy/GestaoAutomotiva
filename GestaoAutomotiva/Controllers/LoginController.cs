@@ -60,6 +60,103 @@ public class LoginController : Controller
         return View();
     }
 
+    [Authorize(Roles = "Admin")]
+    public IActionResult Excluir(int id) {
+        var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == id);
+
+        if (usuario == null)
+        {
+            TempData["Erro"] = "Usuário não encontrado.";
+            return RedirectToAction("Index","Home"); 
+        }
+
+        return View(usuario);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public IActionResult ExcluirVarios(List<int> idsSelecionados) {
+        if (idsSelecionados == null || !idsSelecionados.Any())
+        {
+            TempData["Erro"] = "Nenhum usuário foi selecionado.";
+            return RedirectToAction("GerenciarUsuarios");
+        }
+
+        var usuarios = _context.Usuarios.Where(u => idsSelecionados.Contains(u.Id)).ToList();
+        _context.Usuarios.RemoveRange(usuarios);
+        _context.SaveChanges();
+
+        TempData["Mensagem"] = $"{usuarios.Count} usuário(s) excluído(s) com sucesso.";
+        return RedirectToAction("GerenciarUsuarios");
+    }
+
+
+
+    [Authorize(Roles = "Admin")]
+    public IActionResult GerenciarUsuarios(string busca = null) {
+        var usuarios = _context.Usuarios.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(busca))
+        {
+            var buscaUpper = busca.Trim().ToUpper();
+            usuarios = usuarios.Where(u =>
+                u.Nome.ToUpper().Contains(buscaUpper) ||
+                u.Email.ToUpper().Contains(buscaUpper));
+        }
+
+        return View(usuarios.ToList());
+    }
+
+
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public IActionResult Excluir(Usuario usuario) {
+        var usuarioDb = _context.Usuarios.FirstOrDefault(u => u.Id == usuario.Id);
+
+        if (usuarioDb == null)
+        {
+            TempData["Erro"] = "Usuário não encontrado ou já foi excluído.";
+            return RedirectToAction("Index", "Home"); // redireciona para Home/Index
+        }
+
+        _context.Usuarios.Remove(usuarioDb);
+        _context.SaveChanges();
+
+        TempData["Mensagem"] = $"Usuário {usuarioDb.Nome} foi excluído com sucesso.";
+        return RedirectToAction("Index", "Home");
+    }
+
+    [Authorize]
+    [HttpGet]
+    public IActionResult AlterarSenha() {
+        return View();
+    }
+
+    [Authorize]
+    [HttpPost]
+    public IActionResult AlterarSenha(AlterarSenhaViewModel model) {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var email = User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+        var usuario = _context.Usuarios.FirstOrDefault(u => u.Email == email);
+
+        if (usuario == null || usuario.Senha != model.SenhaAtual)
+        {
+            TempData["Erro"] = "Senha atual incorreta.";
+            return View(model);
+        }
+
+        usuario.Senha = model.NovaSenha;
+        _context.SaveChanges();
+
+        TempData["Mensagem"] = "Senha alterada com sucesso.";
+        return RedirectToAction("Index", "Home");
+    }
+
+
+
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public IActionResult Cadastrar(Usuario usuario) {

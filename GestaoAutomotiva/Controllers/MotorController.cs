@@ -24,7 +24,7 @@ namespace GestaoAutomotiva.Controllers
         public IActionResult Index(string busca = null, int page = 1) {
             ViewData["Busca"] = busca;
 
-            int pageSize = 10; // Quantidade de itens por página
+            int pageSize = 5; // Quantidade de itens por página
 
             var motores = _context.Motors.AsQueryable();
 
@@ -95,12 +95,15 @@ namespace GestaoAutomotiva.Controllers
             {
                 _context.Motors.Add(motor);
                 await _context.SaveChangesAsync();
+                TempData["Mensagem"] = $"Motor {motor.Nome} foi adicionado com sucesso.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 var msg = ex.InnerException?.Message ?? ex.Message;
                 ModelState.AddModelError("", "Erro ao salvar motor: " + msg);
+              
+
                 return View(motor);
             }
         }
@@ -111,6 +114,7 @@ namespace GestaoAutomotiva.Controllers
             var motor = await _context.Motors.FindAsync(id);
             if (motor == null) return NotFound();
             CarregarClientes();
+            TempData["Mensagem"] = $"Motor {motor.Nome} foi editado com sucesso.";
             return View(motor);
         }
 
@@ -132,6 +136,7 @@ namespace GestaoAutomotiva.Controllers
                 existente.ClienteId = motor.ClienteId;
 
                 await _context.SaveChangesAsync();
+                TempData["Mensagem"] = $"Motor {motor.Nome} foi editado com sucesso.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -150,12 +155,36 @@ namespace GestaoAutomotiva.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id) {
             var motor = await _context.Motors.FindAsync(id);
-            if (motor != null)
+
+            if (motor == null)
+            {
+                TempData["Erro"] = "Motor não encontrado.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
             {
                 _context.Motors.Remove(motor);
                 await _context.SaveChangesAsync();
+
+                TempData["Mensagem"] = $"Motor {motor.Nome} foi excluído com sucesso.";
             }
+            catch (DbUpdateException ex)
+            {
+                var innerMessage = ex.InnerException?.Message ?? ex.Message;
+
+                if (innerMessage.Contains("FOREIGN KEY constraint failed"))
+                {
+                    TempData["Erro"] = $"Não é possível excluir o motor {motor.Nome}, pois ele está vinculado a outros registros.";
+                }
+                else
+                {
+                    TempData["Erro"] = $"Erro ao excluir o motor: {innerMessage}";
+                }
+            }
+
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

@@ -5,6 +5,7 @@
     var isLoginPage = controller == "login" && (action == "index" || action == "cadastrar");
 }
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -43,7 +44,7 @@
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="https://www.furlanautomobile.com/" target="_blank">
-                        <img src="~/images/logo-furlan.png" alt="Furlan" style="height: 50px;" />
+                        <img src="~/images/logo-furlan.png" alt="Furlan" style="height: 30px;" />
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                         <span class="navbar-toggler-icon"></span>
@@ -53,85 +54,107 @@
                         <div class="d-flex justify-content-center w-100">
                             <ul class="navbar-nav flex-grow-1">
                                 <li class="nav-item">
-                                    <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Funcionario" asp-action="Index">
-                                        <img src="~/images/Icones/funcionario.png" width="32" height="32" />
+                                    <a class="nav-link text-light text-center d-flex flex-column align-items-center px-1" asp-controller="Funcionario" asp-action="Index">
+                                        <img src="~/images/Icones/funcionario.png" width="24" height="24" />
                                         <small>Funcionários</small>
                                     </a>
                                 </li>                               
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Motor" asp-action="Index">
-                                        <img src="~/images/Icones/motor.png" width="32" height="32" />
+                                        <img src="~/images/Icones/motor.png" width="24" height="24" />
                                         <small>Cadastro/Motor</small>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Servico" asp-action="Index">
-                                        <img src="~/images/Icones/servico.png" width="32" height="32" />
+                                        <img src="~/images/Icones/servico.png" width="24" height="24" />
                                         <small>Serviços</small>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Carro" asp-action="Index">
-                                        <img src="~/images/Icones/carro_cliente.png" width="32" height="32" />
+                                        <img src="~/images/Icones/carro_cliente.png" width="24" height="24" />
                                         <small>Carro/Cliente</small>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Atividade" asp-action="Index">
-                                        <img src="~/images/Icones/atividades.png" width="32" height="32" />
+                                        <img src="~/images/Icones/atividades.png" width="24" height="24" />
                                         <small>Atividades</small>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Esteira" asp-action="Esteira">
-                                        <img src="~/images/Icones/esteira.png" width="32" height="32" />
+                                        <img src="~/images/Icones/esteira.png" width="24" height="24" />
                                         <small>Esteira</small>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Planejamento" asp-action="Index">
-                                        <img src="~/images/Icones/planejamento.png" width="32" height="32" />
+                                        <img src="~/images/Icones/planejamento.png" width="24" height="24" />
                                         <small>Planejamento</small>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="GraficoCarroEtapa" asp-action="Index">
-                                        <img src="~/images/Icones/etapas.png" width="32" height="32" />
+                                        <img src="~/images/Icones/etapas.png" width="24" height="24" />
                                         <small>Gráfico Etapas</small>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="OrdemServico" asp-action="Index">
-                                        <img src="~/images/Icones/ordemServico.png" width="32" height="32" />
+                                        <img src="~/images/Icones/ordemServico.png" width="24" height="24" />
                                         <small>Ordem Serviço</small>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="HistoricoAtividade" asp-action="Index">
-                                        <img src="~/images/Icones/historico.png" width="32" height="32" />
+                                        <img src="~/images/Icones/historico.png" width="24" height="24" />
                                         <small>Histórico</small>
                                     </a>
                                 </li>
 
-                                @if (User.IsInRole("Admin"))
+                                @if (User.Identity.IsAuthenticated)
                                 {
-                                    <li class="nav-item">
-                                        <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Login" asp-action="Cadastrar">
-                                            <img src="~/images/Icones/usuarios.png" width="32" height="32" />
-                                            <small>Cadastrar Usuário</small>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle text-light text-center d-flex flex-column align-items-center px-2"
+                                           href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <img src="~/images/Icones/usuarios.png" width="24" height="24" />
+                                            <small>Usuário</small>
                                         </a>
+                                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-center" aria-labelledby="userDropdown">
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="Login" asp-action="AlterarSenha">
+                                                    <i class="fas fa-key"></i> Alterar Senha
+                                                </a>
+                                            </li>
+
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <li><hr class="dropdown-divider" /></li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-controller="Login" asp-action="Cadastrar">
+                                                        <i class="fas fa-user-plus"></i> Cadastrar Usuário
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" asp-controller="Login" asp-action="GerenciarUsuarios">
+                                                        <i class="fas fa-user-cog"></i> Gerenciar Usuários
+                                                    </a>
+                                                </li>
+                                            }
+
+                                            <li><hr class="dropdown-divider" /></li>
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="Login" asp-action="Logout">
+                                                    <i class="fas fa-sign-out-alt"></i> Sair
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 }
 
-                                @if (User.Identity.IsAuthenticated)
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link text-light text-center d-flex flex-column align-items-center px-2" asp-controller="Login" asp-action="Logout">
-                                            <img src="~/images/Icones/sair.png" width="32" height="32" />
-                                            <small>Sair</small>
-                                        </a>
-                                    </li>
-                                }
+
                             </ul>
                         </div>
                     </div>

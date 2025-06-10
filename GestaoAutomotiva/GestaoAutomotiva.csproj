@@ -35,4 +35,10 @@
   <ItemGroup>
   <None Update="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
 </ItemGroup>
+<ItemGroup>
+  <None Update="Data\**">
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </None>
+</ItemGroup>
+
 </Project>

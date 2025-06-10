@@ -24,12 +24,16 @@
     </form>
 
     <div class="mb-4 d-flex gap-2">
-        <a asp-action="ExportarExcel" class="btn btn-outline-success">
-            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        <a class="btn btn-outline-success"
+           href="@Url.Action("ExportarExcel", new { busca = ViewBag.BuscaNome, dataBusca = ViewBag.DataBusca, page = ViewBag.PaginaAtual })">
+            <i class="fas fa-file-excel"></i> Exportar Excel
         </a>
-        <a asp-action="ExportarPdf" class="btn btn-outline-danger">
-            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+
+        <a class="btn btn-outline-danger"
+           href="@Url.Action("ExportarPdf", new { busca = ViewBag.BuscaNome, dataBusca = ViewBag.DataBusca, page = ViewBag.PaginaAtual })">
+            <i class="fas fa-file-pdf"></i> Exportar PDF
         </a>
+
     </div>
 
     <div class="table-responsive">

@@ -67,7 +67,7 @@ namespace GestaoAutomotiva.Controllers
             }
 
             // Paginação
-            int pageSize = 10;
+            int pageSize = 5;
             int total = lista.Count();
             var carros = lista
                 .Skip((page - 1) * pageSize)
@@ -97,6 +97,7 @@ namespace GestaoAutomotiva.Controllers
                 Cliente = new Cliente(),
                 Acessorios = new AcessoriosCarro()
             };
+            TempData["Mensagem"] = $"Carro {carro.Modelo} foi criado com sucesso.";
             return View(carro);
         }
 
@@ -176,6 +177,7 @@ namespace GestaoAutomotiva.Controllers
             _context.Carros.Add(carro);
             _context.SaveChanges();
 
+            TempData["Mensagem"] = $"Carro {carro.Modelo} foi criado com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -198,6 +200,7 @@ namespace GestaoAutomotiva.Controllers
     }, "Value", "Text", carro.TipoManutencao); // pré-selecionar valor atual
 
             PopularViewBags();
+            TempData["Mensagem"] = $"Carro {carro.Modelo} foi editado com sucesso.";
             return View(carro);
         }
 
@@ -335,6 +338,7 @@ namespace GestaoAutomotiva.Controllers
             carroExistente.Acessorios.CapotaId = carro.Acessorios.CapotaId;
 
             _context.SaveChanges();
+            TempData["Mensagem"] = $"Carro {carro.Modelo} foi editado com sucesso.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -349,7 +353,7 @@ namespace GestaoAutomotiva.Controllers
 
             if (carro == null)
                 return NotFound();
-
+            TempData["Mensagem"] = $"Carro {carro.Modelo} foi excluído com sucesso.";
             return View(carro);
         }
 
@@ -369,6 +373,7 @@ namespace GestaoAutomotiva.Controllers
             _context.Carros.Remove(carro);
             _context.SaveChanges();
 
+            TempData["Mensagem"] = $"Carro {carro.Modelo} foi excluído com sucesso.";
             return RedirectToAction(nameof(Index));
         }
 

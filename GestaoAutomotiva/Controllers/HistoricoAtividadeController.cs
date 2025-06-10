@@ -15,7 +15,7 @@ namespace GestaoAutomotiva.Controllers
         }
 
         public IActionResult Index(string busca, string dataBusca = null, int page = 1) {
-            int pageSize = 10;
+            int pageSize = 5;
             var historico = _context.AtividadeHistoricos.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(busca))
@@ -53,20 +53,82 @@ namespace GestaoAutomotiva.Controllers
 
             return View(paginado);
         }
-        public IActionResult ExportarPdf() {
-            var historico = _context.AtividadeHistoricos
-       .OrderByDescending(h => h.Id)
-       .ToList();
+        // public IActionResult ExportarPdf() {
+        //     var historico = _context.AtividadeHistoricos
+        //.OrderByDescending(h => h.Id)
+        //.ToList();
 
-            var documento = new RelatorioAtividadePdf(historico);
-            var pdfBytes = documento.GeneratePdf(); // Isso retorna byte[]
+        //     var documento = new RelatorioAtividadePdf(historico);
+        //     var pdfBytes = documento.GeneratePdf(); // Isso retorna byte[]
+
+        //     return File(pdfBytes, "application/pdf", "historico_atividades.pdf");
+
+        // }
+
+        public IActionResult ExportarPdf(string busca, string dataBusca = null, int page = 1) {
+            int pageSize = 5;
+            var historico = _context.AtividadeHistoricos.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busca))
+            {
+                var buscaUpper = busca.ToUpper();
+
+                historico = historico.Where(h =>
+                    h.FuncionarioNome.ToUpper().Contains(buscaUpper) ||
+                    h.ServicoDescricao.ToUpper().Contains(buscaUpper) ||
+                    h.ModeloNome.ToUpper().Contains(buscaUpper) ||
+                    h.CarroId.ToUpper().Contains(buscaUpper) ||
+                    h.Cliente.ToUpper().Contains(buscaUpper) ||
+                    h.Status.ToUpper().Contains(buscaUpper));
+            }
+
+            if (!string.IsNullOrWhiteSpace(dataBusca) && DateTime.TryParse(dataBusca, out DateTime dataConvertida))
+            {
+                historico = historico.Where(h =>
+                    h.DataInicio == dataConvertida.Date ||
+                    h.DataPrevista == dataConvertida.Date);
+            }
+
+            var paginado = historico
+                .OrderByDescending(h => h.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var documento = new RelatorioAtividadePdf(paginado);
+            var pdfBytes = documento.GeneratePdf();
 
             return File(pdfBytes, "application/pdf", "historico_atividades.pdf");
-
         }
-        public IActionResult ExportarExcel() {
-            var historico = _context.AtividadeHistoricos
+
+        public IActionResult ExportarExcel(string busca, string dataBusca = null, int page = 1) {
+            int pageSize = 5;
+            var historico = _context.AtividadeHistoricos.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busca))
+            {
+                var buscaUpper = busca.ToUpper();
+
+                historico = historico.Where(h =>
+                    h.FuncionarioNome.ToUpper().Contains(buscaUpper) ||
+                    h.ServicoDescricao.ToUpper().Contains(buscaUpper) ||
+                    h.ModeloNome.ToUpper().Contains(buscaUpper) ||
+                    h.CarroId.ToUpper().Contains(buscaUpper) ||
+                    h.Cliente.ToUpper().Contains(buscaUpper) ||
+                    h.Status.ToUpper().Contains(buscaUpper));
+            }
+
+            if (!string.IsNullOrWhiteSpace(dataBusca) && DateTime.TryParse(dataBusca, out DateTime dataConvertida))
+            {
+                historico = historico.Where(h =>
+                    h.DataInicio == dataConvertida.Date ||
+                    h.DataPrevista == dataConvertida.Date);
+            }
+
+            var paginado = historico
                 .OrderByDescending(h => h.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToList();
 
             using var workbook = new ClosedXML.Excel.XLWorkbook();
@@ -84,9 +146,9 @@ namespace GestaoAutomotiva.Controllers
             worksheet.Cell(1, 9).Value = "Ação";
             worksheet.Cell(1, 10).Value = "Registro";
 
-            for (int i = 0; i < historico.Count; i++)
+            for (int i = 0; i < paginado.Count; i++)
             {
-                var h = historico[i];
+                var h = paginado[i];
 
                 worksheet.Cell(i + 2, 1).Value = h.FuncionarioNome ?? "-";
                 worksheet.Cell(i + 2, 2).Value = h.ServicoDescricao ?? "-";
@@ -112,6 +174,7 @@ namespace GestaoAutomotiva.Controllers
                 "historico_atividades.xlsx"
             );
         }
+
 
     }
 }

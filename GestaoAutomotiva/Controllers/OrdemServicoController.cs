@@ -52,11 +52,52 @@ namespace GestaoAutomotiva.Controllers
         }
 
 
+        public IActionResult Index(string busca = null, string dataBusca = null, int page = 1) {
+            ViewData["Busca"] = busca;
+            ViewData["DataBusca"] = dataBusca;
 
-        public IActionResult Index() {
-            var ordens = ObterOrdensCompletas().ToList();
+            int pageSize = 5;
+            var query = ObterOrdensCompletas().AsQueryable();
 
-            foreach (var ordem in ordens)
+            // Filtro por texto
+            if (!string.IsNullOrWhiteSpace(busca))
+            {
+                var buscaUpper = busca.Trim().ToUpper();
+
+                query = query.Where(o =>
+                    (o.Atividade != null &&
+                        (
+                            (o.Atividade.Funcionario.Nome ?? "").ToUpper().Contains(buscaUpper) ||
+                            (o.Atividade.Carro.Modelo.Nome ?? "").ToUpper().Contains(buscaUpper) ||                         
+                            (o.Atividade.Carro.Cliente.Nome ?? "").ToUpper().Contains(buscaUpper) ||
+                            (o.Atividade.Etapa.Nome ?? "").ToUpper().Contains(buscaUpper) ||
+                            o.Atividade.Servico.Id.ToString().Contains(buscaUpper)
+                        )
+                    ) ||
+                    (o.Prioridade ?? "").ToUpper().Contains(buscaUpper) ||
+                    o.Id.ToString().Contains(buscaUpper)
+                );
+            }
+
+
+            // Filtro por data de abertura
+            if (!string.IsNullOrWhiteSpace(dataBusca) && DateTime.TryParse(dataBusca, out DateTime dataConvertida))
+            {
+                query = query.Where(o => o.DataAbertura.Date == dataConvertida.Date);
+            }
+
+            // Paginação
+            var totalRegistros = query.Count();
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            var paginado = query
+                .OrderByDescending(o => o.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Fallback para registros incompletos
+            foreach (var ordem in paginado)
             {
                 if (ordem.Atividade == null)
                 {
@@ -76,9 +117,16 @@ namespace GestaoAutomotiva.Controllers
                 }
             }
 
-            return View(ordens);
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.PaginaAtual = page;
+            ViewBag.BuscaNome = busca;
 
+            ViewBag.Funcionarios = new SelectList(_context.Funcionarios.ToList(), "Id", "Nome");
+            ViewBag.Clientes = new SelectList(_context.Clientes.ToList(), "Id", "Nome");
+
+            return View(paginado);
         }
+
 
 
         public IActionResult CriarOuEditar(int atividadeId) {
@@ -126,6 +174,7 @@ namespace GestaoAutomotiva.Controllers
             }
 
             CarregarViewBags(ordem);
+            TempData["Mensagem"] = $"Ordem de serviço foi criado com sucesso.";
             return View(ordem);
         }
 
@@ -181,7 +230,7 @@ namespace GestaoAutomotiva.Controllers
 
             _context.OrdemServicos.Add(ordem);
             _context.SaveChanges();
-
+            TempData["Mensagem"] = $"Ordem de serviço foi criado com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -216,6 +265,7 @@ namespace GestaoAutomotiva.Controllers
             }
 
             CarregarViewBags(ordem);
+            TempData["Mensagem"] = $"Ordem de serviço foi editado com sucesso.";
             return View(ordem);
         }
 
@@ -238,6 +288,7 @@ namespace GestaoAutomotiva.Controllers
             original.Observacoes = ordem.Observacoes;
 
             _context.SaveChanges();
+            TempData["Mensagem"] = $"Ordem de serviço foi editado com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -247,6 +298,8 @@ namespace GestaoAutomotiva.Controllers
                 .FirstOrDefault(o => o.Id == id);
 
             if (ordem == null) return NotFound();
+
+            TempData["Mensagem"] = $"Ordem de serviço foi excluído com sucesso.";
             return View(ordem);
         }
 
@@ -257,6 +310,8 @@ namespace GestaoAutomotiva.Controllers
 
             _context.OrdemServicos.Remove(ordem);
             _context.SaveChanges();
+
+            TempData["Mensagem"] = $"Ordem de serviço foi excluído com sucesso.";
             return RedirectToAction("Index");
         }
 

@@ -58,12 +58,12 @@ namespace GestaoAutomotiva.Utils
 
                         info.ConstantItem(180).Border(1.2f).Padding(5).Column(col =>
                         {
-                            col.Item().Text($"MOTOR:  {acessorios?.Motor?.Nome ?? "-"}").Bold();
-                            col.Item().Text($"CAMBIO:  {acessorios?.Cambio?.Descricao ?? "-"}").Bold();
-                            col.Item().Text($"CARROCERIA:  {acessorios?.Carroceria?.Descricao ?? "-"}").Bold();
-                            col.Item().Text($"CAPOTA:  {acessorios?.Capota?.Descricao ?? "-"}").Bold();
-                            col.Item().Text($"SUSPENSÃO:  {acessorios?.Suspensao?.Descricao ?? "-"}").Bold();
-                            col.Item().Text($"RODAS/PNEUS:  {acessorios?.RodasPneus?.Descricao ?? "-"}").Bold();
+                            col.Item().Text($"MOTOR:  {acessorios?.Motor?.Nome ?? "___"}").Bold();
+                            col.Item().Text($"CAMBIO:  {acessorios?.Cambio?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"CARROCERIA:  {acessorios?.Carroceria?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"CAPOTA:  {acessorios?.Capota?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"SUSPENSÃO:  {acessorios?.Suspensao?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"RODAS/PNEUS:  {acessorios?.RodasPneus?.Descricao ?? "___"}").Bold();
                         });
                     });
                 });
@@ -72,7 +72,7 @@ namespace GestaoAutomotiva.Utils
                 page.Content().Column(content =>
                 {
                     // Etapa
-                    var etapa = _ordem.Atividade?.Etapa?.Nome ?? "_____";
+                    var etapa = _ordem.Atividade?.Etapa?.Nome ?? "____________________________";
                     content.Item().PaddingTop(10).AlignLeft().Text($"Etapa: {etapa}").FontSize(16).Bold();
 
                     // Bloco de conferência
@@ -82,6 +82,7 @@ namespace GestaoAutomotiva.Utils
                         {
                             col.Item().Text("CONFERÊNCIA INICIAL ____/____/____").Bold().FontSize(12);
                             col.Item().Text("ALMOXARIFADO:");
+                            col.Item().Text("EDILSON:");
                             col.Item().Text("SUPERVISOR:");
                             col.Item().Text("COLABORADOR:");
                         });
@@ -90,7 +91,9 @@ namespace GestaoAutomotiva.Utils
                         {
                             col.Item().Text("CONFERÊNCIA FINAL ____/____/____").Bold().FontSize(12);
                             col.Item().Text("SUPERVISOR:");
+                            col.Item().Text("EDILSON:");
                             col.Item().Text("QUALIDADE:");
+                            col.Item().Text("MICHELlE:");
                         });
                     });
 
