@@ -1,7 +1,9 @@
 ﻿@model IEnumerable<GestaoAutomotiva.Models.Servico>
 
 
-@if (TempData["Mensagem"] != null)
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+
+    @if (TempData["Mensagem"] != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         @TempData["Mensagem"]
@@ -17,7 +19,6 @@
     </div>
 }
 
-<div class="page-container mt-4 animate__animated animate__fadeInDown">
     <h2 class="text-white mb-4">
         <img src="~/images/Icones/servico.png" width="48" height="48" /> Serviços
     </h2>
