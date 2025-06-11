@@ -1,6 +1,7 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
 using GestaoAutomotiva.Models.ViewModels;
+using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -59,10 +60,9 @@ namespace GestaoAutomotiva.Controllers
             return View(viewModel);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(EtapaViewModel viewModel) {
+        public async Task<IActionResult> Create(EtapaViewModel viewModel) {
             if (!ValidarEtapa(viewModel.Etapa))
             {
                 var etapas = _context.Etapas.OrderBy(e => e.Ordem).ToList();
@@ -79,15 +79,27 @@ namespace GestaoAutomotiva.Controllers
 
             // 🔐 Força a ordem final a ser exatamente a desejada
             var novaOrdem = viewModel.Etapa.Ordem;
-            viewModel.Etapa.Nome = viewModel.Etapa.Nome.ToUpper(); // boa prática
+            viewModel.Etapa.Nome = viewModel.Etapa.Nome.ToUpper();
 
             _context.Etapas.Add(viewModel.Etapa);
-            _context.SaveChanges();
 
+            bool salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao salvar a nova etapa. Tente novamente.";
+                return RedirectToAction("Index");
+            }
+
+            // 🔄 Reorganiza novamente após o salvamento
             ReorganizarTodasAsOrdens();
 
             return RedirectToAction("Index");
         }
+
 
 
         public IActionResult Edit(int id) {
@@ -98,11 +110,11 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Etapa etapa) {
+        public async Task<IActionResult> Edit(Etapa etapa) {
             if (!ValidarEtapa(etapa))
                 return View(etapa);
 
-            var etapaExistente = _context.Etapas.Find(etapa.Id);
+            var etapaExistente = await _context.Etapas.FindAsync(etapa.Id);
             if (etapaExistente == null) return NotFound();
 
             if (etapa.Ordem != etapaExistente.Ordem)
@@ -111,10 +123,21 @@ namespace GestaoAutomotiva.Controllers
             etapaExistente.Nome = etapa.Nome.ToUpper();
             etapaExistente.Ordem = etapa.Ordem;
 
-            _context.SaveChanges();
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao salvar a etapa editada. Tente novamente.";
+                return RedirectToAction("Index");
+            }
+
             ReorganizarTodasAsOrdens();
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Delete(int id) {
             var etapa = _context.Etapas.Find(id);
@@ -124,22 +147,33 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id) {
-            var etapa = _context.Etapas.Find(id);
+        public async Task<IActionResult> DeleteConfirmed(int id) {
+            var etapa = await _context.Etapas.FindAsync(id);
             if (etapa == null) return NotFound();
 
             _context.Etapas.Remove(etapa);
 
-            var etapasAfetadas = _context.Etapas
+            var etapasAfetadas = await _context.Etapas
                 .Where(e => e.Ordem > etapa.Ordem)
-                .ToList();
+                .ToListAsync();
 
             foreach (var item in etapasAfetadas)
                 item.Ordem -= 1;
 
-            _context.SaveChanges();
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao excluir a etapa. Tente novamente.";
+                return RedirectToAction("Index");
+            }
+
             return RedirectToAction("Index");
         }
+
 
         // =====================
         // MÉTODOS AUXILIARES
@@ -164,43 +198,50 @@ namespace GestaoAutomotiva.Controllers
         }
 
 
-        private void AjustarOrdemEtapasParaInsercao(int novaOrdem) {
-            var etapas = _context.Etapas
+        private async Task AjustarOrdemEtapasParaInsercao(int novaOrdem) {
+            var etapas = await _context.Etapas
                 .Where(e => e.Ordem >= novaOrdem)
                 .OrderByDescending(e => e.Ordem)
-                .ToList();
+                .ToListAsync();
 
             foreach (var etapa in etapas)
                 etapa.Ordem += 1;
 
-            _context.SaveChanges();
+            await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
         }
 
 
-        private void ReorganizarTodasAsOrdens() {
-            var etapasOrdenadas = _context.Etapas
-                .OrderBy(e => e.Ordem)
-                .ToList();
+
+        private async Task ReorganizarTodasAsOrdens() {
+            var etapasOrdenadas = await _context.Etapas
+       .OrderBy(e => e.Ordem)
+       .ToListAsync();
 
             for (int i = 0; i < etapasOrdenadas.Count; i++)
             {
                 etapasOrdenadas[i].Ordem = i + 1;
             }
 
-            _context.SaveChanges();
+            await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
         }
 
-        private void ReorganizarOrdemEmEdicao(int ordemOriginal, int novaOrdem) {
+        private async Task ReorganizarOrdemEmEdicao(int ordemOriginal, int novaOrdem) {
             if (novaOrdem == ordemOriginal)
                 return;
 
             if (novaOrdem < ordemOriginal)
             {
                 // Ex: mover da ordem 4 para 2 → itens de 2 a 3 devem ir para 3 a 4
-                var etapas = _context.Etapas
+                var etapas = await _context.Etapas
                     .Where(e => e.Ordem >= novaOrdem && e.Ordem < ordemOriginal)
                     .OrderBy(e => e.Ordem)
-                    .ToList();
+                    .ToListAsync();
 
                 foreach (var etapa in etapas)
                     etapa.Ordem += 1;
@@ -208,17 +249,21 @@ namespace GestaoAutomotiva.Controllers
             else
             {
                 // Ex: mover da ordem 2 para 4 → itens de 3 a 4 devem ir para 2 a 3
-                var etapas = _context.Etapas
+                var etapas = await _context.Etapas
                     .Where(e => e.Ordem <= novaOrdem && e.Ordem > ordemOriginal)
                     .OrderBy(e => e.Ordem)
-                    .ToList();
+                    .ToListAsync();
 
                 foreach (var etapa in etapas)
                     etapa.Ordem -= 1;
             }
 
-            _context.SaveChanges();
+            await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
         }
+
 
     }
 }

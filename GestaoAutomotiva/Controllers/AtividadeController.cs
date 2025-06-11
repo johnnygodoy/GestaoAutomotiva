@@ -23,7 +23,7 @@ namespace GestaoAutomotiva.Controllers
             return View();
         }
 
-        public IActionResult Finalizar(int id) {
+        public async Task<IActionResult> Finalizar(int id) {
             var atividade = _context.Atividades.Find(id);
             if (atividade == null) return NotFound();
 
@@ -39,9 +39,28 @@ namespace GestaoAutomotiva.Controllers
 
             atividade.Cor = DefinirCorStatus(atividade.Status);
 
-            _context.SaveChanges(); // 🔁 Primeiro salva no banco
-            RegistrarHistorico(atividade, "Finalizado"); // 🔁 Depois registra o histórico
-            TempData["Mensagem"] = $"Atividade foi editado com sucesso.";
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao finalizar a atividade. Tente novamente.";
+                return RedirectToAction("Index");
+            }
+
+            var historicoSalvo = await RegistrarHistorico(atividade, "Finalizado");
+
+            if (!historicoSalvo)
+            {
+                TempData["Erro"] = "Atividade finalizada, mas falha ao registrar o histórico.";
+            }
+            else
+            {
+                TempData["Mensagem"] = "Atividade foi finalizada com sucesso.";
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -125,7 +144,7 @@ namespace GestaoAutomotiva.Controllers
 
 
         [HttpPost]
-        public IActionResult Create(Atividade atividade) {
+        public async Task<IActionResult> Create(Atividade atividade) {
             var funcionarios = _context.Funcionarios.ToList();
             var servicos = _context.Servicos.ToList();
 
@@ -191,11 +210,34 @@ namespace GestaoAutomotiva.Controllers
                     return View(atividade);
                 }
             }
-
             _context.Atividades.Add(atividade);
-            _context.SaveChanges();
-            RegistrarHistorico(atividade, "Criado");
-            TempData["Mensagem"] = $"Atividade foi criado com sucesso.";
+
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                ModelState.AddModelError("", "Erro ao salvar: o banco estava ocupado. Tente novamente.");
+                PreencherDropdowns();
+                return View(atividade);
+            }
+
+            // ✅ Registrar histórico com retry também
+            var historicoSalvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                RegistrarHistorico(atividade, "Criado");
+                await _context.SaveChangesAsync();
+            });
+
+            if (!historicoSalvo)
+            {
+                TempData["Erro"] = "Atividade criada, mas falha ao registrar o histórico.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Mensagem"] = $"Atividade foi criada com sucesso.";
             return RedirectToAction("Index");
         }
 
@@ -254,7 +296,7 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Atividade atividade) {
+        public async Task<IActionResult> Edit(Atividade atividade) {
 
             if (!atividade.DataInicio.HasValue)
                 ModelState.AddModelError("DataInicio", "A data de início é obrigatória.");
@@ -297,15 +339,39 @@ namespace GestaoAutomotiva.Controllers
             atividade.EstimativaDias = (int)servico.EstimativaDias;
             atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
             atividade.Cor = DefinirCorStatus(atividade.Status);
-
             atividade.Etapa = _context.Etapas.FirstOrDefault(e => e.Id == atividade.EtapaId);
-            _context.Atividades.Update(atividade);
-            _context.SaveChanges();
-            RegistrarHistorico(atividade, "Criado");
 
-            TempData["Mensagem"] = $"Atividade foi editado com sucesso.";
+            _context.Atividades.Update(atividade);
+
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                ModelState.AddModelError("", "Erro ao salvar alterações. O banco estava ocupado. Tente novamente.");
+                PreencherDropdowns();
+                return View(atividade);
+            }
+
+            var historicoSalvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                RegistrarHistorico(atividade, "Editado");
+                await _context.SaveChangesAsync();
+            });
+
+            if (!historicoSalvo)
+            {
+                TempData["Erro"] = "Atividade editada, mas falha ao salvar o histórico.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Mensagem"] = $"Atividade foi editada com sucesso.";
             return RedirectToAction("Index");
         }
+
+
 
         [HttpGet]
         public IActionResult Delete(int id) {
@@ -321,79 +387,35 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id) {
+        public async Task<IActionResult> DeleteConfirmed(int id) {
+
             var atividade = _context.Atividades.Find(id);
             if (atividade == null) return NotFound();
 
             _context.Atividades.Remove(atividade);
-            _context.SaveChanges();
-            RegistrarHistorico(atividade, "Excluído");
 
-            TempData["Mensagem"] = $"Atividade foi excluído com sucesso.";
+            _context.SaveChanges();
+
+            var sucesso = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!sucesso)
+            {
+                TempData["Erro"] = "Erro ao excluir atividade. O banco estava ocupado.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Mensagem"] = "Atividade foi excluída com sucesso.";
             return RedirectToAction("Index");
         }
 
-        public IActionResult Historico(string busca, string dataBusca = null, int page = 1) {
-            ViewData["Busca"] = busca;
-            ViewData["DataBusca"] = dataBusca;
-
-            int pageSize = 5; // Quantidade de itens por página
-
-            var atividades = _context.Atividades
-            .Include(a => a.Funcionario)
-            .Include(a => a.Servico)
-            .Include(a => a.Carro)
-            .ThenInclude(c => c.Cliente)
-            .Include(a => a.Carro)
-            .ThenInclude(c => c.Modelo)
-            .OrderByDescending(c => c.Id)
-            .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(busca))
-            {
-                var buscaUpper = busca.ToUpper(); // Converte a busca para maiúsculas
-
-                atividades = atividades.Where(a =>
-                    a.Carro.Modelo.Nome.ToUpper().Contains(buscaUpper) ||
-                    a.Carro.IdCarro.Contains(buscaUpper) ||
-                    a.Funcionario.Nome.ToUpper().Contains(buscaUpper) ||
-                    a.Servico.Descricao.ToUpper().Contains(buscaUpper) ||
-                    a.Status.ToUpper().Contains(buscaUpper) ||
-                    a.Carro.Cliente.Nome.ToUpper().Contains(buscaUpper)
-                    );
-            }
-            // Busca por data
-            if (!string.IsNullOrWhiteSpace(dataBusca) && DateTime.TryParse(dataBusca, out DateTime dataBuscaConvertida))
-            {
-                atividades = atividades.Where(a =>
-                    a.DataInicio == dataBuscaConvertida.Date ||
-                    a.DataPrevista == dataBuscaConvertida.Date);
-            }
-
-
-            // Total de atividades encontrados
-            var totalRegistros = atividades.Count();
-
-            // Calculando o total de páginas
-            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
-
-            // Pegando a página solicitada e aplicando Skip e Take
-            var atividadesPaginados = atividades
-                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
-                .Take(pageSize) // Pegar o número de itens da página atual
-                .ToList();
-
-            // Passando os dados para a View
-            ViewBag.TotalPaginas = totalPaginas;
-            ViewBag.PaginaAtual = page;
-            ViewBag.BuscaNome = busca;
-
-            return View(atividadesPaginados);
-        }
-
-        private void RegistrarHistorico(Atividade atividade, string acao) {
+        private async Task<bool> RegistrarHistorico(Atividade atividade, string acao) {
+           
             // 🔒 Protege contra EtapaId inexistente ou nulo
             string etapaNome = "-";
+
             if (atividade.Etapa != null)
             {
                 etapaNome = atividade.Etapa.Nome;
@@ -440,11 +462,11 @@ namespace GestaoAutomotiva.Controllers
             };
 
             _context.AtividadeHistoricos.Add(historico);
-            _context.SaveChanges();
+            return await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
         }
-
-
-
 
     }
 }

@@ -3,6 +3,7 @@ using System;
 using GestaoAutomotiva.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestaoAutomotiva.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250611131638_AdicionaRestricaoDeleteModeloEmCarro")]
+    partial class AdicionaRestricaoDeleteModeloEmCarro
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -217,7 +220,7 @@ namespace GestaoAutomotiva.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AcessoriosCarroId")
+                    b.Property<int?>("AcessoriosCarroId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ClienteId")
@@ -675,9 +678,7 @@ namespace GestaoAutomotiva.Migrations
                 {
                     b.HasOne("GestaoAutomotiva.Models.AcessoriosCarro", "Acessorios")
                         .WithMany()
-                        .HasForeignKey("AcessoriosCarroId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AcessoriosCarroId");
 
                     b.HasOne("GestaoAutomotiva.Models.Cliente", "Cliente")
                         .WithMany("Carros")

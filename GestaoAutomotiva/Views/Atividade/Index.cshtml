@@ -120,9 +120,10 @@
                     int diasAtraso = (DateTime.Now.Date - atividade.DataPrevista.GetValueOrDefault().Date).Days;
 
                     string statusTexto = atividade.Status;
-                    if (emAndamento && estaAtrasado)
+
+                    if (atividade.Status == "Em Andamento" || estaAtrasado)
                     {
-                        statusTexto += $" (atraso de {diasAtraso} dia{(diasAtraso > 1 ? "s" : "")})";
+                        statusTexto += $" (atraso de {diasAtraso} dias {(diasAtraso > 1 ? "s" : "")} )";
                     }
 
                     <tr>

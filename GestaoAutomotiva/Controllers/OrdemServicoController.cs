@@ -180,7 +180,7 @@ namespace GestaoAutomotiva.Controllers
 
 
         [HttpPost]
-        public IActionResult Create(OrdemServico ordem) {
+        public async Task<IActionResult> Create(OrdemServico ordem) {
             bool temErro = false;
 
             if (string.IsNullOrWhiteSpace(ordem.EtapaAtual))
@@ -209,11 +209,11 @@ namespace GestaoAutomotiva.Controllers
 
             if (ordem.AtividadeId.HasValue && ordem.AtividadeId > 0)
             {
-                var atividade = _context.Atividades
+                var atividade = await _context.Atividades
                     .Include(a => a.Funcionario)
                     .Include(a => a.Carro).ThenInclude(c => c.Cliente)
                     .Include(a => a.Etapa)
-                    .FirstOrDefault(a => a.Id == ordem.AtividadeId);
+                    .FirstOrDefaultAsync(a => a.Id == ordem.AtividadeId);
 
                 if (atividade == null)
                 {
@@ -229,10 +229,23 @@ namespace GestaoAutomotiva.Controllers
             }
 
             _context.OrdemServicos.Add(ordem);
-            _context.SaveChanges();
-            TempData["Mensagem"] = $"Ordem de serviço foi criado com sucesso.";
+
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao salvar a ordem de serviço. Tente novamente.";
+                CarregarViewBags(ordem);
+                return View(ordem);
+            }
+
+            TempData["Mensagem"] = $"Ordem de serviço foi criada com sucesso.";
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Edit(int id) {
             var ordem = _context.OrdemServicos
@@ -271,11 +284,11 @@ namespace GestaoAutomotiva.Controllers
 
 
         [HttpPost]
-        public IActionResult Edit(OrdemServico ordem) {
+        public async Task<IActionResult> Edit(OrdemServico ordem) {
             if (ordem == null || ordem.Id == 0)
                 return BadRequest();
 
-            var original = _context.OrdemServicos.FirstOrDefault(o => o.Id == ordem.Id);
+            var original = await _context.OrdemServicos.FirstOrDefaultAsync(o => o.Id == ordem.Id);
             if (original == null)
                 return NotFound();
 
@@ -287,10 +300,21 @@ namespace GestaoAutomotiva.Controllers
             original.Tarefas = ordem.Tarefas;
             original.Observacoes = ordem.Observacoes;
 
-            _context.SaveChanges();
-            TempData["Mensagem"] = $"Ordem de serviço foi editado com sucesso.";
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao salvar alterações. Tente novamente.";
+                return View(ordem);
+            }
+
+            TempData["Mensagem"] = $"Ordem de serviço foi editada com sucesso.";
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Delete(int id) {
             var ordem = _context.OrdemServicos
@@ -304,16 +328,27 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id) {
-            var ordem = _context.OrdemServicos.Find(id);
+        public async Task<IActionResult> DeleteConfirmed(int id) {
+            var ordem = await _context.OrdemServicos.FindAsync(id);
             if (ordem == null) return NotFound();
 
             _context.OrdemServicos.Remove(ordem);
-            _context.SaveChanges();
 
-            TempData["Mensagem"] = $"Ordem de serviço foi excluído com sucesso.";
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao excluir a ordem de serviço. Tente novamente.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Mensagem"] = $"Ordem de serviço foi excluída com sucesso.";
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Details(int id) {
             var ordem = _context.OrdemServicos

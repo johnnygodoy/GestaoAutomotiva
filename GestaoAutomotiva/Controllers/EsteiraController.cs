@@ -1,5 +1,6 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
+using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,11 +37,11 @@ namespace GestaoAutomotiva.Controllers
         }
 
 
-
         [HttpPost]
-        public IActionResult AvancarEtapa(int id) {
+        public async Task<IActionResult> AvancarEtapa(int id) {
             var atividade = _context.Atividades.Include(a => a.Etapa).FirstOrDefault(a => a.Id == id);
-            if (atividade == null) return NotFound();
+            if (atividade == null)
+                return NotFound();
 
             var proxima = _context.Etapas
                 .Where(e => e.Ordem > atividade.Etapa.Ordem)
@@ -50,18 +51,30 @@ namespace GestaoAutomotiva.Controllers
             if (proxima != null)
             {
                 atividade.EtapaId = proxima.Id;
-                if (proxima.Nome == "Finalizado")
+
+                if (proxima.Nome.ToUpper() == "FINALIZADO")
                     atividade.Status = "Finalizado";
-                _context.SaveChanges();
+
+                bool salvo = await RetryHelper.TentarSalvarAsync(async () =>
+                {
+                    await _context.SaveChangesAsync();
+                });
+
+                if (!salvo)
+                {
+                    TempData["Erro"] = "Erro ao avançar etapa. Tente novamente.";
+                }
             }
 
             return RedirectToAction("Esteira");
         }
 
+
         [HttpPost]
-        public IActionResult VoltarEtapa(int id) {
+        public async Task<IActionResult> VoltarEtapa(int id) {
             var atividade = _context.Atividades.Include(a => a.Etapa).FirstOrDefault(a => a.Id == id);
-            if (atividade == null) return NotFound();
+            if (atividade == null)
+                return NotFound();
 
             var anterior = _context.Etapas
                 .Where(e => e.Ordem < atividade.Etapa.Ordem)
@@ -72,11 +85,21 @@ namespace GestaoAutomotiva.Controllers
             {
                 atividade.EtapaId = anterior.Id;
                 atividade.Status = "Em Andamento";
-                _context.SaveChanges();
+
+                bool salvo = await RetryHelper.TentarSalvarAsync(async () =>
+                {
+                    await _context.SaveChangesAsync();
+                });
+
+                if (!salvo)
+                {
+                    TempData["Erro"] = "Erro ao voltar etapa. Tente novamente.";
+                }
             }
 
             return RedirectToAction("Esteira");
         }
+
 
         // Método para redirecionar para a tela de cadastro de etapas
         public IActionResult CadastroEtapas() {

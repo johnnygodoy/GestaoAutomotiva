@@ -20,7 +20,9 @@ namespace GestaoAutomotiva.Models
 
         public Cliente Cliente { get; set; }
 
-        public int? AcessoriosCarroId { get; set; }  // FK
+        [Required(ErrorMessage = "O conjunto de acessórios do carro é obrigatório.")]
+        public int? AcessoriosCarroId { get; set; }
+        
         public AcessoriosCarro Acessorios { get; set; }
 
         public int ModeloId { get; set; }

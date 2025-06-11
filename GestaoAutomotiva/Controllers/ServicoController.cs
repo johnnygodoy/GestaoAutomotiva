@@ -1,5 +1,6 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
+using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
@@ -56,21 +57,32 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Servico servico) {
-
+        public async Task<IActionResult> Create(Servico servico) {
             if (ModelState.IsValid)
             {
                 servico.Tipo = servico.Tipo.ToUpper();
-                servico.Descricao = servico.Descricao.ToUpper();              
+                servico.Descricao = servico.Descricao.ToUpper();
 
                 _context.Servicos.Add(servico);
-                _context.SaveChanges();
+
+                var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+                {
+                    await _context.SaveChangesAsync();
+                });
+
+                if (!salvo)
+                {
+                    TempData["Erro"] = "Erro ao salvar o serviço. Tente novamente.";
+                    return View(servico);
+                }
+
                 TempData["Mensagem"] = $"Serviço {servico.Descricao} foi criado com sucesso.";
                 return RedirectToAction("Index");
             }
 
             return View(servico);
         }
+
 
         public IActionResult Edit(int id) { 
         
@@ -79,18 +91,28 @@ namespace GestaoAutomotiva.Controllers
             TempData["Mensagem"] = $"Serviço {servico.Descricao} foi editado com sucesso.";
             return View(servico);
         }
-
         [HttpPost]
-        public IActionResult Edit(Servico servico) {
-
+        public async Task<IActionResult> Edit(Servico servico) {
             servico.Tipo = servico.Tipo.ToUpper();
             servico.Descricao = servico.Descricao.ToUpper();
 
             _context.Servicos.Update(servico);
-            _context.SaveChanges();
+
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao editar o serviço. Tente novamente.";
+                return View(servico);
+            }
+
             TempData["Mensagem"] = $"Serviço {servico.Descricao} foi editado com sucesso.";
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Delete(int id) { 
         
@@ -104,15 +126,30 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id) { 
-        
-        var servico = _context.Servicos.FirstOrDefault(f => f.Id == id);
+        public async Task<IActionResult> DeleteConfirmed(int id) {
+            var servico = _context.Servicos.FirstOrDefault(f => f.Id == id);
+            if (servico == null)
+            {
+                TempData["Erro"] = "Serviço não encontrado ou já excluído.";
+                return RedirectToAction("Index");
+            }
+
             _context.Servicos.Remove(servico);
 
-            _context.SaveChanges();
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao excluir o serviço. Tente novamente.";
+                return RedirectToAction("Index");
+            }
+
             TempData["Mensagem"] = $"Serviço {servico.Descricao} foi excluído com sucesso.";
             return RedirectToAction("Index");
-        
         }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
+using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ namespace GestaoAutomotiva.Controllers
             ViewBag.Capotas = new SelectList(_context.Capotas.OrderBy(c => c.Descricao), "Id", "Descricao");
         }
 
-        private void PopularDadosIniciais() {
+        private async Task PopularDadosIniciais() {
             _context.Motors.AddRange(new[]
             {
             new Motor { 
@@ -69,7 +70,16 @@ namespace GestaoAutomotiva.Controllers
         new Capota { Descricao = "Marítima" },
     });
 
-            _context.SaveChanges();
+            var sucesso = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!sucesso)
+            {
+                // log ou tratamento opcional
+                throw new Exception("Erro ao salvar dados iniciais: o banco de dados estava ocupado.");
+            }
         }
 
 
@@ -78,8 +88,10 @@ namespace GestaoAutomotiva.Controllers
 
             if (!_context.Motors.Any())
             {
-                // Popular os dados se estiverem vazios
-                PopularDadosIniciais();
+                if (!_context.Motors.Any())
+                {
+                    PopularDadosIniciais().GetAwaiter().GetResult(); // ← executa o async de forma síncrona
+                }
             }
             CarregarDropdowns();
             return View();
@@ -88,7 +100,7 @@ namespace GestaoAutomotiva.Controllers
         // POST: /AcessoriosCarro/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(AcessoriosCarro acessorios) {
+        public async Task<IActionResult> Create(AcessoriosCarro acessorios) {
 
 
             if (ModelState.IsValid)
@@ -115,8 +127,17 @@ namespace GestaoAutomotiva.Controllers
                 return View(acessorios);
             }
 
-            _context.AcessoriosCarros.Add(acessorios);
-            _context.SaveChanges();
+            var sucesso = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!sucesso)
+            {
+                ModelState.AddModelError("", "Erro ao salvar: o banco de dados estava ocupado. Tente novamente.");
+                CarregarDropdowns();
+                return View(acessorios);
+            }
 
             TempData["Mensagem"] = "Acessório criado com sucesso!";
             TempData["MaisUm"] = true;

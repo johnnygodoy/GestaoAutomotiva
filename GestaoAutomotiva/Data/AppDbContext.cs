@@ -22,7 +22,7 @@ namespace GestaoAutomotiva.Data
         public DbSet<RodaPneu> RodasPneus { get; set; }
         public DbSet<Carroceria> Carrocerias { get; set; }
         public DbSet<Capota> Capotas { get; set; }
-        public DbSet<AtividadeHistorico>AtividadeHistoricos { get; set; }
+        public DbSet<AtividadeHistorico> AtividadeHistoricos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "gestaoAutomotiva.db");
@@ -38,10 +38,23 @@ namespace GestaoAutomotiva.Data
                 .HasForeignKey(a => a.EtapaId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<AcessoriosCarro>()
+                 .HasOne(ac => ac.Modelo)
+                 .WithMany()
+                 .HasForeignKey(ac => ac.ModeloId)
+                 .OnDelete(DeleteBehavior.Restrict); // para impedir exclusão se estiver vinculado
+
+
             modelBuilder.Entity<Carro>()
                 .HasOne(c => c.Cliente)
                 .WithMany(cl => cl.Carros)
                 .HasForeignKey(c => c.ClienteId);
+
+            modelBuilder.Entity<Carro>()
+               .HasOne(c => c.Modelo)
+               .WithMany()
+               .HasForeignKey(c => c.ModeloId)
+               .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<OrdemServico>()
                 .Property(o => o.Tarefas).IsRequired(false);

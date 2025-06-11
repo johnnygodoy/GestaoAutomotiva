@@ -1,5 +1,6 @@
 ﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
+using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -103,10 +104,11 @@ namespace GestaoAutomotiva.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Carro carro) {
+        public async Task<IActionResult> Create(Carro carro) {
             bool temErro = false;
 
-            if (string.IsNullOrEmpty(carro.IdCarro))
+            // Validação manual
+            if (string.IsNullOrWhiteSpace(carro.IdCarro))
             {
                 ModelState.AddModelError("IdCarro", "Campo Código Carro é obrigatório.");
                 temErro = true;
@@ -118,7 +120,7 @@ namespace GestaoAutomotiva.Controllers
                 temErro = true;
             }
 
-            if (string.IsNullOrEmpty(carro.Cor))
+            if (string.IsNullOrWhiteSpace(carro.Cor))
             {
                 ModelState.AddModelError("Cor", "Campo Cor é obrigatório.");
                 temErro = true;
@@ -136,12 +138,12 @@ namespace GestaoAutomotiva.Controllers
 
             var acessorios = carro.Acessorios;
             if (acessorios == null ||
-                acessorios.CapotaId == null ||
-                acessorios.CambioId == null ||
-                acessorios.CarroceriaId == null ||
-                acessorios.SuspensaoId == null ||
-                acessorios.RodasPneusId == null ||
-                acessorios.MotorId == null)
+                acessorios.CapotaId <= 0 ||
+                acessorios.CambioId <= 0 ||
+                acessorios.CarroceriaId <= 0 ||
+                acessorios.SuspensaoId <= 0 ||
+                acessorios.RodasPneusId <= 0 ||
+                acessorios.MotorId <= 0)
             {
                 ModelState.AddModelError("Acessorios", "Todos os campos de acessórios são obrigatórios.");
                 temErro = true;
@@ -153,10 +155,40 @@ namespace GestaoAutomotiva.Controllers
                 return View(carro);
             }
 
+            // 🔁 Salva cliente com retry
             _context.Clientes.Add(carro.Cliente);
-            _context.SaveChanges();
+            bool clienteSalvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!clienteSalvo)
+            {
+                TempData["Erro"] = "Erro ao salvar cliente. Tente novamente.";
+                PopularViewBags();
+                return View(carro);
+            }
+
             carro.ClienteId = carro.Cliente.Id;
 
+
+            // 🛡️ Validação de integridade referencial (confirma se os IDs existem)
+            bool idsValidos =
+                await _context.Motors.AnyAsync(m => m.Id == acessorios.MotorId) &&
+                await _context.Cambios.AnyAsync(c => c.Id == acessorios.CambioId) &&
+                await _context.Suspensaos.AnyAsync(s => s.Id == acessorios.SuspensaoId) &&
+                await _context.RodasPneus.AnyAsync(r => r.Id == acessorios.RodasPneusId) &&
+                await _context.Carrocerias.AnyAsync(c => c.Id == acessorios.CarroceriaId) &&
+                await _context.Capotas.AnyAsync(c => c.Id == acessorios.CapotaId);
+
+            if (!idsValidos)
+            {
+                TempData["Erro"] = "Um ou mais itens de acessórios não foram encontrados no banco de dados. Verifique os valores selecionados.";
+                PopularViewBags();
+                return View(carro);
+            }
+
+            // 🔁 Salva acessórios com retry
             var novoAcessorio = new AcessoriosCarro
             {
                 CapotaId = acessorios.CapotaId,
@@ -164,22 +196,45 @@ namespace GestaoAutomotiva.Controllers
                 CarroceriaId = acessorios.CarroceriaId,
                 SuspensaoId = acessorios.SuspensaoId,
                 RodasPneusId = acessorios.RodasPneusId,
-                MotorId = acessorios.MotorId
+                MotorId = acessorios.MotorId,
+                ModeloId = carro.ModeloId
             };
 
             _context.AcessoriosCarros.Add(novoAcessorio);
-            _context.SaveChanges();
+            bool acessoriosSalvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!acessoriosSalvo)
+            {
+                TempData["Erro"] = "Erro ao salvar acessórios. Tente novamente.";
+                PopularViewBags();
+                return View(carro);
+            }
 
             carro.AcessoriosCarroId = novoAcessorio.Id;
             carro.Cliente = null;
             carro.Acessorios = null;
 
+            // 🔁 Salva carro com retry
             _context.Carros.Add(carro);
-            _context.SaveChanges();
+            bool carroSalvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
 
-            TempData["Mensagem"] = $"Carro {carro.Modelo} foi criado com sucesso.";
+            if (!carroSalvo)
+            {
+                TempData["Erro"] = "Erro ao salvar o carro. Tente novamente.";
+                PopularViewBags();
+                return View(carro);
+            }
+
+            TempData["Mensagem"] = $"Carro cadastrado com sucesso!";
             return RedirectToAction("Index");
         }
+
 
         [HttpGet]
         public IActionResult Edit(int id) {
@@ -207,7 +262,7 @@ namespace GestaoAutomotiva.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Carro carro) {
+        public async Task<IActionResult> Edit(int id, Carro carro) {
             if (id != carro.Id)
                 return BadRequest();
 
@@ -310,10 +365,10 @@ namespace GestaoAutomotiva.Controllers
                 return View(carro);
             }
 
-            var carroExistente = _context.Carros
-                .Include(c => c.Cliente)
-                .Include(c => c.Acessorios)
-                .FirstOrDefault(c => c.Id == id);
+            var carroExistente = await _context.Carros
+         .Include(c => c.Cliente)
+         .Include(c => c.Acessorios)
+         .FirstOrDefaultAsync(c => c.Id == id);
 
             if (carroExistente == null)
                 return NotFound();
@@ -322,11 +377,12 @@ namespace GestaoAutomotiva.Controllers
             carroExistente.IdCarro = carro.IdCarro;
             carroExistente.ModeloId = carro.ModeloId;
             carroExistente.Cor = carro.Cor;
+            carroExistente.TipoManutencao = carro.TipoManutencao;
 
-            // Atualiza dados do cliente
+            // Atualiza cliente
             carroExistente.Cliente.Nome = carro.Cliente.Nome;
-            carroExistente.Cliente.Endereco = carro.Cliente.Endereco;
             carroExistente.Cliente.Telefone = carro.Cliente.Telefone;
+            carroExistente.Cliente.Endereco = carro.Cliente.Endereco;
             carroExistente.Cliente.CPF = carro.Cliente.CPF;
 
             // Atualiza acessórios
@@ -336,9 +392,22 @@ namespace GestaoAutomotiva.Controllers
             carroExistente.Acessorios.RodasPneusId = carro.Acessorios.RodasPneusId;
             carroExistente.Acessorios.CarroceriaId = carro.Acessorios.CarroceriaId;
             carroExistente.Acessorios.CapotaId = carro.Acessorios.CapotaId;
+            carroExistente.Acessorios.ModeloId = carro.ModeloId; // ⚠️ Essencial!
 
-            _context.SaveChanges();
-            TempData["Mensagem"] = $"Carro {carro.Modelo} foi editado com sucesso.";
+            // 🔁 Salva com retry
+            bool sucesso = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!sucesso)
+            {
+                TempData["Mensagem"] = "Erro ao salvar alterações. O banco estava ocupado. Tente novamente.";
+                PopularViewBags();
+                return View(carro);
+            }
+
+            TempData["Mensagem"] = $"Carro {carro.IdCarro} foi editado com sucesso.";
             return RedirectToAction(nameof(Index));
         }
 
