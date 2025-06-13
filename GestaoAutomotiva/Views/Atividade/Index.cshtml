@@ -121,9 +121,9 @@
 
                     string statusTexto = atividade.Status;
 
-                    if (atividade.Status == "Em Andamento" || estaAtrasado)
+                    if (atividade.Status == "Em Andamento" && diasAtraso > 0)
                     {
-                        statusTexto += $" (atraso de {diasAtraso} dias {(diasAtraso > 1 ? "s" : "")} )";
+                        statusTexto += $" (atraso de {diasAtraso} dia{(diasAtraso > 1 ? "s" : "")})";
                     }
 
                     <tr>
@@ -193,4 +193,4 @@
         </ul>
     </nav>
 </div>
-<footer style="margin-top: 100px;"></footer>
+<footer style="margin-top: 200px;"></footer>

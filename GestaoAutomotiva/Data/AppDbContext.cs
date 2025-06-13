@@ -14,14 +14,17 @@ namespace GestaoAutomotiva.Data
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<OrdemServico> OrdemServicos { get; set; }
         public DbSet<AcessoriosCarro> AcessoriosCarros { get; set; }
-
         public DbSet<Motor> Motors { get; set; }
         public DbSet<Modelo> Modelos { get; set; }
         public DbSet<Cambio> Cambios { get; set; }
         public DbSet<Suspensao> Suspensaos { get; set; }
-        public DbSet<RodaPneu> RodasPneus { get; set; }
+        public DbSet<Roda> Rodas { get; set; }
+        public DbSet<Pneu> Pneus { get; set; }
+        public DbSet<SantoAntonio> SantoAntonios { get; set; }
         public DbSet<Carroceria> Carrocerias { get; set; }
         public DbSet<Capota> Capotas { get; set; }
+        public DbSet<Escapamento> Escapamentos { get; set; }
+        public DbSet<Painel> Paineis { get; set; }
         public DbSet<AtividadeHistorico> AtividadeHistoricos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
@@ -116,6 +119,18 @@ namespace GestaoAutomotiva.Data
                 .WithMany(m => m.Capotas)
                 .HasForeignKey(c => c.ModeloId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Escapamento>()
+           .HasOne(c => c.Modelo)
+           .WithMany(m => m.Escapamentos)
+           .HasForeignKey(c => c.ModeloId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Painel>()
+          .HasOne(c => c.Modelo)
+          .WithMany(m => m.Paineis)
+          .HasForeignKey(c => c.ModeloId)
+          .OnDelete(DeleteBehavior.Restrict);
         }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }

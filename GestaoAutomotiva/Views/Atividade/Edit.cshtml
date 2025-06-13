@@ -33,11 +33,12 @@
                 <label asp-for="Status" class="form-label">Status</label>
                 <select asp-for="Status" class="form-select text-uppercase">
                     <option value="">Selecione</option>
-                    <option>Em Andamento</option>
-                    <option>Parado</option>
-                    <option>Nao Iniciado</option>
-                    <option>Finalizado</option>
-                    <option>Cancelado</option>
+                    <option>EM ANDAMENTO</option>
+                    <option>PARADO</option>
+                    <option>NAO INICIADO</option>
+                    <option>FINALIZADO</option>
+                    <option>CANCELADO</option>
+                    <option>REPROVADO</option>
                 </select>
                 <span asp-validation-for="Status" class="text-danger small"></span>
             </div>
@@ -87,7 +88,7 @@
         </div>
     </form>
 </div>
-
+<footer style="margin-top: 200px;"></footer>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

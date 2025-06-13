@@ -74,6 +74,7 @@ namespace GestaoAutomotiva.Controllers
                 "Nao Iniciado" => "#e67e22",
                 "Em Andamento" => "#3498db",
                 "Cancelado" => "#e74c3c",
+                "Reprovado" => "#c0392b",
                 _ => "#ffffff" // branco ou neutro
             };
         }

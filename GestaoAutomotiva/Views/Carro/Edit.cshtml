@@ -53,7 +53,7 @@
             <div class="col-md-4">
                 <label class="form-label">Motor</label>
                 <select asp-for="Acessorios.MotorId" class="form-select" asp-items="@(ViewBag.Motores as SelectList)">
-                    <option value="">SELECIONE</option>
+                    <option value="">CAMPO OPCIONAL</option>
                 </select>
             </div>
             <div class="col-md-4">
@@ -72,8 +72,20 @@
 
         <div class="row mt-3">
             <div class="col-md-4">
-                <label class="form-label">Rodas e Pneus</label>
-                <select asp-for="Acessorios.RodasPneusId" class="form-select" asp-items="@(ViewBag.RodasPneus as SelectList)">
+                <label class="form-label">Rodas</label>
+                <select asp-for="Acessorios.RodaId" class="form-select" asp-items="@(ViewBag.Rodas as SelectList)">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Pneus</label>
+                <select asp-for="Acessorios.PneuId" class="form-select" asp-items="@(ViewBag.Pneus as SelectList)">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Santo Antônio</label>
+                <select asp-for="Acessorios.SantoAntonioId" class="form-select" asp-items="@(ViewBag.SantoAntonios as SelectList)">
                     <option value="">SELECIONE</option>
                 </select>
             </div>
@@ -89,6 +101,21 @@
                     <option value="">SELECIONE</option>
                 </select>
             </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Escapamento</label>
+                    <select asp-for="Acessorios.EscapamentoId" class="form-select" asp-items="@(ViewBag.Escapamentos as SelectList)">
+                        <option value="">SELECIONE</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Painel</label>
+                    <select asp-for="Acessorios.PainelId" class="form-select" asp-items="@(ViewBag.Paineis as SelectList)">
+                        <option value="">SELECIONE</option>
+                    </select>
+                </div>
+            </div>
+
         </div>
 
         <!-- Dados do Cliente -->
@@ -155,3 +182,4 @@
         </script>
     }
 </div>
+<footer style="margin-top: 200px;"></footer>

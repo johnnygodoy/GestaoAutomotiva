@@ -1,4 +1,5 @@
 ﻿using System;
+using GestaoAutomotiva.Models;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -243,7 +244,7 @@ namespace GestaoAutomotiva.Migrations
                     SuspensaoId = table.Column<int>(type: "INTEGER", nullable: false),
                     RodasPneusId = table.Column<int>(type: "INTEGER", nullable: false),
                     CarroceriaId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CapotaId = table.Column<int>(type: "INTEGER", nullable: false)
+                    CapotaId = table.Column<int>(type: "INTEGER", nullable: false),                 
                 },
                 constraints: table =>
                 {

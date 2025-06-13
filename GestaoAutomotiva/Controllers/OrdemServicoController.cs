@@ -68,7 +68,7 @@ namespace GestaoAutomotiva.Controllers
                     (o.Atividade != null &&
                         (
                             (o.Atividade.Funcionario.Nome ?? "").ToUpper().Contains(buscaUpper) ||
-                            (o.Atividade.Carro.Modelo.Nome ?? "").ToUpper().Contains(buscaUpper) ||                         
+                            (o.Atividade.Carro.Modelo.Nome ?? "").ToUpper().Contains(buscaUpper) ||
                             (o.Atividade.Carro.Cliente.Nome ?? "").ToUpper().Contains(buscaUpper) ||
                             (o.Atividade.Etapa.Nome ?? "").ToUpper().Contains(buscaUpper) ||
                             o.Atividade.Servico.Id.ToString().Contains(buscaUpper)
@@ -399,7 +399,11 @@ namespace GestaoAutomotiva.Controllers
                 .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Capota)
                 .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Motor)
                 .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Suspensao)
-                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.RodasPneus)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Roda)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Pneu)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.SantoAntonio)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Escapamento)
+                .Include(o => o.Atividade).ThenInclude(a => a.Carro).ThenInclude(c => c.Acessorios).ThenInclude(a => a.Painel)
                 .Include(o => o.Atividade).ThenInclude(a => a.Servico)
                 .FirstOrDefault(o => o.Id == id);
 
@@ -426,11 +430,19 @@ namespace GestaoAutomotiva.Controllers
                         .Include(c => c.Acessorios)
                             .ThenInclude(a => a.Suspensao)
                         .Include(c => c.Acessorios)
-                            .ThenInclude(a => a.RodasPneus)
+                            .ThenInclude(a => a.Roda)
+                              .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.Pneu)
+                               .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.SantoAntonio)
                         .Include(c => c.Acessorios)
                             .ThenInclude(a => a.Carroceria)
                         .Include(c => c.Acessorios)
                             .ThenInclude(a => a.Capota)
+                             .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.Escapamento)
+                             .Include(c => c.Acessorios)
+                            .ThenInclude(a => a.Painel)
                         .FirstOrDefault(c => c.Id == ordem.CarroId),
                     Servico = _context.Servicos.FirstOrDefault(s => s.Id == ordem.Id),
                     Etapa = _context.Etapas.FirstOrDefault(e => e.Nome == ordem.EtapaAtual)

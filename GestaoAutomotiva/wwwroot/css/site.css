@@ -637,15 +637,13 @@ input[type="text"] {
 }
 
 .page-container {
-    max-width: 1400px;
-    margin: auto;
-    padding: 1.5rem;
-    background-color: rgba(33, 37, 41, 0.75); /* bg-dark bg-opacity-75 */
-    color: #f8f9fa; /* text-light */
+    width: 90%;
+    margin: 2rem auto; /* Centraliza horizontalmente e dá espaçamento superior */
+    padding: 1.5rem 2rem;
+    background-color: rgba(33, 37, 41, 0.75);
+    color: #f8f9fa;
     border-radius: 0.5rem;
-    margin-left: 200px;
 }
-
 
 .validation-message {
     display: block;
@@ -663,7 +661,19 @@ input[type="text"] {
     margin-top: 0.25rem;
 }
 
+.card-zoom {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .card-zoom:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        z-index: 10;
+        position: relative;
+        cursor: pointer;
+    }
 
 
 
-/* Fim das modificações */
+
+    /* Fim das modificações */

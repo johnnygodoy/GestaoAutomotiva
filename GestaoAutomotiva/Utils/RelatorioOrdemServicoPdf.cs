@@ -63,7 +63,11 @@ namespace GestaoAutomotiva.Utils
                             col.Item().Text($"CARROCERIA:  {acessorios?.Carroceria?.Descricao ?? "___"}").Bold();
                             col.Item().Text($"CAPOTA:  {acessorios?.Capota?.Descricao ?? "___"}").Bold();
                             col.Item().Text($"SUSPENSÃO:  {acessorios?.Suspensao?.Descricao ?? "___"}").Bold();
-                            col.Item().Text($"RODAS/PNEUS:  {acessorios?.RodasPneus?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"RODAS:  {acessorios?.Roda?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"PNEUS:  {acessorios?.Pneu?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"SANTO ANTÔNIO:  {acessorios?.SantoAntonio?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"ESCAPAMENTO:  {acessorios?.Escapamento?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"PAINEL:  {acessorios?.Painel?.Descricao ?? "___"}").Bold();
                         });
                     });
                 });

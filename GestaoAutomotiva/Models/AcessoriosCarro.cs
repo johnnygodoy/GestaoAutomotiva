@@ -10,11 +10,8 @@ namespace GestaoAutomotiva.Models
         public int ModeloId { get; set; }
      
         public Modelo Modelo { get; set; }
-
-        [Required(ErrorMessage = "O campo Motor do Carro é obrigatório.")]
-        public int MotorId { get; set; }
-
-  
+    
+        public int? MotorId { get; set; }  
         public Motor Motor { get; set; }
 
         [Required(ErrorMessage = "O campo Câmbio do Carro é obrigatório.")]
@@ -28,10 +25,19 @@ namespace GestaoAutomotiva.Models
 
         public Suspensao Suspensao { get; set; }
 
-        [Required(ErrorMessage = "O campo Rodae e Pneus do Carro é obrigatório.")]
-        public int RodasPneusId { get; set; }
+        [Required(ErrorMessage = "O campo Rodas é obrigatório.")]
+        public int RodaId { get; set; }
+        public Roda Roda { get; set; }
 
-        public RodaPneu RodasPneus { get; set; }
+        [Required(ErrorMessage = "O campo Pneus é obrigatório.")]
+        public int PneuId { get; set; }
+        public Pneu Pneu { get; set; }
+
+        [Required(ErrorMessage = "O campo Santo Antônio é obrigatório.")]
+        public int SantoAntonioId { get; set; }
+        public SantoAntonio  SantoAntonio { get; set; }
+
+
 
         [Required(ErrorMessage = "O campo Carroceria do Carro é obrigatório.")]
         public int CarroceriaId { get; set; }
@@ -42,6 +48,15 @@ namespace GestaoAutomotiva.Models
         public int CapotaId { get; set; }
      
         public Capota Capota { get; set; }
+
+        [Required(ErrorMessage = "O campo Escapamento do Carro é obrigatório.")]
+        public int EscapamentoId { get; set; }
+        public Escapamento Escapamento { get; set; }
+
+
+        [Required(ErrorMessage = "O campo Painel do Carro é obrigatório.")]
+        public int PainelId { get; set; }
+        public Painel Painel { get; set; }
     }
 
 

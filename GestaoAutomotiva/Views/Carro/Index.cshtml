@@ -67,6 +67,10 @@
                     <th>Câmbio</th>
                     <th>Carroceria</th>
                     <th>Capota</th>
+                    <th>Roda</th>
+                    <th>Pneu</th>
+                    <th>Escapamento</th>
+                    <th>Painel</th>
                     <th>Natureza</th>
                     <th class="text-center">Ações</th>
                 </tr>
@@ -83,6 +87,10 @@
                         <td>@(carro.Acessorios?.Cambio?.Descricao?.ToUpper() ?? "N/A")</td>
                         <td>@(carro.Acessorios?.Carroceria?.Descricao?.ToUpper() ?? "N/A")</td>
                         <td>@(carro.Acessorios?.Capota?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Roda?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Pneu?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Escapamento?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Painel?.Descricao?.ToUpper() ?? "N/A")</td>
                         <td>@carro.TipoManutencao</td>
                         <td class="text-center">
                             <div class="d-flex gap-2 justify-content-center flex-wrap">
@@ -100,6 +108,7 @@
         </table>
     </div>
 
+
     <nav class="mt-4">
         <ul class="pagination justify-content-center mb-0">
             @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
@@ -113,3 +122,4 @@
         </ul>
     </nav>
 </div>
+<footer style="margin-top: 200px;"></footer>

@@ -34,9 +34,13 @@ namespace GestaoAutomotiva.Controllers
                 .Include(c => c.Acessorios).ThenInclude(a => a.Motor)
                 .Include(c => c.Acessorios).ThenInclude(a => a.Cambio)
                 .Include(c => c.Acessorios).ThenInclude(a => a.Suspensao)
-                .Include(c => c.Acessorios).ThenInclude(a => a.RodasPneus)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Roda)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Pneu)
+                .Include(c => c.Acessorios).ThenInclude(a => a.SantoAntonio)
                 .Include(c => c.Acessorios).ThenInclude(a => a.Carroceria)
                 .Include(c => c.Acessorios).ThenInclude(a => a.Capota)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Escapamento)
+                .Include(c => c.Acessorios).ThenInclude(a => a.Painel)
                 .ToList();
 
             // Aplicar filtro de busca textual (sem acentos)
@@ -54,9 +58,13 @@ namespace GestaoAutomotiva.Controllers
                     RemoverAcentos(c.Acessorios?.Motor?.Nome ?? "").Contains(buscaNormalizada) ||
                     RemoverAcentos(c.Acessorios?.Cambio?.Descricao ?? "").Contains(buscaNormalizada) ||
                     RemoverAcentos(c.Acessorios?.Suspensao?.Descricao ?? "").Contains(buscaNormalizada) ||
-                    RemoverAcentos(c.Acessorios?.RodasPneus?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Roda?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Pneu?.Descricao ?? "").Contains(buscaNormalizada) ||
+                      RemoverAcentos(c.Acessorios?.SantoAntonio?.Descricao ?? "").Contains(buscaNormalizada) ||
                     RemoverAcentos(c.Acessorios?.Carroceria?.Descricao ?? "").Contains(buscaNormalizada) ||
                     RemoverAcentos(c.Acessorios?.Capota?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Escapamento?.Descricao ?? "").Contains(buscaNormalizada) ||
+                    RemoverAcentos(c.Acessorios?.Painel?.Descricao ?? "").Contains(buscaNormalizada) ||
                     RemoverAcentos(c.TipoManutencao ?? "").Contains(buscaNormalizada)
                 ).ToList();
             }
@@ -88,10 +96,13 @@ namespace GestaoAutomotiva.Controllers
         public IActionResult Create() {
 
             ViewBag.TiposManutencao = new SelectList(new[]
-{
-    new { Value = "Producao", Text = "Produção" },
-    new { Value = "Revisao", Text = "Revisão" }
-}, "Value", "Text");
+            { 
+                 new { Value = "Fabricação", Text = "Fabricação" },
+                 new { Value = "Producao", Text = "Produção" },
+                 new { Value = "Retrabalho", Text = "Retrabalho" },       
+                 new { Value = "Revisao", Text = "Revisão" }
+            }, "Value", "Text");
+
             PopularViewBags();
             var carro = new Carro
             {
@@ -142,8 +153,12 @@ namespace GestaoAutomotiva.Controllers
                 acessorios.CambioId <= 0 ||
                 acessorios.CarroceriaId <= 0 ||
                 acessorios.SuspensaoId <= 0 ||
-                acessorios.RodasPneusId <= 0 ||
-                acessorios.MotorId <= 0)
+                acessorios.RodaId <= 0 ||
+                acessorios.PneuId <= 0 ||
+                acessorios.SantoAntonioId <= 0 ||
+                acessorios.EscapamentoId <= 0 ||
+                acessorios.PainelId <= 0)
+                
             {
                 ModelState.AddModelError("Acessorios", "Todos os campos de acessórios são obrigatórios.");
                 temErro = true;
@@ -173,13 +188,23 @@ namespace GestaoAutomotiva.Controllers
 
 
             // 🛡️ Validação de integridade referencial (confirma se os IDs existem)
+            bool motorValido = true;
+            if (acessorios.MotorId.HasValue)
+            {
+                motorValido = await _context.Motors.AnyAsync(m => m.Id == acessorios.MotorId.Value);
+            }
+
             bool idsValidos =
-                await _context.Motors.AnyAsync(m => m.Id == acessorios.MotorId) &&
+                motorValido &&
                 await _context.Cambios.AnyAsync(c => c.Id == acessorios.CambioId) &&
                 await _context.Suspensaos.AnyAsync(s => s.Id == acessorios.SuspensaoId) &&
-                await _context.RodasPneus.AnyAsync(r => r.Id == acessorios.RodasPneusId) &&
+                await _context.Rodas.AnyAsync(r => r.Id == acessorios.RodaId) &&
+                await _context.Pneus.AnyAsync(r => r.Id == acessorios.PneuId) &&
+                await _context.SantoAntonios.AnyAsync(r => r.Id == acessorios.SantoAntonioId) &&
                 await _context.Carrocerias.AnyAsync(c => c.Id == acessorios.CarroceriaId) &&
-                await _context.Capotas.AnyAsync(c => c.Id == acessorios.CapotaId);
+                await _context.Capotas.AnyAsync(c => c.Id == acessorios.CapotaId) &&
+                await _context.Escapamentos.AnyAsync(c => c.Id == acessorios.EscapamentoId) &&
+                await _context.Paineis.AnyAsync(c => c.Id == acessorios.PainelId);
 
             if (!idsValidos)
             {
@@ -195,7 +220,11 @@ namespace GestaoAutomotiva.Controllers
                 CambioId = acessorios.CambioId,
                 CarroceriaId = acessorios.CarroceriaId,
                 SuspensaoId = acessorios.SuspensaoId,
-                RodasPneusId = acessorios.RodasPneusId,
+                RodaId = acessorios.RodaId,
+                PneuId = acessorios.PneuId,
+                SantoAntonioId = acessorios.SantoAntonioId,
+                EscapamentoId = acessorios.EscapamentoId,
+                PainelId = acessorios.PainelId,
                 MotorId = acessorios.MotorId,
                 ModeloId = carro.ModeloId
             };
@@ -250,8 +279,10 @@ namespace GestaoAutomotiva.Controllers
 
             ViewBag.TiposManutencao = new SelectList(new[]
             {
-        new { Value = "Producao", Text = "Produção" },
-        new { Value = "Revisao", Text = "Revisão" }
+                 new { Value = "Fabricação", Text = "Fabricação" },
+                 new { Value = "Producao", Text = "Produção" },
+                 new { Value = "Retrabalho", Text = "Retrabalho" },
+                 new { Value = "Revisao", Text = "Revisão" }
     }, "Value", "Text", carro.TipoManutencao); // pré-selecionar valor atual
 
             PopularViewBags();
@@ -339,12 +370,7 @@ namespace GestaoAutomotiva.Controllers
                 temErro = true;
             }
             else
-            {
-                if (carro.Acessorios.MotorId == 0)
-                {
-                    ModelState.AddModelError("Acessorios.MotorId", "Motor é obrigatório.");
-                    temErro = true;
-                }
+            {              
 
                 if (carro.Acessorios.CambioId == 0)
                 {
@@ -355,6 +381,18 @@ namespace GestaoAutomotiva.Controllers
                 if (carro.Acessorios.SuspensaoId == 0)
                 {
                     ModelState.AddModelError("Acessorios.SuspensaoId", "Suspensão é obrigatória.");
+                    temErro = true;
+                }
+
+                if (carro.Acessorios.EscapamentoId == 0)
+                {
+                    ModelState.AddModelError("Acessorios.EscapamentoId", "Escapamento é obrigatória.");
+                    temErro = true;
+                }
+
+                if (carro.Acessorios.PainelId == 0)
+                {
+                    ModelState.AddModelError("Acessorios.PainelId", "Painel é obrigatória.");
                     temErro = true;
                 }
             }
@@ -389,10 +427,14 @@ namespace GestaoAutomotiva.Controllers
             carroExistente.Acessorios.MotorId = carro.Acessorios.MotorId;
             carroExistente.Acessorios.CambioId = carro.Acessorios.CambioId;
             carroExistente.Acessorios.SuspensaoId = carro.Acessorios.SuspensaoId;
-            carroExistente.Acessorios.RodasPneusId = carro.Acessorios.RodasPneusId;
+            carroExistente.Acessorios.RodaId = carro.Acessorios.RodaId;
+            carroExistente.Acessorios.PneuId = carro.Acessorios.PneuId;
+            carroExistente.Acessorios.SantoAntonioId = carro.Acessorios.SantoAntonioId;
             carroExistente.Acessorios.CarroceriaId = carro.Acessorios.CarroceriaId;
             carroExistente.Acessorios.CapotaId = carro.Acessorios.CapotaId;
-            carroExistente.Acessorios.ModeloId = carro.ModeloId; // ⚠️ Essencial!
+            carroExistente.Acessorios.EscapamentoId = carro.Acessorios.EscapamentoId;
+            carroExistente.Acessorios.PainelId = carro.Acessorios.PainelId;
+            carroExistente.Acessorios.ModeloId = carro.ModeloId;
 
             // 🔁 Salva com retry
             bool sucesso = await RetryHelper.TentarSalvarAsync(async () =>
@@ -451,9 +493,13 @@ namespace GestaoAutomotiva.Controllers
             ViewBag.Motores = new SelectList(_context.Motors.ToList(), "Id", "Nome");
             ViewBag.Cambios = new SelectList(_context.Cambios.ToList(), "Id", "Descricao");
             ViewBag.Suspensoes = new SelectList(_context.Suspensaos.ToList(), "Id", "Descricao");
-            ViewBag.RodasPneus = new SelectList(_context.RodasPneus.ToList(), "Id", "Descricao");
+            ViewBag.Rodas = new SelectList(_context.Rodas.ToList(), "Id", "Descricao");
+            ViewBag.Pneus = new SelectList(_context.Pneus.ToList(), "Id", "Descricao");
+            ViewBag.SantoAntonios = new SelectList(_context.SantoAntonios.ToList(), "Id", "Descricao");
             ViewBag.Carrocerias = new SelectList(_context.Carrocerias.ToList(), "Id", "Descricao");
             ViewBag.Capotas = new SelectList(_context.Capotas.ToList(), "Id", "Descricao");
+            ViewBag.Escapamentos = new SelectList(_context.Escapamentos.ToList(), "Id", "Descricao");
+            ViewBag.Paineis = new SelectList(_context.Paineis.ToList(), "Id", "Descricao");
         }
 
 

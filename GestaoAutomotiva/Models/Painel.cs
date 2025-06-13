@@ -1,6 +1,6 @@
 ﻿namespace GestaoAutomotiva.Models
 {
-    public class RodaPneu
+    public class Painel
     {
         public int Id { get; set; }
         public string Descricao { get; set; }

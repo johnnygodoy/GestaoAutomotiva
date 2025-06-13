@@ -109,7 +109,7 @@
                 var detalhes = ViewBag.DetalhesPorStatus[item.Status] as List<GestaoAutomotiva.Models.AtividadeResumo>;
 
 
-                <div class="rounded shadow text-white px-4 py-3" style="background-color:@cor; min-width: 220px; max-width: 300px;">
+                <div class="rounded shadow text-white px-4 py-3 card-zoom" style="background-color:@cor; min-width: 220px; max-width: 300px;">
                     <h5 class="mb-1 text-center">@item.Status</h5>
                     <p class="mb-0 text-center">@item.Total</p>
                     <small class="d-block text-center">@item.Percentual.ToString("0.##")%</small>
@@ -162,7 +162,7 @@
     </div>
 </div>
 
-<footer style="margin-top: 100px;"></footer>
+<footer style="margin-top: 200px;"></footer>
 
 <!-- Scripts -->
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -355,13 +355,60 @@
         const dados = @Html.Raw(JsonSerializer.Serialize(ViewBag.DadosDiarios));
 
         const labels = dados.map(d => new Date(d.Data).toLocaleDateString());
-        const datasets = [
-            { label: "Concluídas", data: dados.map(d => d.Concluidas), fill: true, borderColor: "#27ae60", backgroundColor: "rgba(39,174,96,0.2)" },
-            { label: "Em Andamento", data: dados.map(d => d.Andamento), fill: true, borderColor: "#2980b9", backgroundColor: "rgba(41,128,185,0.2)" },
-            { label: "Canceladas", data: dados.map(d => d.Canceladas), fill: true, borderColor: "#e67e22", backgroundColor: "rgba(230,126,34,0.2)" },
-            { label: "Reprovadas", data: dados.map(d => d.Reprovadas), fill: true, borderColor: "#c0392b", backgroundColor: "rgba(192,57,43,0.2)" },
-            { label: "Parados", data: dados.map(d => d.Parados), fill: true, borderColor: "#f1c40f", backgroundColor: "rgba(241,196,15,0.2)" }
-        ];
+            const datasets = [
+        {
+            label: "Concluídas",
+            data: dados.map(d => d.Concluidas),
+            fill: true,
+            borderColor: "#27ae60",
+            backgroundColor: "rgba(39,174,96,0.2)",
+            tension: 0.4,
+            pointRadius: 3,
+            borderWidth: 2
+        },
+        {
+            label: "Em Andamento",
+            data: dados.map(d => d.Andamento),
+            fill: true,
+            borderColor: "#2980b9",
+            backgroundColor: "rgba(41,128,185,0.2)",
+            tension: 0.4,
+            pointRadius: 3,
+            borderWidth: 2
+        },
+        {
+            label: "Canceladas",
+            data: dados.map(d => d.Canceladas),
+            fill: true,
+            borderColor: "#e67e22",
+            backgroundColor: "rgba(230,126,34,0.2)",
+            tension: 0.4,
+            pointRadius: 3,
+            borderWidth: 2
+        },
+        {
+            label: "Reprovadas",
+            data: dados.map(d => d.Reprovadas),
+            fill: true,
+            borderColor: "#c0392b",
+            backgroundColor: "rgba(192,57,43,0.2)",
+            tension: 0.4,
+            pointRadius: 3,
+            borderWidth: 2
+        },
+        {
+            label: "Parados",
+            data: dados.map(d => d.Parados),
+            fill: true,
+            borderColor: "#f1c40f",
+            backgroundColor: "rgba(241,196,15,0.2)",
+            tension: 0.4,
+            pointRadius: 3,
+            borderWidth: 2
+        }
+    ];
+
+
 
         new Chart(ctx, {
             type: "line",

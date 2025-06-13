@@ -13,7 +13,8 @@ namespace GestaoAutomotiva.Models
         public ICollection<Cambio> Cambios { get; set; }
         public ICollection<Suspensao> Suspensoes { get; set; }
         public ICollection<Carroceria> Carrocerias { get; set; }
-
         public ICollection<Capota> Capotas { get; set; }
+        public ICollection<Escapamento> Escapamentos { get; set; }
+        public ICollection<Painel> Paineis { get; set; }
     }
 }

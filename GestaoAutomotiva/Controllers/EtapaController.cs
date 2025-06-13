@@ -17,8 +17,8 @@ namespace GestaoAutomotiva.Controllers
         }
 
         public IActionResult Index(int page = 1) {
+            
             int pageSize = 5;
-
             var etapas = _context.Etapas
                 .OrderBy(e => e.Ordem)
                 .ToList();

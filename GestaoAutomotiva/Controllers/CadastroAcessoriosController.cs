@@ -17,9 +17,13 @@ public class CadastroAcessoriosController : Controller
         ViewBag.Motores = _context.Motors?.OrderBy(m => m.Nome).ToList() ?? new List<Motor>();
         ViewBag.Cambios = _context.Cambios?.OrderBy(c => c.Descricao).ToList() ?? new List<Cambio>();
         ViewBag.Suspensoes = _context.Suspensaos?.OrderBy(s => s.Descricao).ToList() ?? new List<Suspensao>();
-        ViewBag.RodasPneus = _context.RodasPneus?.OrderBy(r => r.Descricao).ToList() ?? new List<RodaPneu>();
+        ViewBag.Rodas = _context.Rodas?.OrderBy(r => r.Descricao).ToList() ?? new List<Roda>();
+        ViewBag.Pneus = _context.Pneus?.OrderBy(r => r.Descricao).ToList() ?? new List<Pneu>();
+        ViewBag.SantoAntonios = _context.SantoAntonios?.OrderBy(r => r.Descricao).ToList() ?? new List<SantoAntonio>();
         ViewBag.Carrocerias = _context.Carrocerias?.OrderBy(c => c.Descricao).ToList() ?? new List<Carroceria>();
         ViewBag.Capotas = _context.Capotas?.OrderBy(c => c.Descricao).ToList() ?? new List<Capota>();
+        ViewBag.Escapamentos = _context.Escapamentos?.OrderBy(c => c.Descricao).ToList() ?? new List<Escapamento>();
+        ViewBag.Paineis = _context.Paineis?.OrderBy(c => c.Descricao).ToList() ?? new List<Painel>();
         ViewBag.Modelos = _context.Modelos.OrderBy(m => m.Nome).ToList();
 
         return View();
@@ -97,10 +101,28 @@ public class CadastroAcessoriosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CriarRodasPneus(string descricao) {
-        TempData["Mensagem"] = await AdicionarAcessorio(_context.RodasPneus, r => r.Descricao, desc => new RodaPneu { Descricao = desc }, descricao)
-            ? "Rodas/Pneus cadastrados com sucesso!"
-            : "Rodas/Pneus já cadastrados ou inválidos.";
+    public async Task<IActionResult> CriarRoda(string descricao) {
+        TempData["Mensagem"] = await AdicionarAcessorio(_context.Rodas, r => r.Descricao, desc => new Roda { Descricao = desc }, descricao)
+            ? "Rodas cadastrados com sucesso!"
+            : "Rodas já cadastrados ou inválidos.";
+        return RedirectToAction("Create");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CriarPneu(string descricao) {
+        TempData["Mensagem"] = await AdicionarAcessorio(_context.Pneus, r => r.Descricao, desc => new Pneu { Descricao = desc }, descricao)
+            ? "Pneus cadastrados com sucesso!"
+            : "Pneus já cadastrados ou inválidos.";
+        return RedirectToAction("Create");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CriarSantoAntonio(string descricao) {
+        TempData["Mensagem"] = await AdicionarAcessorio(_context.SantoAntonios, r => r.Descricao, desc => new SantoAntonio { Descricao = desc }, descricao)
+            ? "Santo Antônio cadastrados com sucesso!"
+            : "Santo Antônio já cadastrados ou inválidos.";
         return RedirectToAction("Create");
     }
 
@@ -124,6 +146,25 @@ public class CadastroAcessoriosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CriarEscapamento(string descricao) {
+        TempData["Mensagem"] = await AdicionarAcessorio(_context.Escapamentos, c => c.Descricao, desc => new Escapamento { Descricao = desc }, descricao)
+            ? "Escapamento cadastrada com sucesso!"
+            : "Escapamento já cadastrada ou inválida.";
+        return RedirectToAction("Create");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CriarPainel(string descricao) {
+        TempData["Mensagem"] = await AdicionarAcessorio(_context.Paineis, c => c.Descricao, desc => new Painel { Descricao = desc }, descricao)
+            ? "Painel cadastrada com sucesso!"
+            : "Painel já cadastrada ou inválida.";
+        return RedirectToAction("Create");
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Excluir(string tipo, int id) {
         if (string.IsNullOrWhiteSpace(tipo))
         {
@@ -137,9 +178,13 @@ public class CadastroAcessoriosController : Controller
             "motor" => _context.Motors.Find(id),
             "cambio" => _context.Cambios.Find(id),
             "suspensao" => _context.Suspensaos.Find(id),
-            "rodaspneus" => _context.RodasPneus.Find(id),
+            "rodas" => _context.Rodas.Find(id),
+            "pneus" => _context.Pneus.Find(id),
+            "santoAntonio" => _context.SantoAntonios.Find(id),
             "carroceria" => _context.Carrocerias.Find(id),
             "capota" => _context.Capotas.Find(id),
+            "escapamento" => _context.Escapamentos.Find(id),
+            "paineis" => _context.Paineis.Find(id),
             _ => null
         };
 

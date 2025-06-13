@@ -13,60 +13,96 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-light">Criar Acessórios</h2>
 
-<h2 class="text-light">Criar Acessórios</h2>
+    <!-- Formulário para criar um novo acessório -->
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
 
-<!-- Formulário para criar um novo acessório -->
-<form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
+        <!-- Linha 1 -->
+        <div class="row">
+            <div class="col-md-4">
+                <label asp-for="MotorId">Motor</label>
+                <select asp-for="MotorId" class="form-control" asp-items="ViewBag.Motores">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="CambioId">Câmbio</label>
+                <select asp-for="CambioId" class="form-control" asp-items="ViewBag.Cambios">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="SuspensaoId">Suspensão</label>
+                <select asp-for="SuspensaoId" class="form-control" asp-items="ViewBag.Suspensoes">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+        </div>
 
-    <div class="row">
-        <div class="col-md-4">
-            <label asp-for="Motor"></label>
-            <select asp-for="MotorId" class="form-control" asp-items="ViewBag.Motores">
-                <option value="">SELECIONE</option>
-            </select>
+        <!-- Linha 2 -->
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <label asp-for="RodaId">Rodas</label>
+                <select asp-for="RodaId" class="form-control" asp-items="ViewBag.Rodas">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="PneuId">Pneus</label>
+                <select asp-for="PneuId" class="form-control" asp-items="ViewBag.Pneus">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="SantoAntonioId">Santo Antônio</label>
+                <select asp-for="SantoAntonioId" class="form-control" asp-items="ViewBag.SantoAntonios">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
         </div>
-        <div class="col-md-4">
-            <label asp-for="Cambio"></label>
-            <select asp-for="CambioId" class="form-control" asp-items="ViewBag.Cambios">
-                <option value="">SELECIONE</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Suspensao"></label>
-            <select asp-for="SuspensaoId" class="form-control" asp-items="ViewBag.Suspensoes">
-                <option value="">SELECIONE</option>
-            </select>
-        </div>
-    </div>
 
-    <div class="row mt-3">
-        <div class="col-md-4">
-            <label asp-for="RodasPneus"></label>
-            <select asp-for="RodasPneusId" class="form-control" asp-items="ViewBag.RodasPneus">
-                <option value="">SELECIONE</option>
-            </select>
+        <!-- Linha 3 -->
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <label asp-for="CarroceriaId">Carroceria</label>
+                <select asp-for="CarroceriaId" class="form-control" asp-items="ViewBag.Carrocerias">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="CapotaId">Capota</label>
+                <select asp-for="CapotaId" class="form-control" asp-items="ViewBag.Capotas">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="EscapamentoId">Escapamento</label>
+                <select asp-for="EscapamentoId" class="form-control" asp-items="ViewBag.Escapamentos">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
         </div>
-        <div class="col-md-4">
-            <label asp-for="Carroceria"></label>
-            <select asp-for="CarroceriaId" class="form-control" asp-items="ViewBag.Carrocerias">
-                <option value="">SELECIONE</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Capota"></label>
-            <select asp-for="CapotaId" class="form-control" asp-items="ViewBag.Capotas">
-                <option value="">SELECIONE</option>
-            </select>
-        </div>
-    </div>
 
-    <div class="mt-4 d-flex justify-content-between">
-        <button type="submit" class="btn btn-outline-light">Salvar Acessórios</button>
-        <a asp-controller="Carro" asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </div>
-</form>
+        <!-- Linha 4 -->
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <label asp-for="PainelId">Painel</label>
+                <select asp-for="PainelId" class="form-control" asp-items="ViewBag.Paineis">
+                    <option value="">SELECIONE</option>
+                </select>
+            </div>
+            <div class="col-md-4"></div>
+            <div class="col-md-4"></div>
+        </div>
+
+
+
+    </form>
+
+</div>
 
 <hr>
 
@@ -78,9 +114,13 @@
             <th>Motor</th>
             <th>Câmbio</th>
             <th>Suspensão</th>
-            <th>Rodas/Pneus</th>
+            <th>Rodas</th>
+            <th>Pneus</th>
+            <th>Santo Antônio</th>
             <th>Carroceria</th>
             <th>Capota</th>
+            <th>Escapamento</th>
+            <th>Painel</th>
             <th>Ações</th>
         </tr>
     </thead>
@@ -91,9 +131,13 @@
                 <td>@item.Motor?.Descricao</td>
                 <td>@item.Cambio?.Descricao</td>
                 <td>@item.Suspensao?.Descricao</td>
-                <td>@item.RodasPneus?.Descricao</td>
+                <td>@item.Roda?.Descricao</td>
+                <td>@item.Pneu?.Descricao</td>
+                <td>@item.SantoAntonios?.Descricao</td>
                 <td>@item.Carroceria?.Descricao</td>
                 <td>@item.Capota?.Descricao</td>
+                <td>@item.Escapamento?.Descricao</td>
+                <td>@item.Painel?.Descricao</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Excluir</a>
@@ -102,3 +146,4 @@
         }
     </tbody>
 </table>
+<footer style="margin-top: 200px;"></footer>

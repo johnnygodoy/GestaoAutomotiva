@@ -67,45 +67,59 @@
         <!-- 🧩 Linha 3: Acessórios -->
         <h4 class="text-light mt-4"><i class="bi bi-tools"></i> Acessórios do Carro</h4>
         <div class="row mb-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label asp-for="Acessorios.MotorId" class="form-label">Motor</label>
                 <select asp-for="Acessorios.MotorId" class="form-control" asp-items="ViewBag.Motores">
-                    <option value="">SELECIONE</option>
+                    <option value="">CAMPO OPCIONAL</option>
                 </select>
                 <span asp-validation-for="Acessorios.MotorId" class="text-danger"></span>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label asp-for="Acessorios.CambioId" class="form-label">Câmbio</label>
                 <select asp-for="Acessorios.CambioId" class="form-control" asp-items="ViewBag.Cambios">
                     <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.CambioId" class="text-danger"></span>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label asp-for="Acessorios.SuspensaoId" class="form-label">Suspensão</label>
                 <select asp-for="Acessorios.SuspensaoId" class="form-control" asp-items="ViewBag.Suspensoes">
                     <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.SuspensaoId" class="text-danger"></span>
             </div>
+            <div class="col-md-3">
+                <label asp-for="Acessorios.RodaId" class="form-label">Rodas</label>
+                <select asp-for="Acessorios.RodaId" class="form-control" asp-items="ViewBag.Rodas">
+                    <option value="">SELECIONE</option>
+                </select>
+                <span asp-validation-for="Acessorios.RodaId" class="text-danger"></span>
+            </div>
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-4">
-                <label asp-for="Acessorios.RodasPneusId" class="form-label">Rodas/Pneus</label>
-                <select asp-for="Acessorios.RodasPneusId" class="form-control" asp-items="ViewBag.RodasPneus">
+            <div class="col-md-3">
+                <label asp-for="Acessorios.PneuId" class="form-label">Pneus</label>
+                <select asp-for="Acessorios.PneuId" class="form-control" asp-items="ViewBag.Pneus">
                     <option value="">SELECIONE</option>
                 </select>
-                <span asp-validation-for="Acessorios.RodasPneusId" class="text-danger"></span>
+                <span asp-validation-for="Acessorios.PneuId" class="text-danger"></span>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label asp-for="Acessorios.SantoAntonioId" class="form-label">Santo Antônio</label>
+                <select asp-for="Acessorios.SantoAntonioId" class="form-control" asp-items="ViewBag.SantoAntonios">
+                    <option value="">SELECIONE</option>
+                </select>
+                <span asp-validation-for="Acessorios.SantoAntonioId" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
                 <label asp-for="Acessorios.CarroceriaId" class="form-label">Carroceria</label>
                 <select asp-for="Acessorios.CarroceriaId" class="form-control" asp-items="ViewBag.Carrocerias">
                     <option value="">SELECIONE</option>
                 </select>
                 <span asp-validation-for="Acessorios.CarroceriaId" class="text-danger"></span>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label asp-for="Acessorios.CapotaId" class="form-label">Capota</label>
                 <select asp-for="Acessorios.CapotaId" class="form-control" asp-items="ViewBag.Capotas">
                     <option value="">SELECIONE</option>
@@ -114,7 +128,23 @@
             </div>
         </div>
 
-        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label asp-for="Acessorios.EscapamentoId" class="form-label">Escapamento</label>
+                <select asp-for="Acessorios.EscapamentoId" class="form-control" asp-items="ViewBag.Escapamentos">
+                    <option value="">SELECIONE</option>
+                </select>
+                <span asp-validation-for="Acessorios.EscapamentoId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Acessorios.PainelId" class="form-label">Painel</label>
+                <select asp-for="Acessorios.PainelId" class="form-control" asp-items="ViewBag.Paineis">
+                    <option value="">SELECIONE</option>
+                </select>
+                <span asp-validation-for="Acessorios.PainelId" class="text-danger"></span>
+            </div>
+        </div>
+
         <!-- Botões -->
         <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-outline-success px-4">
@@ -152,3 +182,4 @@
         });
     </script>
 }
+<footer style="margin-top: 200px;"></footer>
