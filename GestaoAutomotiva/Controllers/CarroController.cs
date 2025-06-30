@@ -282,7 +282,9 @@ namespace GestaoAutomotiva.Controllers
                  new { Value = "Fabricação", Text = "Fabricação" },
                  new { Value = "Producao", Text = "Produção" },
                  new { Value = "Retrabalho", Text = "Retrabalho" },
-                 new { Value = "Revisao", Text = "Revisão" }
+                 new { Value = "Revisao", Text = "Revisão" },
+                 new { Value = "Entregue", Text = "Entregue" },
+
     }, "Value", "Text", carro.TipoManutencao); // pré-selecionar valor atual
 
             PopularViewBags();

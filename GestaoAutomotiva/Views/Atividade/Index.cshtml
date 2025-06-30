@@ -108,6 +108,7 @@
                     <th>Início</th>
                     <th>Previsão</th>
                     <th>Status</th>
+                    <th>Observações</th>
                     <th>Etapa Atual</th>
                     <th class="text-center">Ações</th>
                 </tr>
@@ -128,10 +129,10 @@
 
                     <tr>
                         <td>@atividade.Carro?.IdCarro</td>
-                        <td class="text-uppercase">@atividade.Carro?.Modelo?.Nome</td>
-                        <td class="text-capitalize">@atividade.Carro?.Cliente?.Nome</td>
-                        <td>@atividade.Funcionario?.Nome</td>
-                        <td class="text-uppercase">@atividade.Servico?.Descricao</td>
+                        <td class="text-uppercase">@atividade.Carro?.Modelo?.Nome.ToUpper()</td>
+                        <td class="text-capitalize">@atividade.Carro?.Cliente?.Nome.ToUpper()</td>
+                        <td>@atividade.Funcionario?.Nome.ToUpper()</td>
+                        <td class="text-uppercase">@atividade.Servico?.Descricao.ToUpper()</td>
                         <td>@atividade.DataInicio?.ToString("dd/MM/yyyy")</td>
                         <td>@atividade.DataPrevista?.ToString("dd/MM/yyyy")</td>
                         <td>
@@ -139,6 +140,7 @@
                                 @statusTexto
                             </span>
                         </td>
+                        <td class="text-break">@(atividade.Observacoes?.ToUpper() ?? "N/A")</td>
                         <td class="text-uppercase">
                             @{
                                 var etapaNome = atividade.Etapa?.Nome ?? "N/A";
@@ -150,7 +152,6 @@
                                 @etapaNome
                             </span>
                         </td>
-
 
                         <td class="text-center">
                             <div class="d-grid gap-1">

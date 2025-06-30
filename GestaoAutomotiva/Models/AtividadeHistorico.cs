@@ -28,6 +28,8 @@ namespace GestaoAutomotiva.Models
 
         public DateTime DataRegistro { get; set; }
 
+        public string? Observacoes { get; set; }
+
         public string Acao { get; set; } // Ex: Criado, Editado, Finalizado
     }
 }

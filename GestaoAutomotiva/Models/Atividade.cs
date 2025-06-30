@@ -19,6 +19,8 @@ namespace GestaoAutomotiva.Models
         public int? EtapaId { get; set; }  // Somente essa chave estrangeira
         public Etapa Etapa { get; set; }
 
+        public string? Observacoes { get; set; }
+
         public Funcionario Funcionario { get; set; }
         public Servico Servico { get; set; }
 

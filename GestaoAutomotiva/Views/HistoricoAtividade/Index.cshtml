@@ -48,6 +48,7 @@
                     <th>Início</th>
                     <th>Previsão</th>
                     <th>Status</th>
+                    <th>Observações</th>
                     <th>Ação</th>
                     <th>Registro</th>
                 </tr>
@@ -68,6 +69,7 @@
                                 @atividade.Status
                             </span>
                         </td>
+                        <td class="text-break">@(atividade.Observacoes?.ToUpper() ?? "N/A")</td>
                         <td>
                             <span class="badge bg-secondary">@atividade.Acao</span>
                         </td>
