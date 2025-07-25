@@ -288,7 +288,7 @@ namespace GestaoAutomotiva.Controllers
     }, "Value", "Text", carro.TipoManutencao); // pré-selecionar valor atual
 
             PopularViewBags();
-            TempData["Mensagem"] = $"Carro {carro.Modelo} foi editado com sucesso.";
+        
             return View(carro);
         }
 
