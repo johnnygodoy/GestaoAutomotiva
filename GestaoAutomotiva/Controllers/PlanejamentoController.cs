@@ -1,8 +1,4 @@
-﻿// ============================
-// CONTROLLER - PlanejamentoController.cs
-// ============================
-
-using GestaoAutomotiva.Data;
+﻿using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -26,11 +22,13 @@ public class PlanejamentoController : Controller
         string status = null) {
         // 🔐 Carrega e já filtra atividades com DataInicio/DataPrevista nulas
         var atividades = _context.Atividades
-            .Include(a => a.Funcionario)
-            .Include(a => a.Carro).ThenInclude(c => c.Cliente)
-            .Include(a => a.Servico)
-            .Where(a => a.DataInicio.HasValue && a.DataPrevista.HasValue)
-            .ToList();
+       .Include(a => a.Funcionario)
+       .Include(a => a.Carro).ThenInclude(c => c.Cliente)
+       .Include(a => a.Carro).ThenInclude(c => c.Modelo)
+       .Include(a => a.Servico)
+       .Where(a => a.DataInicio.HasValue && a.DataPrevista.HasValue && a.Status != "Finalizado")
+       .ToList();
+
 
         // 🧠 Filtros ANTES do processamento de conflitos
         if (funcionarioId.HasValue)
@@ -131,17 +129,18 @@ public class PlanejamentoController : Controller
     [HttpPost]
     public IActionResult GerarPdf(IFormFile grafico) {
         if (grafico == null || grafico.Length == 0)
-            return BadRequest("Nenhum gráfico foi enviado.");
+            return BadRequest("Nenhuma imagem foi recebida.");
 
         using var stream = new MemoryStream();
         grafico.CopyTo(stream);
         var imagemBytes = stream.ToArray();
 
-        var pdf = new RelatorioPlanejamentoPdf(imagemBytes);
-        var arquivo = pdf.GeneratePdf();     
+        var relatorio = new RelatorioPlanejamentoPdf(imagemBytes);
+        var pdf = relatorio.GeneratePdf();
 
-        return File(arquivo, "application/pdf", "planejamento.pdf");
+        return File(pdf, "application/pdf", "planejamento_atividades.pdf");
     }
+
 
 
 

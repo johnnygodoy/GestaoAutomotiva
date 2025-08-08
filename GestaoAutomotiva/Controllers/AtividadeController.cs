@@ -14,39 +14,89 @@ namespace GestaoAutomotiva.Controllers
 
         public AtividadeController(AppDbContext context) {
             _context = context;
-        }      
+        }
 
         [HttpGet]
         public IActionResult Create() {
-            PreencherDropdowns(); // apenas chama
+            PreencherDropdowns(); // apenas chama        
 
             return View();
         }
 
-        public IActionResult Finalizar(int id) {
+        public async Task<IActionResult> Finalizar(int id) {
             var atividade = _context.Atividades.Find(id);
             if (atividade == null) return NotFound();
 
-            atividade.Status = "Finalizado";
-            _context.SaveChanges();
+            if (atividade.DataPrevista.HasValue && atividade.DataPrevista.Value < DateTime.Today)
+            {
+                var diasAtraso = (DateTime.Today - atividade.DataPrevista.Value).Days;
+                atividade.Status = $"Finalizado com atraso de {diasAtraso} dia{(diasAtraso > 1 ? "s" : "")}";
+            }
+            else
+            {
+                atividade.Status = "Finalizado";
+            }
+
+            atividade.Cor = DefinirCorStatus(atividade.Status);
+
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                TempData["Erro"] = "Erro ao finalizar a atividade. Tente novamente.";
+                return RedirectToAction("Index");
+            }
+
+            var historicoSalvo = await RegistrarHistorico(atividade, "Finalizado");
+
+            if (!historicoSalvo)
+            {
+                TempData["Erro"] = "Atividade finalizada, mas falha ao registrar o histórico.";
+            }
+            else
+            {
+                TempData["Mensagem"] = "Atividade foi finalizada com sucesso.";
+            }
 
             return RedirectToAction("Index");
         }
 
 
-        public IActionResult Index(string busca = null, string dataBusca = null,int page = 1) {
+        private string DefinirCorStatus(string status) {
+            return status switch
+            {
+                var s when s.Contains("Finalizado com atraso") => "#e74c3c",
+                "Finalizado" => "#2ecc71",
+                "Parado" => "#f1c40f",
+                "Nao Iniciado" => "#e67e22",
+                "Em Andamento" => "#3498db",
+                "Cancelado" => "#e74c3c",
+                "Reprovado" => "#c0392b",
+                _ => "#ffffff" // branco ou neutro
+            };
+        }
+
+
+
+        public IActionResult Index(string busca = null, string dataBusca = null, int page = 1) {
             ViewData["Busca"] = busca;
             ViewData["DataBusca"] = dataBusca;
 
-            int pageSize = 10; // Quantidade de itens por página
+            int pageSize = 5; // Quantidade de itens por página
 
             // Inicializando a query de atividades
             var atividades = _context.Atividades
                 .Include(a => a.Funcionario)
                 .Include(a => a.Servico)
-                .Include(a => a.Carro) // Incluindo o carro para usar seus dados na pesquisa
+                .Include(a => a.Carro)
                 .ThenInclude(c => c.Cliente)
-                .OrderByDescending(c => c.Id)              
+                .Include(a => a.Carro)
+                .ThenInclude(c => c.Modelo)
+                 .Include(a => a.Etapa)
+                .OrderByDescending(c => c.Id)
                 .AsQueryable();
 
             // Busca por texto (funcionário, carro, modelo, serviço, status, etc.)
@@ -56,9 +106,10 @@ namespace GestaoAutomotiva.Controllers
 
                 atividades = atividades.Where(a =>
                     a.Carro.Cliente.Nome.ToUpper().Contains(buscaUpper) ||  // Cliente
-                    a.Carro.Modelo.ToUpper().Contains(buscaUpper) ||        // Modelo do carro
+                    a.Carro.Modelo.Nome.ToUpper().Contains(buscaUpper) ||        // Modelo do carro
                     a.Funcionario.Nome.ToUpper().Contains(buscaUpper) ||    // Nome do funcionário
                     a.Servico.Descricao.ToUpper().Contains(buscaUpper) ||   // Descrição do serviço
+                    a.Carro.IdCarro.ToUpper().Contains(buscaUpper) ||
                     a.Status.ToUpper().Contains(buscaUpper));               // Status da atividade
             }
 
@@ -69,8 +120,6 @@ namespace GestaoAutomotiva.Controllers
                     a.DataInicio == dataBuscaConvertida.Date ||  // Comparar apenas as datas (ignorando a hora)
                     a.DataPrevista == dataBuscaConvertida.Date); // Comparar apenas as datas (ignorando a hora)
             }
-
-
 
             // Total de atividades encontrados
             var totalRegistros = atividades.Count();
@@ -96,12 +145,13 @@ namespace GestaoAutomotiva.Controllers
 
 
         [HttpPost]
-        public IActionResult Create(Atividade atividade) {
+        public async Task<IActionResult> Create(Atividade atividade) {
             var funcionarios = _context.Funcionarios.ToList();
             var servicos = _context.Servicos.ToList();
-            
+
             bool temErro = false;
 
+            // Validação básica
             if (atividade.FuncionarioId == 0)
             {
                 ModelState.AddModelError("FuncionarioId", "Selecione um funcionário.");
@@ -114,31 +164,16 @@ namespace GestaoAutomotiva.Controllers
                 temErro = true;
             }
 
-            var carro = _context.Carros.Find(atividade.CarroId);
+            var carro = _context.Carros
+                .Include(c => c.Modelo)
+                .Include(c => c.Cliente)
+                .FirstOrDefault(c => c.Id == atividade.CarroId);
 
-            if (carro != null)
+            if (carro == null)
             {
-                atividade.Carro = carro;
-                atividade.Carro.Modelo = atividade.Carro.Modelo.ToUpper();               
-            }
-
-            if (string.IsNullOrEmpty(atividade.Carro.Modelo))
-            {
-                ModelState.AddModelError("Carro", "O campo Carro é obrigatório.");
+                ModelState.AddModelError("CarroId", "Carro não encontrado.");
                 temErro = true;
             }
-
-            if (string.IsNullOrWhiteSpace(atividade.Carro.Cor))
-            {
-                ModelState.AddModelError("Cor", "O campo Cor é obrigatório.");
-                temErro = true;
-            }
-            else
-            {
-                atividade.Carro.Cor = atividade.Carro.Cor.ToUpper();
-            }
-
-            
 
             if (!atividade.DataInicio.HasValue)
             {
@@ -148,36 +183,65 @@ namespace GestaoAutomotiva.Controllers
 
             if (temErro)
             {
-                PreencherDropdowns(); // apenas chama
+                PreencherDropdowns();
                 return View(atividade);
             }
+
+            atividade.Carro = carro;
+            atividade.Status = "Em Andamento";
+            atividade.Cor = DefinirCorStatus(atividade.Status);
 
             var servico = servicos.FirstOrDefault(s => s.Id == atividade.ServicoId);
-            if (servico == null)
+            atividade.EstimativaDias = servico?.EstimativaDias ?? 3;
+            atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, atividade.EstimativaDias);
+
+            // ✅ Garante a Etapa "Recebimento"
+            if (atividade.EtapaId == 0 || !_context.Etapas.Any(e => e.Id == atividade.EtapaId))
             {
-                ModelState.AddModelError("ServicoId", "Serviço não encontrado no banco.");
-                ViewBag.Funcionarios = new SelectList(funcionarios, "Id", "Nome");
-                ViewBag.Servicos = new SelectList(servicos, "Id", "Descricao");
+                var etapaRecebimento = _context.Etapas.FirstOrDefault(e => e.Nome.ToUpper() == "RECEBIMENTO");
+
+                if (etapaRecebimento != null)
+                {
+                    atividade.EtapaId = etapaRecebimento.Id;
+                }
+                else
+                {
+                    ModelState.AddModelError("EtapaId", "A etapa 'Recebimento' não foi encontrada.");
+                    PreencherDropdowns();
+                    return View(atividade);
+                }
+            }
+            _context.Atividades.Add(atividade);
+
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                ModelState.AddModelError("", "Erro ao salvar: o banco estava ocupado. Tente novamente.");
+                PreencherDropdowns();
                 return View(atividade);
             }
 
-            atividade.EstimativaDias = (int)servico.EstimativaDias;
-            atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
-            atividade.Status = "Em Andamento";
-
-            // Verifica se a atividade é a primeira a ser criada
-            if (atividade.EtapaId == 0 || atividade.EtapaId == null) // caso não tenha etapa associada
+            // ✅ Registrar histórico com retry também
+            var historicoSalvo = await RetryHelper.TentarSalvarAsync(async () =>
             {
-                // Define a etapa "Recebimento" como a etapa inicial da atividade
-                var etapaInicial = _context.Etapas.FirstOrDefault(e => e.Nome == "Recebimento");
-                atividade.EtapaId = etapaInicial?.Id ?? 1; // Defina como etapa 1 se não encontrar a etapa de recebimento
+                RegistrarHistorico(atividade, "Criado");
+                await _context.SaveChangesAsync();
+            });
+
+            if (!historicoSalvo)
+            {
+                TempData["Erro"] = "Atividade criada, mas falha ao registrar o histórico.";
+                return RedirectToAction("Index");
             }
 
-            _context.Atividades.Add(atividade);
-            _context.SaveChanges();
-
+            TempData["Mensagem"] = $"Atividade foi criada com sucesso.";
             return RedirectToAction("Index");
         }
+
 
         private void PreencherDropdowns() {
             var funcionarios = _context.Funcionarios.ToList();
@@ -186,9 +250,10 @@ namespace GestaoAutomotiva.Controllers
             // Incluindo o nome do cliente junto com o modelo do carro
             var carros = _context.Carros
                 .Include(c => c.Cliente)
-                .Select(c => new {
+                .Select(c => new
+                {
                     c.Id,
-                    ModeloCliente = c.Modelo + " - " + c.Cliente.Nome // Concatenando o modelo e o nome do cliente
+                    ModeloCliente = c.Modelo.Nome + " - " + c.Cliente.Nome // Concatenando o modelo e o nome do cliente
                 }).ToList();
 
             ViewBag.Funcionarios = new SelectList(funcionarios, "Id", "Nome");
@@ -218,11 +283,12 @@ namespace GestaoAutomotiva.Controllers
             return data;
         }
 
-
         [HttpGet]
         public IActionResult Edit(int id) {
-                        
-            var atividade = _context.Atividades.Find(id);           
+
+            var atividade = _context.Atividades.Find(id);
+            atividade.Cor = DefinirCorStatus(atividade.Status);
+            ViewBag.Etapas = new SelectList(_context.Etapas.OrderBy(e => e.Ordem).ToList(), "Id", "Nome");
 
             if (atividade == null) return NotFound();
 
@@ -231,7 +297,7 @@ namespace GestaoAutomotiva.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Atividade atividade) {                    
+        public async Task<IActionResult> Edit(Atividade atividade) {
 
             if (!atividade.DataInicio.HasValue)
                 ModelState.AddModelError("DataInicio", "A data de início é obrigatória.");
@@ -248,8 +314,8 @@ namespace GestaoAutomotiva.Controllers
             {
                 ModelState.AddModelError("ServicoId", "Selecione um serviço.");
                 temErro = true;
-            }          
-                      
+            }
+
 
             if (!atividade.DataInicio.HasValue)
             {
@@ -273,12 +339,40 @@ namespace GestaoAutomotiva.Controllers
 
             atividade.EstimativaDias = (int)servico.EstimativaDias;
             atividade.DataPrevista = CalcularDataPrevista((DateTime)atividade.DataInicio, (int)servico.EstimativaDias);
+            atividade.Cor = DefinirCorStatus(atividade.Status);
+            atividade.Etapa = _context.Etapas.FirstOrDefault(e => e.Id == atividade.EtapaId);
 
             _context.Atividades.Update(atividade);
-            _context.SaveChanges();
 
+            var salvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!salvo)
+            {
+                ModelState.AddModelError("", "Erro ao salvar alterações. O banco estava ocupado. Tente novamente.");
+                PreencherDropdowns();
+                return View(atividade);
+            }
+
+            var historicoSalvo = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                RegistrarHistorico(atividade, "Editado");
+                await _context.SaveChangesAsync();
+            });
+
+            if (!historicoSalvo)
+            {
+                TempData["Erro"] = "Atividade editada, mas falha ao salvar o histórico.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Mensagem"] = $"Atividade foi editada com sucesso.";
             return RedirectToAction("Index");
         }
+
+
 
         [HttpGet]
         public IActionResult Delete(int id) {
@@ -288,125 +382,91 @@ namespace GestaoAutomotiva.Controllers
                 .FirstOrDefault(a => a.Id == id);
 
             if (atividade == null) return NotFound();
+
+            TempData["Mensagem"] = $"Atividade foi excluído com sucesso.";
             return View(atividade);
         }
 
         [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id) {
+        public async Task<IActionResult> DeleteConfirmed(int id) {
+
             var atividade = _context.Atividades.Find(id);
             if (atividade == null) return NotFound();
 
             _context.Atividades.Remove(atividade);
+
             _context.SaveChanges();
 
+            var sucesso = await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
+
+            if (!sucesso)
+            {
+                TempData["Erro"] = "Erro ao excluir atividade. O banco estava ocupado.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Mensagem"] = "Atividade foi excluída com sucesso.";
             return RedirectToAction("Index");
         }
 
-        public IActionResult Historico(string busca, string dataBusca = null, int page = 1 ) {
-            ViewData["Busca"] = busca;
-            ViewData["DataBusca"] = dataBusca;
+        private async Task<bool> RegistrarHistorico(Atividade atividade, string acao) {
+           
+            // 🔒 Protege contra EtapaId inexistente ou nulo
+            string etapaNome = "-";
 
-            int pageSize = 10; // Quantidade de itens por página
-
-            var atividades = _context.Atividades
-            .Include(a => a.Funcionario)
-            .Include(a => a.Servico)
-            .Include(a => a.Carro)
-            .ThenInclude(c => c.Cliente)
-            .OrderByDescending(c => c.Id)
-            .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(busca))
+            if (atividade.Etapa != null)
             {
-                var buscaUpper = busca.ToUpper(); // Converte a busca para maiúsculas
-
-                atividades = atividades.Where(a =>
-                    a.Carro.Modelo.ToUpper().Contains(buscaUpper) ||
-                    a.Carro.IdCarro.Contains(buscaUpper) ||
-                    a.Funcionario.Nome.ToUpper().Contains(buscaUpper) ||
-                    a.Servico.Descricao.ToUpper().Contains(buscaUpper) ||
-                    a.Status.ToUpper().Contains(buscaUpper) ||
-                    a.Carro.Cliente.Nome.ToUpper().Contains(buscaUpper)
-                    );
+                etapaNome = atividade.Etapa.Nome;
             }
-            // Busca por data
-            if (!string.IsNullOrWhiteSpace(dataBusca) && DateTime.TryParse(dataBusca, out DateTime dataBuscaConvertida))
+            else if (atividade.EtapaId > 0)
             {
-                atividades = atividades.Where(a =>
-                    a.DataInicio == dataBuscaConvertida.Date ||
-                    a.DataPrevista == dataBuscaConvertida.Date);
+                etapaNome = _context.Etapas
+                    .Where(e => e.Id == atividade.EtapaId)
+                    .Select(e => e.Nome)
+                    .FirstOrDefault() ?? "-";
             }
 
-
-            // Total de atividades encontrados
-            var totalRegistros = atividades.Count();
-
-            // Calculando o total de páginas
-            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
-
-            // Pegando a página solicitada e aplicando Skip e Take
-            var atividadesPaginados = atividades
-                .Skip((page - 1) * pageSize) // Pular os itens da página anterior
-                .Take(pageSize) // Pegar o número de itens da página atual
-                .ToList();
-
-            // Passando os dados para a View
-            ViewBag.TotalPaginas = totalPaginas;
-            ViewBag.PaginaAtual = page;
-            ViewBag.BuscaNome = busca;
-
-            return View(atividadesPaginados);
-        }
-        public IActionResult ExportarPdf() {
-            var atividades = _context.Atividades
-                .Include(a => a.Funcionario)
-                .Include(a => a.Servico)
-                .Where(a => a.Status != "Em Andamento")
-                .ToList();
-
-            var documento = new RelatorioAtividadePdf(atividades);
-            var pdfBytes = documento.GeneratePdf(); // Isso retorna byte[]
-
-            return File(pdfBytes, "application/pdf", "historico_atividades.pdf");
-
-        }
-        public IActionResult ExportarExcel() {
-            var atividades = _context.Atividades
-                .Include(a => a.Funcionario)
-                .Include(a => a.Servico)
-                .Where(a => a.Status != "Em Andamento")
-                .ToList();
-
-            using var workbook = new ClosedXML.Excel.XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Histórico");
-
-            worksheet.Cell(1, 1).Value = "Funcionário";
-            worksheet.Cell(1, 2).Value = "Serviço";
-            worksheet.Cell(1, 3).Value = "Código Carro";
-            worksheet.Cell(1, 4).Value = "Carro";
-            worksheet.Cell(1, 5).Value = "Início";
-            worksheet.Cell(1, 6).Value = "Previsão";
-            worksheet.Cell(1, 7).Value = "Status";
-
-            for (int i = 0; i < atividades.Count; i++)
+            var historico = new AtividadeHistorico
             {
-                var a = atividades[i];
-                worksheet.Cell(i + 2, 1).Value = a.Funcionario?.Nome;
-                worksheet.Cell(i + 2, 2).Value = a.Servico?.Descricao;
-                worksheet.Cell(i + 2, 3).Value = a.Carro.IdCarro;
-                worksheet.Cell(i + 2, 4).Value = a.Carro.Modelo;
-                worksheet.Cell(i + 2, 5).Value = a.DataInicio?.ToString("dd/MM/yyyy");
-                worksheet.Cell(i + 2, 6).Value = a.DataPrevista?.ToString("dd/MM/yyyy");
-                worksheet.Cell(i + 2, 7).Value = a.Status;
-            }
+                AtividadeId = atividade.Id,
+                FuncionarioNome = atividade.Funcionario?.Nome
+                    ?? _context.Funcionarios.Find(atividade.FuncionarioId)?.Nome
+                    ?? "Desconhecido",
 
-            using var stream = new MemoryStream();
-            workbook.SaveAs(stream);
-            stream.Seek(0, SeekOrigin.Begin);
+                ServicoDescricao = atividade.Servico?.Descricao
+                    ?? _context.Servicos.Find(atividade.ServicoId)?.Descricao
+                    ?? "Desconhecido",
 
-            return File(stream.ToArray(),
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "historico_atividades.xlsx");
+                CarroId = atividade.Carro?.IdCarro
+                    ?? _context.Carros.Find(atividade.CarroId)?.IdCarro
+                    ?? "-",
+
+                ModeloNome = atividade.Carro?.Modelo?.Nome
+                    ?? _context.Carros.Include(c => c.Modelo)
+                        .FirstOrDefault(c => c.Id == atividade.CarroId)?.Modelo?.Nome
+                    ?? "-",
+
+                Cliente = atividade.Carro?.Cliente?.Nome
+                    ?? _context.Carros.Include(c => c.Cliente)
+                        .FirstOrDefault(c => c.Id == atividade.CarroId)?.Cliente?.Nome
+                    ?? "-",
+
+                DataInicio = atividade.DataInicio,
+                DataPrevista = atividade.DataPrevista,
+                Status = atividade.Status ?? "-",
+                EtapaAtual = etapaNome,
+                DataRegistro = DateTime.Now,
+                Acao = acao
+            };
+
+            _context.AtividadeHistoricos.Add(historico);
+            return await RetryHelper.TentarSalvarAsync(async () =>
+            {
+                await _context.SaveChangesAsync();
+            });
         }
 
     }

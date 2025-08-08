@@ -24,17 +24,17 @@ namespace GestaoAutomotiva.Utils
 
                 page.Content().Column(col =>
                 {
-                    // ✅ Título com espaçamento
+                    // Título
                     col.Item().PaddingBottom(10).AlignCenter().Text("📊 PLANEJAMENTO DE ATIVIDADES - GRÁFICO DE CONFLITOS")
                         .Bold().FontSize(16).FontColor(Colors.Black);
 
-                    // ✅ Caixa com gráfico
+                    // Gráfico inserido
                     col.Item().Border(1).BorderColor("#555").Padding(10).Background(Colors.White).Column(box =>
                     {
                         box.Item().Image(_imagemGrafico, ImageScaling.FitWidth);
                     });
 
-                    // ✅ Rodapé com data
+                    // Rodapé com data
                     col.Item().PaddingTop(20).AlignCenter().Text(txt =>
                     {
                         txt.Span("Documento gerado em: ");
@@ -43,7 +43,5 @@ namespace GestaoAutomotiva.Utils
                 });
             });
         }
-
-
     }
 }

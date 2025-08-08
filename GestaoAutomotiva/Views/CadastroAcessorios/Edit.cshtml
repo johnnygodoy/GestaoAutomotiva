@@ -1,0 +1,89 @@
+﻿@model GestaoAutomotiva.Models.AcessoriosCarro
+
+@{
+    ViewData["Title"] = "Editar Acessórios";
+}
+
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
+    <h2 class="text-light">@ViewData["Title"]</h2>
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row">
+            <div class="col-md-4">
+                <label>Motor</label>
+                <select asp-for="MotorId" class="form-control" asp-items="ViewBag.Motores">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Câmbio</label>
+                <select asp-for="CambioId" class="form-control" asp-items="ViewBag.Cambios">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Suspensão</label>
+                <select asp-for="SuspensaoId" class="form-control" asp-items="ViewBag.Suspensoes">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <label>Rodas</label>
+                <select asp-for="RodaId" class="form-control" asp-items="ViewBag.Rodas">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Pneus</label>
+                <select asp-for="PneuId" class="form-control" asp-items="ViewBag.Pneus">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Santo Antônio</label>
+                <select asp-for="SantoAntonioId" class="form-control" asp-items="ViewBag.SantoAntonios">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Carroceria</label>
+                <select asp-for="CarroceriaId" class="form-control" asp-items="ViewBag.Carrocerias">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Capota</label>
+                <select asp-for="CapotaId" class="form-control" asp-items="ViewBag.Capotas">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label>Escapamento</label>
+                <select asp-for="EscapamentoId" class="form-control" asp-items="ViewBag.Escapamentos">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label>Painel</label>
+                <select asp-for="PainelId" class="form-control" asp-items="ViewBag.Paineis">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <button type="submit" class="btn btn-outline-light">Salvar Alterações</button>
+            <a asp-action="Create" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+<footer style="margin-top: 200px;"></footer>oter>

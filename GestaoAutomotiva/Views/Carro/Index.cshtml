@@ -1,60 +1,127 @@
 ﻿@model IEnumerable<GestaoAutomotiva.Models.Carro>
 
-<h2 class="text-light">Lista de Carro/Cliente</h2>
 
-<a href="@Url.Action("Create", "Carro")" class="btn btn-outline-light mb-3">Adicionar Novo Carro</a>
+<div class="page-container mt-4 animate__animated animate__fadeInDown">
 
-<form method="get" class="mb-3 d-flex gap-2">
-    <input type="text" name="busca" class="form-control" placeholder="Buscar por carro ou cliente..." value="@Context.Request.Query["busca"]" />
-    <button type="submit" class="btn btn-outline-light">Pesquisar</button>
-    <a asp-action="Index" class="btn btn-secondary">Limpar</a>
-</form>
+    @* MENSAGENS *@
+@if (TempData["Mensagem"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Mensagem"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+}
 
-<div class="table-responsive">
-    <table class="table table-dark table-hover">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Modelo</th>
-                <th>Cor</th>
-                <th>Cliente</th>
-                <th>CPF</th>
-                <th>Telefone</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var carro in Model)
-            {
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+
+}
+    <h2 class="text-white mb-4 d-flex align-items-center gap-2">
+        <img src="~/images/Icones/carro_cliente.png" width="48" height="48" />
+        Carro / Cliente
+    </h2>
+
+    <div class="d-flex gap-2 flex-wrap mb-3">
+        <a href="@Url.Action("Create", "Carro")" class="btn btn-outline-success">
+            <i class="bi bi-plus-circle"></i> Adicionar Novo Carro
+        </a>
+
+        <a href="@Url.Action("Create", "CadastroAcessorios")" class="btn btn-outline-light">
+            <i class="bi bi-tools"></i> Criar Acessórios
+        </a>
+    </div>
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-6">
+            <input type="text" name="busca" class="form-control text-uppercase" placeholder="Buscar por carro ou cliente..." value="@Context.Request.Query["busca"]" />
+        </div>
+
+        <div class="col-md-4">
+            <select name="tipoManutencao" class="form-select text-uppercase">
+                <option value="">Todos</option>
+                <option value="Producao" selected="@(Context.Request.Query["tipoManutencao"] == "Producao")">Produção</option>
+                <option value="Revisao" selected="@(Context.Request.Query["tipoManutencao"] == "Revisao")">Revisão</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-light w-100">Pesquisar</button>
+            <a asp-action="Index" class="btn btn-outline-secondary w-100">Limpar</a>
+        </div>
+    </form>
+
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle text-white">
+            <thead class="table-light text-dark">
                 <tr>
-                    <td>@carro.IdCarro</td>
-                    <td>@carro.Modelo</td>
-                    <td>@carro.Cor</td>
-                    <td>@carro.Cliente?.Nome</td>
-                    <td>@carro.Cliente?.CPF</td>
-                    <td>@carro.Cliente?.Telefone</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@carro.Id" class="btn btn-warning btn-sm">Editar</a>
-                        <a asp-action="Delete" asp-route-id="@carro.Id" class="btn btn-danger btn-sm">Excluir</a>
-                    </td>
+                    <th>Natureza</th>
+                    <th>Código</th>
+                    <th>Cliente</th>
+                    <th>Modelo</th>
+                    <th>Cor</th>
+                    <th>Motor</th>
+                    <th>Câmbio</th>
+                    <th>Carroceria</th>
+                    <th>Capota</th>
+                    <th>Roda</th>
+                    <th>Pneu</th>
+                    <th>Escapamento</th>
+                    <th>Painel</th>
+                  
+                    <th class="text-center">Ações</th>
                 </tr>
+            </thead>
+            <tbody>
+                @foreach (var carro in Model)
+                {
+                    <tr>
+                        <td>@carro.TipoManutencao</td>
+                        <td>@carro.IdCarro?.ToUpper()</td>
+                        <td>@(carro.Cliente?.Nome?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Modelo?.Nome?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Cor?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Motor?.Nome?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Cambio?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Carroceria?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Capota?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Roda?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Pneu?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Escapamento?.Descricao?.ToUpper() ?? "N/A")</td>
+                        <td>@(carro.Acessorios?.Painel?.Descricao?.ToUpper() ?? "N/A")</td>
+                      
+                        <td class="text-center">
+                            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                <a asp-action="Edit" asp-route-id="@carro.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@carro.Id" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Excluir
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i, busca = ViewBag.BuscaNome, tipoManutencao = ViewBag.TipoManutencao })">
+                        @i
+                    </a>
+                </li>
             }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="7" class="text-center bg-dark">
-                    <nav>
-                        <ul class="pagination justify-content-center mb-0">
-                            @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++)
-                            {
-                                <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
-                                    <a class="page-link" href="@Url.Action("Index", new { page = i, busca = ViewBag.BuscaNome })">@i</a>
-                                </li>
-                            }
-                        </ul>
-                    </nav>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+        </ul>
+    </nav>
 </div>
+<footer style="margin-top: 200px;"></footer>

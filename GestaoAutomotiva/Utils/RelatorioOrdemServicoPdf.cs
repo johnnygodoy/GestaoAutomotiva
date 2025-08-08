@@ -1,7 +1,10 @@
-﻿using GestaoAutomotiva.Models;
-using QuestPDF.Fluent;
+﻿using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System;
+using System.IO;
+using GestaoAutomotiva.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GestaoAutomotiva.Utils
 {
@@ -16,147 +19,172 @@ namespace GestaoAutomotiva.Utils
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
 
         public void Compose(IDocumentContainer container) {
-            var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Furlan2.jpg");
+            var carro = _ordem.Atividade?.Carro;
+            var cliente = carro?.Cliente;
+            var modelo = carro?.Modelo;
+            var acessorios = carro?.Acessorios;
 
-            if (!File.Exists(logoPath))
-                throw new FileNotFoundException("Imagem do logo não encontrada em: " + logoPath);
+            var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Furlan2.jpg");
+            var dataGeracao = DateTime.Now.ToString("yy");
+
 
             container.Page(page =>
             {
-                page.Margin(20);
                 page.Size(PageSizes.A4);
+                page.Margin(20);
                 page.DefaultTextStyle(x => x.FontSize(11));
 
-                // ✅ Conteúdo principal
-                page.Content().Border(1).Padding(15).Column(col =>
+                // HEADER
+                page.Header().Column(header =>
                 {
-                    // ✅ Banner no topo
-                    col.Item().Image(logoPath);
+                    // ✅ Logo centralizado
+                    if (File.Exists(logoPath))
+                        header.Item().AlignCenter().Image(logoPath, ImageScaling.FitWidth);
 
-                    // Número da OS e Data
-                    col.Item().PaddingVertical(10).Row(row =>
+                    // ✅ Título e número
+                    header.Item().AlignCenter().Text("ORDEM DE SERVIÇO").FontSize(20).Bold();
+                    header.Item().AlignRight().Text($"Nº {_ordem.Id:00}/{dataGeracao}").FontSize(12).Bold();
+
+
+                    // ✅ Informações do carro
+                    header.Item().PaddingTop(10).Row(info =>
                     {
-                        row.RelativeItem().Table(table =>
+                        info.RelativeItem().Column(col =>
                         {
-                            table.ColumnsDefinition(c =>
+                            col.Item().Text($"CARRO Nº: {carro?.IdCarro ?? "___"}").Bold();
+                            col.Item().Text($"MODELO: {modelo?.Nome ?? "___"}").Bold();
+                            col.Item().Text($"CLIENTE: {cliente?.Nome ?? "___"}").Bold();
+                        });
+
+                        info.ConstantItem(180).Border(1.2f).Padding(5).Column(col =>
+                        {
+                            col.Item().Text($"MOTOR:  {acessorios?.Motor?.Nome ?? "___"}").Bold();
+                            col.Item().Text($"CAMBIO:  {acessorios?.Cambio?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"CARROCERIA:  {acessorios?.Carroceria?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"CAPOTA:  {acessorios?.Capota?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"SUSPENSÃO:  {acessorios?.Suspensao?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"RODAS:  {acessorios?.Roda?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"PNEUS:  {acessorios?.Pneu?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"SANTO ANTÔNIO:  {acessorios?.SantoAntonio?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"ESCAPAMENTO:  {acessorios?.Escapamento?.Descricao ?? "___"}").Bold();
+                            col.Item().Text($"PAINEL:  {acessorios?.Painel?.Descricao ?? "___"}").Bold();
+                        });
+                    });
+                });
+
+                // CONTEÚDO PRINCIPAL
+                page.Content().Column(content =>
+                {
+                    // Etapa
+                    var etapa = _ordem.Atividade?.Etapa?.Nome ?? "____________________________";
+                    content.Item().PaddingTop(10).AlignLeft().Text($"Etapa: {etapa}").FontSize(16).Bold();
+
+                    // Bloco de conferência
+                    content.Item().PaddingTop(10).Row(row =>
+                    {
+                        row.RelativeItem().Column(col =>
+                        {
+                            col.Item().Text("CONFERÊNCIA INICIAL ____/____/____").Bold().FontSize(12);
+                            col.Item().Text("ALMOXARIFADO:");
+                            col.Item().Text("EDILSON:");
+                            col.Item().Text("SUPERVISOR:");
+                            col.Item().Text("COLABORADOR:");
+                        });
+
+                        row.RelativeItem().AlignRight().Column(col =>
+                        {
+                            col.Item().Text("CONFERÊNCIA FINAL ____/____/____").Bold().FontSize(12);
+                            col.Item().Text("SUPERVISOR:");
+                            col.Item().Text("EDILSON:");
+                            col.Item().Text("QUALIDADE:");
+                            col.Item().Text("MICHELlE:");
+                        });
+                    });
+
+                    // TAREFAS
+                    var tarefas = (_ordem.Tarefas ?? "").Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    content.Item().PaddingTop(10).Border(1.5f).Padding(5).MaxHeight(250).Column(col =>
+
+                    {
+                        col.Item().Text("TAREFAS:").Bold().FontSize(12);
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(t =>
                             {
-                                c.RelativeColumn();
-                                c.RelativeColumn();
+                                for (int i = 0; i < Math.Min(5, tarefas.Length); i++)
+                                    t.Item().Text(txt =>
+                                    {
+                                        txt.Span("☐").FontSize(20);
+                                        txt.Span(" " + tarefas[i]);
+                                    });
                             });
 
-                            table.Cell().Border(1).Padding(5).Text("Número da OS").Bold();
-                            table.Cell().Border(1).Padding(5).Text(_ordem.Id.ToString());
-
-                            table.Cell().Border(1).Padding(5).Text("Data de abertura").Bold();
-                            table.Cell().Border(1).Padding(5).Text(_ordem.DataAbertura.ToString("dd/MM/yyyy"));
+                            row.RelativeItem().Column(t =>
+                            {
+                                for (int i = 5; i < tarefas.Length; i++)
+                                    t.Item().Text(txt =>
+                                    {
+                                        txt.Span("☐").FontSize(20);
+                                        txt.Span(" " + tarefas[i]);
+                                    });
+                            });
                         });
                     });
 
-                    // Serviço a ser prestado
-                    col.Item().PaddingBottom(10).AlignCenter().Text(txt =>
-                    {
-                        txt.Span("Serviço a ser prestado: ").Bold().FontSize(13);
-                        txt.Span(_ordem.Atividade?.Servico?.Descricao ?? "").FontSize(13);
-                    });
+                    // OBSERVAÇÕES
+                    var observacoes = (_ordem.Observacoes ?? "").Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    // 🧾 Tabela de dados da OS
-                    col.Item().Table(table =>
+                    content.Item().PaddingTop(10).Border(1.5f).Padding(5).Column(col =>
                     {
-                        table.ColumnsDefinition(c =>
+                        col.Item().Text("OBSERVAÇÕES:").Bold().FontSize(12);
+
+                        if (observacoes.Length > 0)
                         {
-                            c.RelativeColumn();
-                            c.RelativeColumn();
-                        });
-
-                        void Add(string label, string value) {
-                            table.Cell().Border(1).Padding(5).Text(label).Bold();
-                            table.Cell().Border(1).Padding(5).Text(value ?? "");
+                            foreach (var linha in observacoes.Take(8))
+                            {
+                                col.Item().Text("• " + linha).FontSize(11);
+                            }
                         }
-
-                        Add("Prioridade", _ordem.Prioridade);
-                        Add("Colaborador", _ordem.Atividade?.Funcionario?.Nome);
-                        Add("Modelo de Carro", _ordem.Atividade?.Carro?.Modelo);
-                        Add("Cliente", _ordem.Atividade?.Carro?.Cliente?.Nome);
-                        Add("Carro nº", _ordem.Atividade?.Carro?.IdCarro);
-                        Add("Prazo", _ordem.Atividade?.DataPrevista?.ToString("dd/MM/yyyy"));
-                    });
-
-                    // ✅ Conferência (embaixo)
-                    col.Item().PaddingTop(10).Table(table =>
-                    {
-                        table.ColumnsDefinition(c =>
+                        else
                         {
-                            c.RelativeColumn();
-                            c.RelativeColumn();
-                        });
-
-                        table.Cell().ColumnSpan(2).Border(1).AlignCenter().Padding(5).Text("Conferência (com data)").Bold();
-
-                        void Conf(string label, string assinatura) {
-                            table.Cell().Border(1).Padding(5).Text(label);
-                            table.Cell().Border(1).Padding(5).Text(assinatura ?? "");
+                            for (int i = 0; i < 8; i++)
+                            {
+                                col.Item().Element(e => e
+                                    .PaddingVertical(6)
+                                    .ExtendHorizontal()
+                                    .LineHorizontal(1)
+                                    .LineColor(Colors.Grey.Darken2));
+                            }
                         }
-
-                        Conf("Almoxarifado", _ordem.Almoxarifado);
-                        Conf("Colaborador", _ordem.Atividade?.Funcionario?.Nome);
-                        Conf("Inspetor", _ordem.Inspetor);
-                    });
-
-                    // Tarefas
-                    col.Item().PaddingTop(15).Text("TAREFAS").Bold();
-                    col.Item().Border(1).Height(60).Padding(5).Text(_ordem.Tarefas ?? "");
-
-                    // Observações
-                    col.Item().PaddingTop(10).Text("Observações:").Bold();
-                    col.Item().Border(1).Height(100).Padding(5).Text(_ordem.Observacoes ?? "");
-
-                    // Espaço entre tabelas e rodapé
-                    col.Item().PaddingTop(30);
-
-                    // Início e Término - Centralizado
-                    col.Item().AlignCenter().Row(row =>
-                    {
-                        void Hora(string label) {
-                            row.ConstantItem(80).Text(label).AlignLeft();
-                            row.ConstantItem(120).BorderBottom(1).Height(12);
-                            row.ConstantItem(40); // Espaço entre
-                        }
-
-                        Hora("INÍCIO:   HS");
-                        Hora("TÉRMINO:   HS");
-                    });
-
-                    // Espaço
-                    col.Item().PaddingTop(25);
-
-                    // Nome e Assinatura
-                    col.Item().Row(row =>
-                    {
-                        // Nome
-                        row.RelativeItem().Column(col2 =>
-                        {
-                            col2.Item().BorderBottom(1).Height(15);
-                            col2.Item().AlignCenter().Text("Nome do Responsável").FontSize(9);
-                        });
-
-                        row.ConstantItem(40); // Espaço entre
-
-                        // Assinatura
-                        row.RelativeItem().Column(col2 =>
-                        {
-                            col2.Item().BorderBottom(1).Height(15);
-                            col2.Item().AlignCenter().Text("Assinatura").FontSize(9);
-                        });
                     });
                 });
 
-                // ✅ Rodapé
-                page.Footer().AlignCenter().Text(txt =>
+                // ✅ FOOTER DEVE FICAR AQUI FORA do page.Content()
+                page.Footer().PaddingTop(2).Column(footer =>
                 {
-                    txt.Span("Documento gerado por GestãoAutomotiva - ");
-                    txt.Span(DateTime.Now.ToString("dd/MM/yyyy")).SemiBold();
+                    footer.Item().PaddingBottom(30).Row(row =>
+                    {
+                        row.RelativeItem().Text("ITENS SOLICITADOS PARA COMPRA DATA: ____/____/____").FontSize(10);
+                        row.RelativeItem().Text("RECEBIMENTO DOS ITENS DATA: ____/____/____").FontSize(10);
+                    });
+
+                    footer.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text("INÍCIO: ____/____/____ - HS ____").FontSize(10);
+                        row.RelativeItem().Text("TÉRMINO: ____/____/____ - HS ____").FontSize(10);
+                        row.RelativeItem().Text("COLABORADOR: ").FontSize(12);
+                    });
+
+                    footer.Item().PaddingTop(20).PaddingBottom(30).AlignCenter().Text(txt =>
+                    {
+                        txt.Span("Gestão Automotiva - ").SemiBold();
+                        txt.Span("Ordem de Serviço gerada automaticamente.");
+                        txt.DefaultTextStyle(x => x.FontSize(8));
+                    });
                 });
             });
+
         }
     }
 }

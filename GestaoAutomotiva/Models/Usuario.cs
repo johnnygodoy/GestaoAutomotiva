@@ -14,6 +14,7 @@ namespace GestaoAutomotiva.Models
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Senha é obrigatória.")]
+        [MinLength(6, ErrorMessage = "A senha deve ter pelo menos 6 caracteres.")]
         public string Senha { get; set; }
 
         [Required]

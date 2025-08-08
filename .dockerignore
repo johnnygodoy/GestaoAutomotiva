@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.vs/
+*.user
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+.env
+.git
+.gitignore
+.vscode/

@@ -2,55 +2,76 @@ using GestaoAutomotiva.Data;
 using GestaoAutomotiva.Models;
 using GestaoAutomotiva.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar SQLite
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=gestaoAutomotiva.db"));
+var envConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+string connStr;
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+if (!string.IsNullOrWhiteSpace(envConn))
+{
+    connStr = envConn; // pode ser Postgres (Host=...) ou SQLite (Data Source=...)
+}
+else
+{
+    var baseDir = Directory.Exists("/data") ? "/data" : AppContext.BaseDirectory;
+    Directory.CreateDirectory(baseDir);
+    connStr = $"Data Source={Path.Combine(baseDir, "gestaoAutomotiva.db")}";
+}
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (connStr.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+        options.UseNpgsql(connStr);
+    else
+        options.UseSqlite(connStr);
+});
+
+
+builder.Services.AddControllersWithViews()
+    .AddViewOptions(o => o.HtmlHelperOptions.ClientValidationEnabled = true);
+
 builder.Services.AddSingleton<LicencaService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Login/Index"; // Tela inicial se não autenticado
-    });
+    .AddCookie(o => o.LoginPath = "/Login/Index");
 
 var app = builder.Build();
-Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 
+// ===== Migrate + Seed =====
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate(); // Cria o banco se não existir
+    db.Database.Migrate();
     DbInitializer.SeedEtapas(db);
 }
 
-
-// Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+// IMPORTANTe p/ Render (respeitar X-Forwarded-Proto/For):
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+//Habilitar HTTPS redirection (Render já termina TLS no proxy):
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
-
 app.UseRouting();
-
-// Ordem correta: Autenticação antes de autorização
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Rota padrão: inicia no Login
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}");

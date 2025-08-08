@@ -8,10 +8,10 @@ namespace GestaoAutomotiva.Utils
 {
     public class RelatorioAtividadePdf : IDocument
     {
-        private readonly List<Atividade> _atividades;
+        private readonly List<AtividadeHistorico> _historico;
 
-        public RelatorioAtividadePdf(List<Atividade> atividades) {
-            _atividades = atividades;
+        public RelatorioAtividadePdf(List<AtividadeHistorico> historico) {
+            _historico = historico;
         }
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
@@ -20,7 +20,7 @@ namespace GestaoAutomotiva.Utils
             container.Page(page =>
             {
                 page.Margin(30);
-                page.Size(PageSizes.A4);
+                page.Size(PageSizes.A4.Landscape());
                 page.DefaultTextStyle(x => x.FontSize(12));
 
                 page.Header().Element(e =>
@@ -30,43 +30,50 @@ namespace GestaoAutomotiva.Utils
                      .FontSize(18);
                 });
 
-
-                page.Content().Table(table =>
+                page.Content().AlignCenter().Element(content =>
                 {
-                    table.ColumnsDefinition(columns =>
+                    content.Table(table =>
                     {
-                        columns.ConstantColumn(90); // Funcionário
-                        columns.ConstantColumn(90); // Serviço
-                        columns.RelativeColumn();   // Carro
-                        columns.ConstantColumn(70); // Placa
-                        columns.ConstantColumn(70); // Início
-                        columns.ConstantColumn(70); // Previsão
-                        columns.ConstantColumn(70); // Status
-                    });
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(); // Funcionário
+                            columns.RelativeColumn(); // Serviço
+                            columns.ConstantColumn(60);  // Código do Carro
+                            columns.RelativeColumn(); // Modelo
+                            columns.ConstantColumn(80);  // Início
+                            columns.ConstantColumn(80);  // Previsão
+                            columns.ConstantColumn(80);  // Status
+                            columns.ConstantColumn(80);  // Ação
+                            columns.ConstantColumn(100); // Data Registro
+                        });
 
-                    // Cabeçalho
-                    table.Header(header =>
-                    {
-                        header.Cell().Text("Funcionário").Bold();
-                        header.Cell().Text("Serviço").Bold();
-                        header.Cell().Text("Código do Carro").Bold();
-                        header.Cell().Text("Placa").Bold();
-                        header.Cell().Text("Início").Bold();
-                        header.Cell().Text("Previsão").Bold();
-                        header.Cell().Text("Status").Bold();
-                    });
+                        // Cabeçalho
+                        table.Header(header =>
+                        {
+                            header.Cell().Element(CellStyle).Text("Funcionário").Bold();
+                            header.Cell().Element(CellStyle).Text("Serviço").Bold();
+                            header.Cell().Element(CellStyle).Text("Código do Carro").Bold();
+                            header.Cell().Element(CellStyle).Text("Modelo").Bold();
+                            header.Cell().Element(CellStyle).Text("Início").Bold();
+                            header.Cell().Element(CellStyle).Text("Previsão").Bold();
+                            header.Cell().Element(CellStyle).Text("Status").Bold();
+                            header.Cell().Element(CellStyle).Text("Ação").Bold();
+                            header.Cell().Element(CellStyle).Text("Registro").Bold();
+                        });
 
-                    // Linhas
-                    foreach (var a in _atividades)
-                    {
-                        table.Cell().Text(a.Funcionario?.Nome ?? "-");
-                        table.Cell().Text(a.Servico?.Descricao ?? "-");
-                        table.Cell().Text(a.Carro.IdCarro);
-                        table.Cell().Text(a.Carro.Modelo);
-                        table.Cell().Text(a.DataInicio?.ToString("dd/MM/yyyy"));
-                        table.Cell().Text(a.DataPrevista?.ToString("dd/MM/yyyy"));
-                        table.Cell().Text(a.Status);
-                    }
+                        foreach (var h in _historico)
+                        {
+                            table.Cell().Element(CellStyle).Text(h.FuncionarioNome ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.ServicoDescricao ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.CarroId ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.ModeloNome ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.DataInicio?.ToString("dd/MM/yyyy") ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.DataPrevista?.ToString("dd/MM/yyyy") ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.Status ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.Acao ?? "-");
+                            table.Cell().Element(CellStyle).Text(h.DataRegistro.ToString("dd/MM/yyyy HH:mm"));
+                        }
+                    });
                 });
 
                 page.Footer().AlignCenter().Text(txt =>
@@ -75,6 +82,10 @@ namespace GestaoAutomotiva.Utils
                     txt.Span(DateTime.Now.ToString("dd/MM/yyyy")).SemiBold();
                 });
             });
+        }
+
+        static IContainer CellStyle(IContainer container) {
+            return container.PaddingVertical(5).PaddingHorizontal(5);
         }
     }
 }
