@@ -88,7 +88,7 @@ namespace GestaoAutomotiva.Controllers
         
         var servico = _context.Servicos.FirstOrDefault(x => x.Id == id);
             if (servico == null) return NotFound();
-            TempData["Mensagem"] = $"Serviço {servico.Descricao} foi editado com sucesso.";
+       
             return View(servico);
         }
         [HttpPost]

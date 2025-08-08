@@ -114,7 +114,6 @@ namespace GestaoAutomotiva.Controllers
             var motor = await _context.Motors.FindAsync(id);
             if (motor == null) return NotFound();
             CarregarClientes();
-            TempData["Mensagem"] = $"Motor {motor.Nome} foi editado com sucesso.";
             return View(motor);
         }
 

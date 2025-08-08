@@ -101,7 +101,7 @@ namespace GestaoAutomotiva.Controllers
 
                 return NotFound();
             }
-            TempData["Mensagem"] = $"Funcionário {funcionario.Nome} foi editado com sucesso.";
+        
             return View(funcionario);
 
         }
