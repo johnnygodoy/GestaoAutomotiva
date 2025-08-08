@@ -28,8 +28,8 @@ namespace GestaoAutomotiva.Data
         public DbSet<AtividadeHistorico> AtividadeHistoricos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "gestaoAutomotiva.db");
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            //var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "gestaoAutomotiva.db");
+            //optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {

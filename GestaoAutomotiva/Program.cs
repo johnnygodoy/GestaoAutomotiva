@@ -9,60 +9,41 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Permitir acesso externo (rede local)
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.ListenAnyIP(5000);
-});
-
-// Configurar SQLite
+// DbContext: aponta pro arquivo na mesma pasta do executável
+var dbPath = Path.Combine(AppContext.BaseDirectory, "gestaoAutomotiva.db");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=gestaoAutomotiva.db"));
+    options.UseSqlite($"Data Source={dbPath}"));
 
-// Add services to the container.
 builder.Services.AddControllersWithViews()
-    .AddViewOptions(options =>
-    {
-        options.HtmlHelperOptions.ClientValidationEnabled = true;
-    });
-
+    .AddViewOptions(o => o.HtmlHelperOptions.ClientValidationEnabled = true);
 
 builder.Services.AddSingleton<LicencaService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Login/Index"; // Tela inicial se não autenticado
-    });
+    .AddCookie(o => o.LoginPath = "/Login/Index");
 
 var app = builder.Build();
-Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 
+// Migrar/criar banco
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate(); // Cria o banco se não existir
+    db.Database.Migrate();
     DbInitializer.SeedEtapas(db);
 }
 
-
-// Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-//app.UseHttpsRedirection(); // Desativado para testes LAN
+// app.UseHttpsRedirection(); // opcional
 app.UseStaticFiles();
-
 app.UseRouting();
-
-// Ordem correta: Autenticação antes de autorização
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Rota padrão: inicia no Login
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}");
